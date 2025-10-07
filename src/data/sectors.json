@@ -1,0 +1,194 @@
+{
+  "BTC": {
+    "sector": "Store of Value",
+    "category": "Bitcoin",
+    "chain": "Bitcoin",
+    "ecosystem": "Bitcoin"
+  },
+  "ETH": {
+    "sector": "Smart Contract Platform",
+    "category": "Ethereum",
+    "chain": "Ethereum",
+    "ecosystem": "Ethereum"
+  },
+  "SOL": {
+    "sector": "Smart Contract Platform",
+    "category": "Solana",
+    "chain": "Solana",
+    "ecosystem": "Solana"
+  },
+  "USDC": {
+    "sector": "Stablecoin",
+    "category": "USD Stablecoin",
+    "chain": "Multi-chain",
+    "ecosystem": "Center"
+  },
+  "USDT": {
+    "sector": "Stablecoin",
+    "category": "USD Stablecoin",
+    "chain": "Multi-chain",
+    "ecosystem": "Tether"
+  },
+  "AVAX": {
+    "sector": "Smart Contract Platform",
+    "category": "Avalanche",
+    "chain": "Avalanche",
+    "ecosystem": "Avalanche"
+  },
+  "MATIC": {
+    "sector": "Layer 2",
+    "category": "Polygon",
+    "chain": "Polygon",
+    "ecosystem": "Polygon"
+  },
+  "DOT": {
+    "sector": "Smart Contract Platform",
+    "category": "Polkadot",
+    "chain": "Polkadot",
+    "ecosystem": "Polkadot"
+  },
+  "LINK": {
+    "sector": "Oracle",
+    "category": "Oracle",
+    "chain": "Ethereum",
+    "ecosystem": "Chainlink"
+  },
+  "UNI": {
+    "sector": "DEX",
+    "category": "DEX",
+    "chain": "Ethereum",
+    "ecosystem": "Uniswap"
+  },
+  "AAVE": {
+    "sector": "Lending",
+    "category": "Lending",
+    "chain": "Ethereum",
+    "ecosystem": "Aave"
+  },
+  "CRV": {
+    "sector": "DEX",
+    "category": "DEX",
+    "chain": "Ethereum",
+    "ecosystem": "Curve"
+  },
+  "SUSHI": {
+    "sector": "DEX",
+    "category": "DEX",
+    "chain": "Multi-chain",
+    "ecosystem": "SushiSwap"
+  },
+  "1INCH": {
+    "sector": "DEX",
+    "category": "DEX Aggregator",
+    "chain": "Ethereum",
+    "ecosystem": "1inch"
+  },
+  "COMP": {
+    "sector": "Lending",
+    "category": "Lending",
+    "chain": "Ethereum",
+    "ecosystem": "Compound"
+  },
+  "MKR": {
+    "sector": "Lending",
+    "category": "Lending",
+    "chain": "Ethereum",
+    "ecosystem": "MakerDAO"
+  },
+  "SNX": {
+    "sector": "Derivatives",
+    "category": "Synthetic Assets",
+    "chain": "Ethereum",
+    "ecosystem": "Synthetix"
+  },
+  "YFI": {
+    "sector": "Yield Farming",
+    "category": "Yield Aggregator",
+    "chain": "Ethereum",
+    "ecosystem": "Yearn Finance"
+  },
+  "SAND": {
+    "sector": "Gaming",
+    "category": "Metaverse",
+    "chain": "Ethereum",
+    "ecosystem": "The Sandbox"
+  },
+  "MANA": {
+    "sector": "Gaming",
+    "category": "Metaverse",
+    "chain": "Ethereum",
+    "ecosystem": "Decentraland"
+  },
+  "AXS": {
+    "sector": "Gaming",
+    "category": "Play-to-Earn",
+    "chain": "Ethereum",
+    "ecosystem": "Axie Infinity"
+  },
+  "FLOW": {
+    "sector": "Smart Contract Platform",
+    "category": "Flow",
+    "chain": "Flow",
+    "ecosystem": "Flow"
+  },
+  "NEAR": {
+    "sector": "Smart Contract Platform",
+    "category": "NEAR",
+    "chain": "NEAR",
+    "ecosystem": "NEAR"
+  },
+  "FTM": {
+    "sector": "Smart Contract Platform",
+    "category": "Fantom",
+    "chain": "Fantom",
+    "ecosystem": "Fantom"
+  },
+  "ALGO": {
+    "sector": "Smart Contract Platform",
+    "category": "Algorand",
+    "chain": "Algorand",
+    "ecosystem": "Algorand"
+  },
+  "ATOM": {
+    "sector": "Smart Contract Platform",
+    "category": "Cosmos",
+    "chain": "Cosmos",
+    "ecosystem": "Cosmos"
+  },
+  "ADA": {
+    "sector": "Smart Contract Platform",
+    "category": "Cardano",
+    "chain": "Cardano",
+    "ecosystem": "Cardano"
+  },
+  "XRP": {
+    "sector": "Payment",
+    "category": "Payment",
+    "chain": "XRP Ledger",
+    "ecosystem": "Ripple"
+  },
+  "LTC": {
+    "sector": "Store of Value",
+    "category": "Bitcoin Fork",
+    "chain": "Litecoin",
+    "ecosystem": "Litecoin"
+  },
+  "BCH": {
+    "sector": "Store of Value",
+    "category": "Bitcoin Fork",
+    "chain": "Bitcoin Cash",
+    "ecosystem": "Bitcoin Cash"
+  },
+  "DOGE": {
+    "sector": "Meme",
+    "category": "Meme Coin",
+    "chain": "Dogecoin",
+    "ecosystem": "Dogecoin"
+  },
+  "SHIB": {
+    "sector": "Meme",
+    "category": "Meme Coin",
+    "chain": "Ethereum",
+    "ecosystem": "Shiba Inu"
+  }
+}

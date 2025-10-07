@@ -1,0 +1,230 @@
+import React, { useState, useEffect } from 'react';
+import { PortfolioAllocation, AutocompleteOption } from '../types/portfolio';
+
+interface PortfolioFormProps {
+  initialAllocation: PortfolioAllocation[];
+  onSubmit: (allocation: PortfolioAllocation[]) => void;
+}
+
+const PREDEFINED_TOKENS = ['BTC', 'ETH', 'SOL', 'USDC', 'USDT'];
+
+export default function PortfolioForm({ initialAllocation, onSubmit }: PortfolioFormProps) {
+  const [allocation, setAllocation] = useState<PortfolioAllocation[]>(initialAllocation);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<AutocompleteOption[]>([]);
+  const [showSearch, setShowSearch] = useState(false);
+  const [totalPercentage, setTotalPercentage] = useState(0);
+
+  useEffect(() => {
+    const total = allocation.reduce((sum, item) => sum + item.percentage, 0);
+    setTotalPercentage(total);
+  }, [allocation]);
+
+  const handlePercentageChange = (token: string, percentage: number) => {
+    setAllocation(prev => 
+      prev.map(item => 
+        item.token === token 
+          ? { ...item, percentage: Math.max(0, Math.min(100, percentage)) }
+          : item
+      )
+    );
+  };
+
+  const handleSearch = async (query: string) => {
+    setSearchQuery(query);
+    
+    if (query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/search-coins?q=${encodeURIComponent(query)}`);
+      const results = await response.json();
+      setSearchResults(results.slice(0, 8)); // Limit to 8 results
+    } catch (error) {
+      console.error('Error searching coins:', error);
+      setSearchResults([]);
+    }
+  };
+
+  const addToken = (token: string) => {
+    if (!allocation.find(item => item.token === token)) {
+      setAllocation(prev => [...prev, { token, percentage: 0 }]);
+    }
+    setSearchQuery('');
+    setSearchResults([]);
+    setShowSearch(false);
+  };
+
+  const removeToken = (token: string) => {
+    if (!PREDEFINED_TOKENS.includes(token)) {
+      setAllocation(prev => prev.filter(item => item.token !== token));
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (Math.abs(totalPercentage - 100) > 0.1) {
+      alert('A soma das porcentagens deve ser exatamente 100%');
+      return;
+    }
+
+    onSubmit(allocation);
+  };
+
+  const distributeEvenly = () => {
+    const activeTokens = allocation.filter(item => item.percentage > 0);
+    if (activeTokens.length === 0) return;
+
+    const evenPercentage = 100 / activeTokens.length;
+    setAllocation(prev => 
+      prev.map(item => 
+        activeTokens.some(token => token.token === item.token)
+          ? { ...item, percentage: evenPercentage }
+          : item
+      )
+    );
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-lg p-6 card-hover">
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">
+        Configure sua Alocação de Portfólio
+      </h2>
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Token Allocation */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-gray-800">Distribuição por Ativo</h3>
+          
+          {allocation.map((item) => (
+            <div key={item.token} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {item.token}
+                </label>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    value={item.percentage}
+                    onChange={(e) => handlePercentageChange(item.token, parseFloat(e.target.value))}
+                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    value={item.percentage}
+                    onChange={(e) => handlePercentageChange(item.token, parseFloat(e.target.value) || 0)}
+                    className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-bomdigma-500 focus:border-transparent"
+                  />
+                  <span className="text-sm text-gray-500">%</span>
+                </div>
+              </div>
+              
+              {!PREDEFINED_TOKENS.includes(item.token) && (
+                <button
+                  type="button"
+                  onClick={() => removeToken(item.token)}
+                  className="text-red-500 hover:text-red-700 font-bold text-lg"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Add Token Search */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowSearch(!showSearch)}
+            className="w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-800 transition-colors"
+          >
+            + Adicionar outro ativo
+          </button>
+          
+          {showSearch && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+              <input
+                type="text"
+                placeholder="Digite o símbolo do token..."
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="w-full px-4 py-3 border-b border-gray-200 focus:outline-none focus:ring-2 focus:ring-bomdigma-500 rounded-t-lg"
+                autoFocus
+              />
+              
+              {searchResults.length > 0 && (
+                <div className="max-h-48 overflow-y-auto">
+                  {searchResults.map((option) => (
+                    <button
+                      key={option.symbol}
+                      type="button"
+                      onClick={() => addToken(option.symbol)}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                    >
+                      <div className="font-medium">{option.symbol}</div>
+                      <div className="text-sm text-gray-600">{option.name}</div>
+                    </button>
+                  ))}
+                </div>
+              )}
+              
+              {searchQuery.length >= 2 && searchResults.length === 0 && (
+                <div className="px-4 py-3 text-gray-500 text-center">
+                  Nenhum token encontrado
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Total Percentage */}
+        <div className="flex justify-between items-center p-4 bg-blue-50 rounded-lg">
+          <span className="font-semibold text-gray-800">Total:</span>
+          <span className={`font-bold text-lg ${
+            Math.abs(totalPercentage - 100) < 0.1 ? 'text-green-600' : 'text-red-600'
+          }`}>
+            {totalPercentage.toFixed(1)}%
+          </span>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="flex space-x-4">
+          <button
+            type="button"
+            onClick={distributeEvenly}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+          >
+            Distribuir Igualmente
+          </button>
+          
+          <button
+            type="button"
+            onClick={() => setAllocation(prev => prev.map(item => ({ ...item, percentage: 0 })))}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+          >
+            Limpar Tudo
+          </button>
+        </div>
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={Math.abs(totalPercentage - 100) > 0.1}
+          className="w-full btn-primary disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+          Continuar para Quiz de Perfil
+        </button>
+      </form>
+    </div>
+  );
+}
