@@ -45,6 +45,12 @@ export interface BacktestResult {
   };
 }
 
+export interface BacktestPoint {
+  date: string; // ISO date
+  portfolio: number; // % from base (0% at T0)
+  btc: number; // % from base (0% at T0)
+}
+
 export interface UnlockAlert {
   token: string;
   unlockDate: string;
@@ -68,6 +74,7 @@ export interface PortfolioDiagnostic {
   adherenceLevel: 'high' | 'medium' | 'low';
   flags: DiagnosticFlag[];
   backtest: BacktestResult[];
+  backtestSeries?: BacktestPoint[];
   unlockAlerts: UnlockAlert[];
   rebalanceSuggestions: RebalanceSuggestion[];
   sectorBreakdown: { [sector: string]: number };

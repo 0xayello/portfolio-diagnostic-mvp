@@ -82,14 +82,29 @@ export default function DiagnosticResults({
 
           <div>
             {diagView === 'allocation' ? (
-              <PortfolioChart 
-                title="Distribuição por Ativo" 
-                data={diagnostic.allocation.map(item => ({ name: item.token, value: item.percentage }))}
-                theme="dark"
-                hideLegend
-              />
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div className="lg:col-span-2">
+                  <PortfolioChart 
+                    title="Distribuição por Ativo" 
+                    data={diagnostic.allocation.map(item => ({ name: item.token, value: item.percentage }))}
+                    theme="light"
+                    hideLegend
+                  />
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col justify-center">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Ativos</h4>
+                  <div className="space-y-2">
+                    {diagnostic.allocation.map((item) => (
+                      <div key={item.token} className="flex items-center justify-between text-sm">
+                        <span className="text-gray-700">{item.token}</span>
+                        <span className="text-gray-900 font-medium">{item.percentage.toFixed(1)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             ) : (
-              <BacktestChart backtest={diagnostic.backtest} theme="dark" compact />
+              <BacktestChart backtest={diagnostic.backtest} series={diagnostic.backtestSeries} theme="light" compact />
             )}
           </div>
         </div>

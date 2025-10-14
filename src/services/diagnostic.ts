@@ -49,8 +49,9 @@ export class DiagnosticService {
     // Buscar alertas de unlocks (mock por enquanto)
     const unlockAlerts = await this.getUnlockAlerts(symbols);
     
-    // Calcular backtest
+    // Calcular backtest (agregado) e série normalizada (180d)
     const backtest = await this.calculateBacktest(enrichedAllocation);
+    const backtestSeries = await this.calculateBacktestSeries(enrichedAllocation);
     
     // Calcular métricas
     const metrics = this.calculateMetrics(enrichedAllocation, sectorBreakdown);
@@ -62,6 +63,7 @@ export class DiagnosticService {
       adherenceLevel: this.getAdherenceLevel(adherenceScore),
       flags,
       backtest,
+      backtestSeries,
       unlockAlerts,
       rebalanceSuggestions,
       sectorBreakdown,
@@ -324,6 +326,66 @@ export class DiagnosticService {
     }
     
     return results;
+  }
+
+  private async calculateBacktestSeries(
+    allocation: (PortfolioAllocation & { tokenData?: TokenData })[]
+  ) {
+    const symbols = Array.from(new Set(allocation.map(a => a.token.toUpperCase())));
+    const days = 180;
+    const seriesMap = await this.coinGeckoService.getHistoricalSeries(Array.from(new Set([...symbols, 'BTC'])), days);
+
+    const btcSeries = seriesMap['BTC'] || [];
+    const baseDates = btcSeries.map(p => p.date);
+
+    // construir série de portfolio: combinar preços diários por ativo e alocação
+    const priceSeriesByToken: { [date: string]: { [token: string]: number } } = {};
+    for (const token of symbols) {
+      const s = seriesMap[token] || [];
+      for (const point of s) {
+        if (!priceSeriesByToken[point.date]) priceSeriesByToken[point.date] = {};
+        priceSeriesByToken[point.date][token] = point.price;
+      }
+    }
+
+    // alinhar por datas do BTC para suavizar diferenças
+    const dates = baseDates.length ? baseDates : Object.keys(priceSeriesByToken).sort();
+    if (!dates.length) return [];
+
+    const firstDate = dates[0];
+    const firstBtc = (seriesMap['BTC'] || []).find(p => p.date === firstDate)?.price || (seriesMap['BTC'] || [])[0]?.price;
+
+    // preço base do portfolio na primeira data
+    const basePortfolio = allocation.reduce((sum, item) => {
+      const token = item.token.toUpperCase();
+      const tokenFirst = (seriesMap[token] || []).find(p => p.date === firstDate)?.price || (seriesMap[token] || [])[0]?.price;
+      if (!tokenFirst) return sum;
+      return sum + tokenFirst * (item.percentage / 100);
+    }, 0);
+
+    const points = dates.map(date => {
+      const btcPrice = (seriesMap['BTC'] || []).find(p => p.date === date)?.price;
+      const btcBase = firstBtc;
+      const btcPct = btcPrice && btcBase ? ((btcPrice - btcBase) / btcBase) * 100 : 0;
+
+      const portfolioPrice = allocation.reduce((sum, item) => {
+        const token = item.token.toUpperCase();
+        // último preço conhecido até a data
+        const s = seriesMap[token] || [];
+        const exact = s.find(p => p.date === date)?.price;
+        const prev = s.reduce((acc, p) => (p.date <= date ? p.price : acc), undefined as number | undefined);
+        const price = exact ?? prev;
+        if (!price) return sum;
+        return sum + price * (item.percentage / 100);
+      }, 0);
+
+      const portfolioBase = basePortfolio;
+      const portfolioPct = portfolioPrice && portfolioBase ? ((portfolioPrice - portfolioBase) / portfolioBase) * 100 : 0;
+
+      return { date, portfolio: portfolioPct, btc: btcPct };
+    });
+
+    return points;
   }
 
   private calculateMetrics(

@@ -1,3 +1,4 @@
+/* eslint-env node */
 import { TokenData, AutocompleteOption, BacktestResult } from '../types/portfolio';
 
 interface CoinGeckoCoin {
@@ -32,7 +33,7 @@ interface CoinGeckoHistoricalData {
 
 export class CoinGeckoService {
   private readonly BASE_URL = 'https://api.coingecko.com/api/v3';
-  private readonly API_KEY = process.env.COINGECKO_API_KEY;
+  private readonly API_KEY = (globalThis as any).process?.env?.COINGECKO_API_KEY as string | undefined;
   private readonly SYMBOL_TO_ID: Record<string, string> = {
     BTC: 'bitcoin',
     ETH: 'ethereum',
@@ -185,6 +186,23 @@ export class CoinGeckoService {
       });
       throw error;
     }
+  }
+
+  async getHistoricalSeries(symbols: string[], days: number): Promise<{ [symbol: string]: { date: string; price: number }[] }> {
+    const out: { [symbol: string]: { date: string; price: number }[] } = {};
+    for (const symbol of symbols) {
+      const coinId = await this.resolveCoinId(symbol);
+      if (!coinId) continue;
+      const response = await fetch(
+        `${this.BASE_URL}/coins/${coinId}/market_chart?vs_currency=usd&days=${days}`,
+        { headers: this.getHeaders() }
+      );
+      if (!response.ok) continue;
+      const data: CoinGeckoHistoricalData = await response.json();
+      const series = (data.prices || []).map(([ts, price]) => ({ date: new Date(ts).toISOString(), price }));
+      out[symbol.toUpperCase()] = series;
+    }
+    return out;
   }
 
   async getTopCoins(limit: number = 100): Promise<TokenData[]> {

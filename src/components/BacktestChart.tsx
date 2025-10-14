@@ -10,7 +10,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { BacktestResult } from '../types/portfolio';
+import { BacktestResult, BacktestPoint } from '../types/portfolio';
 
 ChartJS.register(
   CategoryScale,
@@ -24,11 +24,12 @@ ChartJS.register(
 
 interface BacktestChartProps {
   backtest: BacktestResult[];
+  series?: BacktestPoint[];
   theme?: 'light' | 'dark';
   compact?: boolean;
 }
 
-export default function BacktestChart({ backtest, theme = 'light', compact = false }: BacktestChartProps) {
+export default function BacktestChart({ backtest, series, theme = 'light', compact = false }: BacktestChartProps) {
   if (!backtest || backtest.length === 0) {
     return (
       <div className="text-center py-8">
@@ -43,29 +44,55 @@ export default function BacktestChart({ backtest, theme = 'light', compact = fal
     );
   }
 
-  const chartData = {
-    labels: backtest.map(result => result.period.toUpperCase()),
-    datasets: [
-      {
-        label: 'Portfólio',
-        data: backtest.map(result => result.portfolioReturn),
-        borderColor: '#3B82F6',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        borderWidth: 3,
-        fill: true,
-        tension: 0.4,
-      },
-      {
-        label: 'Bitcoin',
-        data: backtest.map(result => result.benchmarkReturns?.btc ?? 0),
-        borderColor: '#9CA3AF',
-        backgroundColor: 'rgba(156, 163, 175, 0.1)',
-        borderWidth: 2,
-        fill: false,
-        tension: 0.4,
-      },
-    ],
-  };
+  const chartData = series && series.length > 0
+    ? {
+        labels: series.map(p => new Date(p.date).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })),
+        datasets: [
+          {
+            label: 'Portfólio',
+            data: series.map(p => p.portfolio),
+            borderColor: '#3B82F6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.2,
+            pointRadius: 0,
+          },
+          {
+            label: 'Bitcoin',
+            data: series.map(p => p.btc),
+            borderColor: '#9CA3AF',
+            backgroundColor: 'rgba(156, 163, 175, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.2,
+            pointRadius: 0,
+          },
+        ],
+      }
+    : {
+        labels: backtest.map(result => result.period.toUpperCase()),
+        datasets: [
+          {
+            label: 'Portfólio',
+            data: backtest.map(result => result.portfolioReturn),
+            borderColor: '#3B82F6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+          },
+          {
+            label: 'Bitcoin',
+            data: backtest.map(result => result.benchmarkReturns?.btc ?? 0),
+            borderColor: '#9CA3AF',
+            backgroundColor: 'rgba(156, 163, 175, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4,
+          },
+        ],
+      };
 
   const options = {
     responsive: true,
