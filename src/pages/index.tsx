@@ -84,17 +84,13 @@ export default function Home() {
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Diagnóstico de Portfólio Cripto
+              Diagnóstico de Portfólio Cripto 💼 — Powered by Bom Digma
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Analise sua carteira de criptomoedas e receba insights personalizados sobre risco, 
               diversificação e oportunidades de rebalanceamento.
             </p>
-            <div className="mt-4">
-              <span className="inline-block bg-bomdigma-100 text-bomdigma-800 text-sm px-3 py-1 rounded-full">
-                🚀 Powered by Bom Digma
-              </span>
-            </div>
+            <div className="mt-4" />
           </div>
 
           {/* Progress Steps */}

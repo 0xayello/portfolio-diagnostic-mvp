@@ -33,6 +33,13 @@ interface CoinGeckoHistoricalData {
 export class CoinGeckoService {
   private readonly BASE_URL = 'https://api.coingecko.com/api/v3';
   private readonly API_KEY = process.env.COINGECKO_API_KEY;
+  private readonly SYMBOL_TO_ID: Record<string, string> = {
+    BTC: 'bitcoin',
+    ETH: 'ethereum',
+    SOL: 'solana',
+    USDC: 'usd-coin',
+    USDT: 'tether',
+  };
 
   private getHeaders(): HeadersInit {
     const headers: HeadersInit = {
@@ -44,6 +51,29 @@ export class CoinGeckoService {
     }
     
     return headers;
+  }
+
+  private async resolveCoinId(symbol: string): Promise<string | null> {
+    const upper = symbol.toUpperCase();
+    if (this.SYMBOL_TO_ID[upper]) return this.SYMBOL_TO_ID[upper];
+
+    try {
+      const response = await fetch(
+        `${this.BASE_URL}/search?query=${encodeURIComponent(symbol)}`,
+        { headers: this.getHeaders() }
+      );
+      if (!response.ok) return null;
+      const data = await response.json();
+      const coins: CoinGeckoCoin[] = data.coins || [];
+      const match = coins.find(c => c.symbol.toUpperCase() === upper);
+      if (match) {
+        this.SYMBOL_TO_ID[upper] = match.id;
+        return match.id;
+      }
+      return null;
+    } catch {
+      return null;
+    }
   }
 
   async searchCoins(query: string, limit: number = 10): Promise<AutocompleteOption[]> {
@@ -120,29 +150,29 @@ export class CoinGeckoService {
       const results: { [symbol: string]: BacktestResult } = {};
       
       for (const symbol of symbols) {
+        const coinId = await this.resolveCoinId(symbol);
+        if (!coinId) {
+          console.warn(`CoinGecko id not found for symbol ${symbol}`);
+          continue;
+        }
         const response = await fetch(
-          `${this.BASE_URL}/coins/${symbol.toLowerCase()}/market_chart?vs_currency=usd&days=${days}`,
+          `${this.BASE_URL}/coins/${coinId}/market_chart?vs_currency=usd&days=${days}`,
           { headers: this.getHeaders() }
         );
-        
         if (!response.ok) {
           console.warn(`Failed to fetch historical data for ${symbol}`);
           continue;
         }
-
         const data: CoinGeckoHistoricalData = await response.json();
         const prices = data.prices;
-        
         if (prices.length < 2) continue;
-        
         const startPrice = prices[0][1];
         const endPrice = prices[prices.length - 1][1];
         const returnPercentage = ((endPrice - startPrice) / startPrice) * 100;
-        
-        results[symbol] = {
+        results[symbol.toUpperCase()] = {
           period: days === 30 ? '30d' : days === 90 ? '90d' : '180d',
           portfolioReturn: returnPercentage,
-          tokenReturns: { [symbol]: returnPercentage }
+          tokenReturns: { [symbol.toUpperCase()]: returnPercentage }
         };
       }
       

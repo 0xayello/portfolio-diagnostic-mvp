@@ -18,7 +18,7 @@ export default function DiagnosticResults({
   onBackToQuiz, 
   onBackToPortfolio 
 }: DiagnosticResultsProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'flags' | 'backtest' | 'unlocks' | 'rebalance'>('overview');
+  const [activeTab, setActiveTab] = useState<'backtest' | 'flags' | 'unlocks' | 'rebalance'>('backtest');
 
   const getAdherenceColor = (level: string) => {
     switch (level) {
@@ -54,7 +54,7 @@ export default function DiagnosticResults({
           </button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="text-center">
             <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold ${getAdherenceColor(diagnostic.adherenceLevel)}`}>
               {getAdherenceLabel(diagnostic.adherenceLevel)}
@@ -64,26 +64,12 @@ export default function DiagnosticResults({
             </div>
             <div className="text-sm text-gray-600">Score de Aderência</div>
           </div>
-          
-          <div className="text-center">
-            <div className="text-2xl font-bold text-bomdigma-600">
-              {diagnostic.metrics.volatility.toFixed(1)}
-            </div>
-            <div className="text-sm text-gray-600">Volatilidade</div>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">
-              {diagnostic.metrics.liquidity.toFixed(1)}%
-            </div>
-            <div className="text-sm text-gray-600">Liquidez</div>
-          </div>
-          
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">
-              {diagnostic.metrics.diversificationScore}/100
-            </div>
-            <div className="text-sm text-gray-600">Diversificação</div>
+
+          <div>
+            <PortfolioChart 
+              title="Distribuição por Ativo" 
+              data={diagnostic.allocation.map(item => ({ name: item.token, value: item.percentage }))}
+            />
           </div>
         </div>
       </div>
@@ -93,7 +79,6 @@ export default function DiagnosticResults({
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8 px-6">
             {[
-              { id: 'overview', label: 'Visão Geral', icon: '📊' },
               { id: 'flags', label: 'Alertas', icon: '⚠️', count: diagnostic.flags.length },
               { id: 'backtest', label: 'Backtest', icon: '📈' },
               { id: 'unlocks', label: 'Unlocks', icon: '🔓', count: diagnostic.unlockAlerts.length },
@@ -121,50 +106,6 @@ export default function DiagnosticResults({
         </div>
 
         <div className="p-6">
-          {activeTab === 'overview' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <PortfolioChart 
-                  title="Por Ativo" 
-                  data={diagnostic.allocation.map(item => ({
-                    name: item.token,
-                    value: item.percentage
-                  }))} 
-                />
-                <PortfolioChart 
-                  title="Por Setor" 
-                  data={Object.entries(diagnostic.sectorBreakdown).map(([sector, percentage]) => ({
-                    name: sector,
-                    value: percentage
-                  }))} 
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-800 mb-2">Stablecoins</h4>
-                  <div className="text-2xl font-bold text-blue-600">
-                    {diagnostic.metrics.stablecoinPercentage.toFixed(1)}%
-                  </div>
-                </div>
-                
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-800 mb-2">Tokens Analisados</h4>
-                  <div className="text-2xl font-bold text-green-600">
-                    {diagnostic.allocation.length}
-                  </div>
-                </div>
-                
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-800 mb-2">Setores</h4>
-                  <div className="text-2xl font-bold text-purple-600">
-                    {Object.keys(diagnostic.sectorBreakdown).length}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {activeTab === 'flags' && (
             <FlagsList flags={diagnostic.flags} />
           )}

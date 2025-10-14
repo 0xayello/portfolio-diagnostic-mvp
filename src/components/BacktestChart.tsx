@@ -53,6 +53,15 @@ export default function BacktestChart({ backtest }: BacktestChartProps) {
         fill: true,
         tension: 0.4,
       },
+      {
+        label: 'Bitcoin',
+        data: backtest.map(result => result.benchmarkReturns?.btc ?? 0),
+        borderColor: '#9CA3AF',
+        backgroundColor: 'rgba(156, 163, 175, 0.1)',
+        borderWidth: 2,
+        fill: false,
+        tension: 0.4,
+      },
     ],
   };
 
@@ -97,7 +106,7 @@ export default function BacktestChart({ backtest }: BacktestChartProps) {
 
   // Calcular estatísticas
   const totalReturn = backtest.reduce((sum, result) => sum + result.portfolioReturn, 0);
-  const avgReturn = totalReturn / backtest.length;
+  const avgReturn = backtest.length > 0 ? totalReturn / backtest.length : 0;
   const bestPeriod = backtest.reduce((best, current) => 
     current.portfolioReturn > best.portfolioReturn ? current : best
   );

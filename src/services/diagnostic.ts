@@ -9,12 +9,15 @@ import {
 } from '../types/portfolio';
 import { CoinGeckoService } from './coingecko';
 import sectorsData from '../data/sectors.json';
+import { DefiLlamaService } from './defillama';
 
 export class DiagnosticService {
   private coinGeckoService: CoinGeckoService;
+  private defiLlamaService: DefiLlamaService;
 
   constructor() {
     this.coinGeckoService = new CoinGeckoService();
+    this.defiLlamaService = new DefiLlamaService();
   }
 
   async generateDiagnostic(
@@ -259,51 +262,61 @@ export class DiagnosticService {
   }
 
   private async getUnlockAlerts(symbols: string[]): Promise<UnlockAlert[]> {
-    // Mock implementation - em produção, integrar com DeFiLlama ou outra API
-    const alerts: UnlockAlert[] = [];
-    
-    // Exemplo de alerta mock
-    if (symbols.includes('SOL')) {
-      alerts.push({
-        token: 'SOL',
-        unlockDate: '2024-02-15',
-        percentage: 8.5,
-        amount: 85000000,
+    try {
+      const upcoming = await this.defiLlamaService.getUpcomingUnlocks(
+        Array.from(new Set(symbols.map(s => s.toUpperCase()))),
+        60
+      );
+      return upcoming.map(u => ({
+        token: u.token,
+        unlockDate: u.unlockDate,
+        percentage: u.percentage,
+        amount: u.amount,
         type: 'token_unlock',
-        severity: 'yellow'
-      });
+        severity: u.percentage >= 10 ? 'red' : 'yellow',
+      }));
+    } catch (e) {
+      return [];
     }
-    
-    return alerts;
   }
 
   private async calculateBacktest(
     allocation: (PortfolioAllocation & { tokenData?: TokenData })[]
   ): Promise<any[]> {
-    const symbols = allocation.map(a => a.token);
+    const symbols = Array.from(new Set(allocation.map(a => a.token).map(s => s.toUpperCase())));
     const periods = [30, 90, 180];
     const results = [];
     
     for (const days of periods) {
       try {
-        const historicalData = await this.coinGeckoService.getHistoricalData(symbols, days);
+        const historicalData = await this.coinGeckoService.getHistoricalData(
+          Array.from(new Set([...symbols, 'BTC'])),
+          days
+        );
         
         let portfolioReturn = 0;
         const tokenReturns: { [token: string]: number } = {};
         
         allocation.forEach(item => {
-          const tokenData = historicalData[item.token];
+          const tokenKey = item.token.toUpperCase();
+          const tokenData = historicalData[tokenKey];
           if (tokenData) {
-            const tokenReturn = tokenData.tokenReturns[item.token] || 0;
+            const tokenReturn = tokenData.tokenReturns[tokenKey] || 0;
             portfolioReturn += (tokenReturn * item.percentage) / 100;
-            tokenReturns[item.token] = tokenReturn;
+            tokenReturns[tokenKey] = tokenReturn;
           }
         });
         
+        const btcData = historicalData['BTC'];
+        const btcReturn = btcData ? (btcData.tokenReturns['BTC'] || btcData.portfolioReturn) : 0;
+
         results.push({
           period: days === 30 ? '30d' : days === 90 ? '90d' : '180d',
           portfolioReturn,
-          tokenReturns
+          tokenReturns,
+          benchmarkReturns: {
+            btc: btcReturn
+          }
         });
       } catch (error) {
         console.error(`Failed to calculate backtest for ${days} days:`, error);
