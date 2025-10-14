@@ -17,6 +17,8 @@ interface ChartData {
 interface PortfolioChartProps {
   title: string;
   data: ChartData[];
+  theme?: 'light' | 'dark';
+  hideLegend?: boolean;
 }
 
 const COLORS = [
@@ -32,7 +34,7 @@ const COLORS = [
   '#6B7280', // Gray
 ];
 
-export default function PortfolioChart({ title, data }: PortfolioChartProps) {
+export default function PortfolioChart({ title, data, theme = 'light', hideLegend = false }: PortfolioChartProps) {
   const chartData = {
     labels: data.map(item => item.name),
     datasets: [
@@ -50,6 +52,7 @@ export default function PortfolioChart({ title, data }: PortfolioChartProps) {
     maintainAspectRatio: false,
     plugins: {
       legend: {
+        display: !hideLegend,
         position: 'bottom' as const,
         labels: {
           padding: 20,
@@ -69,8 +72,8 @@ export default function PortfolioChart({ title, data }: PortfolioChartProps) {
   };
 
   return (
-    <div className="bg-gray-50 p-4 rounded-lg">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">
+    <div className={theme === 'dark' ? 'bg-gray-900 p-4 rounded-lg border border-gray-800' : 'bg-gray-50 p-4 rounded-lg'}>
+      <h3 className={theme === 'dark' ? 'text-lg font-semibold text-gray-100 mb-4 text-center' : 'text-lg font-semibold text-gray-800 mb-4 text-center'}>
         {title}
       </h3>
       <div className="relative h-64">
@@ -86,15 +89,15 @@ export default function PortfolioChart({ title, data }: PortfolioChartProps) {
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: COLORS[index] }}
               />
-              <span className="text-gray-700">{item.name}</span>
+              <span className={theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}>{item.name}</span>
             </div>
-            <span className="font-medium text-gray-900">
+            <span className={theme === 'dark' ? 'font-medium text-gray-100' : 'font-medium text-gray-900'}>
               {item.value.toFixed(1)}%
             </span>
           </div>
         ))}
         {data.length > 5 && (
-          <div className="text-xs text-gray-500 text-center">
+          <div className={theme === 'dark' ? 'text-xs text-gray-400 text-center' : 'text-xs text-gray-500 text-center'}>
             +{data.length - 5} outros
           </div>
         )}

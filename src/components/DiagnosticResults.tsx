@@ -19,6 +19,7 @@ export default function DiagnosticResults({
   onBackToPortfolio 
 }: DiagnosticResultsProps) {
   const [activeTab, setActiveTab] = useState<'backtest' | 'flags' | 'unlocks' | 'rebalance'>('backtest');
+  const [diagView, setDiagView] = useState<'performance' | 'allocation'>('performance');
 
   const getAdherenceColor = (level: string) => {
     switch (level) {
@@ -54,7 +55,7 @@ export default function DiagnosticResults({
           </button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
           <div className="text-center">
             <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold ${getAdherenceColor(diagnostic.adherenceLevel)}`}>
               {getAdherenceLabel(diagnostic.adherenceLevel)}
@@ -63,13 +64,33 @@ export default function DiagnosticResults({
               {diagnostic.adherenceScore.toFixed(0)}/100
             </div>
             <div className="text-sm text-gray-600">Score de Aderência</div>
+            <div className="mt-6 inline-flex bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setDiagView('performance')}
+                className={`px-4 py-2 rounded-md text-sm font-medium ${diagView === 'performance' ? 'bg-white shadow text-gray-900' : 'text-gray-600'}`}
+              >
+                Performance
+              </button>
+              <button
+                onClick={() => setDiagView('allocation')}
+                className={`px-4 py-2 rounded-md text-sm font-medium ${diagView === 'allocation' ? 'bg-white shadow text-gray-900' : 'text-gray-600'}`}
+              >
+                Allocation
+              </button>
+            </div>
           </div>
 
           <div>
-            <PortfolioChart 
-              title="Distribuição por Ativo" 
-              data={diagnostic.allocation.map(item => ({ name: item.token, value: item.percentage }))}
-            />
+            {diagView === 'allocation' ? (
+              <PortfolioChart 
+                title="Distribuição por Ativo" 
+                data={diagnostic.allocation.map(item => ({ name: item.token, value: item.percentage }))}
+                theme="dark"
+                hideLegend
+              />
+            ) : (
+              <BacktestChart backtest={diagnostic.backtest} theme="dark" compact />
+            )}
           </div>
         </div>
       </div>

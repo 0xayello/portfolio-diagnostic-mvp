@@ -24,9 +24,11 @@ ChartJS.register(
 
 interface BacktestChartProps {
   backtest: BacktestResult[];
+  theme?: 'light' | 'dark';
+  compact?: boolean;
 }
 
-export default function BacktestChart({ backtest }: BacktestChartProps) {
+export default function BacktestChart({ backtest, theme = 'light', compact = false }: BacktestChartProps) {
   if (!backtest || backtest.length === 0) {
     return (
       <div className="text-center py-8">
@@ -71,6 +73,9 @@ export default function BacktestChart({ backtest }: BacktestChartProps) {
     plugins: {
       legend: {
         position: 'top' as const,
+        labels: {
+          color: theme === 'dark' ? '#E5E7EB' : '#111827',
+        },
       },
       title: {
         display: true,
@@ -79,6 +84,7 @@ export default function BacktestChart({ backtest }: BacktestChartProps) {
           size: 16,
           weight: 'bold' as const,
         },
+        color: theme === 'dark' ? '#F9FAFB' : '#111827',
       },
       tooltip: {
         callbacks: {
@@ -96,10 +102,17 @@ export default function BacktestChart({ backtest }: BacktestChartProps) {
         title: {
           display: true,
           text: 'Retorno (%)',
+          color: theme === 'dark' ? '#D1D5DB' : '#374151',
         },
         ticks: {
           callback: (value: any) => `${value}%`,
+          color: theme === 'dark' ? '#9CA3AF' : '#4B5563',
         },
+        grid: { color: theme === 'dark' ? 'rgba(75,85,99,0.4)' : undefined },
+      },
+      x: {
+        ticks: { color: theme === 'dark' ? '#9CA3AF' : '#4B5563' },
+        grid: { color: theme === 'dark' ? 'rgba(75,85,99,0.2)' : undefined },
       },
     },
   };
@@ -117,8 +130,8 @@ export default function BacktestChart({ backtest }: BacktestChartProps) {
   return (
     <div className="space-y-6">
       {/* Chart */}
-      <div className="bg-gray-50 p-6 rounded-lg">
-        <div className="relative h-80">
+      <div className={theme === 'dark' ? 'bg-gray-900 p-6 rounded-lg border border-gray-800' : 'bg-gray-50 p-6 rounded-lg'}>
+        <div className={compact ? 'relative h-56' : 'relative h-80'}>
           <Line data={chartData} options={options} />
         </div>
       </div>
