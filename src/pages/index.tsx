@@ -5,7 +5,7 @@ import PortfolioForm from '../components/PortfolioForm';
 import ProfileQuiz from '../components/ProfileQuiz';
 import DiagnosticResults from '../components/DiagnosticResults';
 
-const PREDEFINED_TOKENS = ['BTC', 'ETH', 'SOL', 'USDC', 'USDT'];
+const PREDEFINED_TOKENS = ['BTC', 'ETH', 'SOL', 'USDC'];
 
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<'portfolio' | 'quiz' | 'results'>('portfolio');
@@ -15,11 +15,9 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Initialize with predefined tokens
-    const initialAllocation = PREDEFINED_TOKENS.map(token => ({
-      token,
-      percentage: 0
-    }));
+    // Inicializar com 4 tokens pré-selecionados (25% cada)
+    const base = 25;
+    const initialAllocation = PREDEFINED_TOKENS.map(token => ({ token, percentage: base }));
     setPortfolioAllocation(initialAllocation);
   }, []);
 

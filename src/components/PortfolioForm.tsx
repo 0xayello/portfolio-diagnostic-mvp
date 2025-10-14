@@ -30,6 +30,12 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     );
   };
 
+  const sanitizeNumber = (value: string) => {
+    const normalized = value.replace(',', '.');
+    const num = parseFloat(normalized);
+    return isNaN(num) ? 0 : num;
+  };
+
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
     
@@ -75,17 +81,15 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
   };
 
   const distributeEvenly = () => {
-    const activeTokens = allocation.filter(item => item.percentage > 0);
-    if (activeTokens.length === 0) return;
-
-    const evenPercentage = 100 / activeTokens.length;
-    setAllocation(prev => 
-      prev.map(item => 
-        activeTokens.some(token => token.token === item.token)
-          ? { ...item, percentage: evenPercentage }
-          : item
-      )
-    );
+    const count = allocation.length;
+    if (count === 0) return;
+    const even = Math.floor((100 / count) * 10) / 10;
+    const remainder = Math.round((100 - even * count) * 10) / 10;
+    const updated = allocation.map((item, idx) => ({
+      ...item,
+      percentage: idx === 0 ? even + remainder : even,
+    }));
+    setAllocation(updated);
   };
 
   return (
@@ -105,26 +109,31 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   {item.token}
                 </label>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    value={item.percentage}
-                    onChange={(e) => handlePercentageChange(item.token, parseFloat(e.target.value))}
-                    className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                  />
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    value={item.percentage}
-                    onChange={(e) => handlePercentageChange(item.token, parseFloat(e.target.value) || 0)}
-                    className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-bomdigma-500 focus:border-transparent"
-                  />
-                  <span className="text-sm text-gray-500">%</span>
+                <div className="flex items-center space-x-3">
+                  <div className="relative">
+                    <input
+                      inputMode="decimal"
+                      pattern="[0-9]*[.,]?[0-9]*"
+                      placeholder="0"
+                      value={item.percentage === 0 ? '' : item.percentage}
+                      onChange={(e) => handlePercentageChange(item.token, sanitizeNumber(e.target.value))}
+                      onBlur={(e) => { if (e.currentTarget.value === '') handlePercentageChange(item.token, 0); }}
+                      className="w-24 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-bomdigma-500 focus:border-transparent text-right"
+                    />
+                    <span className="absolute inset-y-0 right-2 flex items-center text-gray-500 text-sm">%</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {[10, 25, 33, 50].map(p => (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => handlePercentageChange(item.token, p)}
+                        className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
+                      >
+                        {p}%
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
               
