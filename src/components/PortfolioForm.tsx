@@ -139,13 +139,13 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
         {/* Token Allocation */}
         <div className="space-y-4">
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {allocation.map((item) => (
             <div key={item.token} className="flex items-center space-x-4 p-4 bg-[#2ce699] rounded-lg">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-[#27224e] mb-2 flex items-center justify-center space-x-2">
                   {tokenImages[item.token.toUpperCase()] && (
-                    <img src={tokenImages[item.token.toUpperCase()]} alt={`${item.token} logo`} className="w-5 h-5 rounded-full" />
+                    <img src={tokenImages[item.token.toUpperCase()]} alt={`${item.token} logo`} className="w-6 h-6 rounded-full object-contain" />
                   )}
                   <span>{item.token}</span>
                 </label>
@@ -158,7 +158,7 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
                       value={item.percentage === 0 ? '' : item.percentage}
                       onChange={(e) => handlePercentageChange(item.token, sanitizeNumber(e.target.value))}
                       onBlur={(e) => { if (e.currentTarget.value === '') handlePercentageChange(item.token, 0); }}
-                      className="w-24 pr-8 pl-3 py-2 text-sm border border-[#27224e]/30 rounded-md focus:ring-2 focus:ring-[#27224e] focus:border-transparent text-center text-[#27224e]"
+                      className="w-24 pr-8 pl-3 py-2 text-sm border border-[#27224e]/30 rounded-md focus:ring-2 focus:ring-[#27224e] focus:border-transparent text-center text-[#27224e] bg-white placeholder-gray-400"
                     />
                     <span className="absolute inset-y-0 right-2 flex items-center text-[#27224e] text-sm">%</span>
                   </div>
@@ -252,20 +252,11 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
             placeholder="seu@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="form-input text-center"
+            className="form-input text-center bg-white text-black placeholder-gray-400"
             required
           />
           <p className="text-xs text-gray-500 mt-1">Necessário para continuar e receber seu diagnóstico.</p>
         </div>
-
-        {/* Embed de inscrição Substack (pode ser bloqueado por X-Frame-Options) */}
-        {email && (
-          <iframe
-            title="subscribe"
-            src={`https://www.bomdigma.com.br/subscribe?email=${encodeURIComponent(email)}`}
-            className="mx-auto w-full max-w-xl h-24 border-0"
-          />
-        )}
 
         {/* Ações removidas conforme solicitado */}
 

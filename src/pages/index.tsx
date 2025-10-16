@@ -92,32 +92,14 @@ export default function Home() {
 
           {/* Progress Steps */}
           <div className="flex justify-center mb-8">
-            <div className="flex items-center space-x-4">
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                currentStep === 'portfolio' ? 'bg-bomdigma-600 text-white' : 
-                ['quiz', 'results'].includes(currentStep) ? 'bg-green-500 text-white' : 
-                'bg-gray-300 text-gray-600'
-              }`}>
-                1
-              </div>
-              <div className={`w-16 h-1 ${
-                ['quiz', 'results'].includes(currentStep) ? 'bg-green-500' : 'bg-gray-300'
-              }`}></div>
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                currentStep === 'quiz' ? 'bg-bomdigma-600 text-white' : 
-                currentStep === 'results' ? 'bg-green-500 text-white' : 
-                'bg-gray-300 text-gray-600'
-              }`}>
-                2
-              </div>
-              <div className={`w-16 h-1 ${
-                currentStep === 'results' ? 'bg-green-500' : 'bg-gray-300'
-              }`}></div>
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                currentStep === 'results' ? 'bg-bomdigma-600 text-white' : 'bg-gray-300 text-gray-600'
-              }`}>
-                3
-              </div>
+            <div className="flex items-center space-x-6">
+              {['portfolio','quiz','results'].map((step, idx) => (
+                <div key={step} className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                  currentStep === step ? 'bg-[#27224e] text-white border-white' : 'bg-transparent text-white border-white/60'
+                }`}>
+                  {idx + 1}
+                </div>
+              ))}
             </div>
           </div>
 
