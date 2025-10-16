@@ -148,7 +148,10 @@ export default function FlagsList({ flags }: FlagsListProps) {
       {/* CTA Paradigma Pro */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <p className="text-sm text-purple-900">Em dúvida sobre os alertas? Entre para o <span className="font-semibold">Paradigma PRO</span> e tenha acesso 24/7 com nossos analistas.</p>
+          <div className="text-sm text-purple-900">
+            <div>Em dúvida sobre os alertas?</div>
+            <div>Entre para o <span className="font-semibold">Paradigma PRO</span> e tenha acesso 24/7 a nossos analistas.</div>
+          </div>
           <a
             href="https://paradigma.education/pro" 
             target="_blank" 

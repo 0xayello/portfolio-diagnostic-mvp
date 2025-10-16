@@ -121,6 +121,16 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
         mode: 'index' as const,
         intersect: false,
         callbacks: {
+          title: (items: any[]) => {
+            if (!items || !items.length || !series) return '';
+            const di = items[0].dataIndex;
+            const d = new Date(series[di].date);
+            const monthPtShort = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = monthPtShort[d.getMonth()];
+            const yy = String(d.getFullYear()).slice(-2);
+            return `${dd} ${mm} ${yy}`;
+          },
           label: (context: any) => {
             const label = context.dataset.label || '';
             const value = context.parsed.y;
@@ -146,11 +156,9 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
       x: {
         ticks: {
           color: theme === 'dark' ? '#9CA3AF' : '#4B5563',
-          callback: (val: any, index: number, ticks: any) => {
-            // Evitar labels sobrepostos: usa o valor do label real (data ISO) garantido por ChartJS em ticks[index].value
-            const labelDateISO = (ticks && ticks[index] && ticks[index].value) || (series && series[index]?.date);
-            if (!labelDateISO) return '';
-            const d = new Date(labelDateISO);
+          callback: (val: any, index: number) => {
+            if (!series || !series[index]) return '';
+            const d = new Date(series[index].date);
             // Mostrar apenas a cada 3 meses, no início do mês
             if (d.getDate() > 3 || d.getMonth() % 3 !== 0) return '';
             return `${monthPt[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}`;
