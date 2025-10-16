@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 type Resp = { ok: boolean; message?: string };
 
 const SUBSTACK_DOMAIN = process.env.SUBSTACK_DOMAIN || 'bomdigma.substack.com';
+const SUBSTACK_CUSTOM = process.env.SUBSTACK_CUSTOM || 'www.bomdigma.com.br';
 const SUBSTACK_PUBLICATION_ID = process.env.SUBSTACK_PUBLICATION_ID; // opcional
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Resp>) {
@@ -32,8 +33,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     body2.set('email', email);
     candidates.push({ url: `https://${SUBSTACK_DOMAIN}/api/v1/free`, body: body2, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
 
-    // 3) GET de subscribe (como último recurso, pode não cadastrar sozinho)
+    // 3) domínio custom (se disponível)
+    const body3 = new URLSearchParams();
+    body3.set('email', email);
+    candidates.push({ url: `https://${SUBSTACK_CUSTOM}/api/v1/free`, body: body3, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+
+    // 4) GET de subscribe (como último recurso, pode não cadastrar sozinho)
     candidates.push({ url: `https://${SUBSTACK_DOMAIN}/subscribe?email=${encodeURIComponent(email)}`, body: '', headers: {} });
+    candidates.push({ url: `https://${SUBSTACK_CUSTOM}/subscribe?email=${encodeURIComponent(email)}`, body: '', headers: {} });
 
     let success = false;
     for (const c of candidates) {

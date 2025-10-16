@@ -130,8 +130,8 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 card-hover">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+    <div className="bg-[#27224e] text-white rounded-lg shadow-lg p-6 card-hover">
+      <h2 className="text-2xl font-bold mb-6 text-center">
         Configure sua Alocação de Portfólio
       </h2>
       
@@ -141,9 +141,9 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {allocation.map((item) => (
-            <div key={item.token} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+            <div key={item.token} className="flex items-center space-x-4 p-4 bg-[#2ce699] rounded-lg">
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center justify-center space-x-2">
+                <label className="block text-sm font-medium text-[#27224e] mb-2 flex items-center justify-center space-x-2">
                   {tokenImages[item.token.toUpperCase()] && (
                     <img src={tokenImages[item.token.toUpperCase()]} alt={`${item.token} logo`} className="w-5 h-5 rounded-full" />
                   )}
@@ -158,9 +158,9 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
                       value={item.percentage === 0 ? '' : item.percentage}
                       onChange={(e) => handlePercentageChange(item.token, sanitizeNumber(e.target.value))}
                       onBlur={(e) => { if (e.currentTarget.value === '') handlePercentageChange(item.token, 0); }}
-                      className="w-24 pr-8 pl-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-bomdigma-500 focus:border-transparent text-center"
+                      className="w-24 pr-8 pl-3 py-2 text-sm border border-[#27224e]/30 rounded-md focus:ring-2 focus:ring-[#27224e] focus:border-transparent text-center text-[#27224e]"
                     />
-                    <span className="absolute inset-y-0 right-2 flex items-center text-gray-500 text-sm">%</span>
+                    <span className="absolute inset-y-0 right-2 flex items-center text-[#27224e] text-sm">%</span>
                   </div>
                 </div>
               </div>

@@ -18,12 +18,9 @@ body {
 }
 
 body {
-  color: #111827;
-  /* Plano de fundo com gradiente Paradigma e imagem sutil do logo - mais intenso */
-  background:
-    radial-gradient(1000px 500px at 85% -10%, rgba(44,230,153,0.45), transparent 60%),
-    radial-gradient(900px 500px at 10% 110%, rgba(39,34,78,0.45), transparent 60%),
-    linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+  color: #27224e;
+  /* Fundo geral verde (botão) */
+  background: #2ce699;
 }
 
 a {

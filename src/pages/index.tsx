@@ -122,7 +122,7 @@ export default function Home() {
           </div>
 
           {/* Content */}
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto bg-[#27224e] text-white rounded-xl shadow-lg p-4">
             {currentStep === 'portfolio' && (
               <PortfolioForm 
                 initialAllocation={portfolioAllocation}
