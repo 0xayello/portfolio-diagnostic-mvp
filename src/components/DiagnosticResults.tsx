@@ -41,20 +41,19 @@ export default function DiagnosticResults({
 
   return (
     <div className="space-y-6">
-      {/* Header com Score + Pizza no lado direito */}
+      {/* Header com Score (layout anterior) */}
       <div className="bg-white rounded-lg shadow-lg p-6 card-hover">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-gray-900">Diagnóstico do Portfólio</h2>
           <button onClick={onBackToPortfolio} className="px-4 py-2 text-bomdigma-600 hover:text-bomdigma-800 transition-colors">Nova Análise</button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
-          {/* Esquerda: score e toggle */}
-          <div className="lg:col-span-2 text-center lg:text-left">
+        <div className="space-y-6">
+          <div className="text-center">
             <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold ${getAdherenceColor(diagnostic.adherenceLevel)}`}>
               {getAdherenceLabel(diagnostic.adherenceLevel)}
             </div>
-            <div className="text-4xl font-bold text-gray-900 mt-2">{diagnostic.adherenceScore.toFixed(0)}/100</div>
+            <div className="text-3xl font-bold text-gray-900 mt-2">{diagnostic.adherenceScore.toFixed(0)}/100</div>
             <div className="text-sm text-gray-600">Score de Aderência</div>
             <div className="mt-6 inline-flex bg-gray-100 rounded-lg p-1">
               <button onClick={() => setDiagView('performance')} className={`px-4 py-2 rounded-md text-sm font-medium ${diagView === 'performance' ? 'bg-white shadow text-gray-900' : 'text-gray-600'}`}>Performance</button>
@@ -62,14 +61,32 @@ export default function DiagnosticResults({
             </div>
           </div>
 
-          {/* Direita: pizza compacta com legenda menor */}
-          <div className="lg:col-span-1">
-            <PortfolioChart
-              title="Distribuição por Ativo"
-              data={diagnostic.allocation.map(item => ({ name: item.token, value: item.percentage }))}
-              theme="light"
-              hideLegend
-            />
+          <div className="w-full">
+            {diagView === 'allocation' ? (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div className="lg:col-span-2">
+                  <PortfolioChart
+                    title="Distribuição por Ativo"
+                    data={diagnostic.allocation.map(item => ({ name: item.token, value: item.percentage }))}
+                    theme="light"
+                    hideLegend
+                  />
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col justify-center">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Ativos</h4>
+                  <div className="space-y-2">
+                    {diagnostic.allocation.map((item) => (
+                      <div key={item.token} className="flex items-center justify-between text-sm">
+                        <span className="text-gray-700">{item.token}</span>
+                        <span className="text-gray-900 font-medium">{item.percentage.toFixed(1)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <BacktestChart backtest={diagnostic.backtest} series={diagnostic.backtestSeries} theme="light" />
+            )}
           </div>
         </div>
       </div>
