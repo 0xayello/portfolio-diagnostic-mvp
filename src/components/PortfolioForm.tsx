@@ -14,6 +14,8 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
   const [searchResults, setSearchResults] = useState<AutocompleteOption[]>([]);
   const [showSearch, setShowSearch] = useState(false);
   const [totalPercentage, setTotalPercentage] = useState(0);
+  const [email, setEmail] = useState('');
+  const [tokenImages, setTokenImages] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const total = allocation.reduce((sum, item) => sum + item.percentage, 0);
@@ -26,6 +28,26 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
       setAllocation(initialAllocation);
     }
   }, [initialAllocation]);
+
+  // Buscar imagens dos tokens visíveis usando a API de busca (CoinGecko)
+  useEffect(() => {
+    const loadImages = async () => {
+      const symbolsToFetch = allocation
+        .map(a => a.token.toUpperCase())
+        .filter(sym => !tokenImages[sym]);
+      for (const sym of symbolsToFetch) {
+        try {
+          const resp = await fetch(`/api/search-coins?q=${encodeURIComponent(sym)}`);
+          const data: AutocompleteOption[] = await resp.json();
+          const match = data.find(d => d.symbol.toUpperCase() === sym);
+          if (match?.image) {
+            setTokenImages(prev => ({ ...prev, [sym]: match.image! }));
+          }
+        } catch {}
+      }
+    };
+    loadImages();
+  }, [allocation]);
 
   const handlePercentageChange = (token: string, percentage: number) => {
     setAllocation(prev => 
@@ -106,6 +128,19 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
       </h2>
       
       <form onSubmit={handleSubmit} className="space-y-6 text-center">
+        {/* Email gate */}
+        <div className="mx-auto max-w-xl">
+          <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+          <input
+            type="email"
+            placeholder="seu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="form-input text-center"
+            required
+          />
+          <p className="text-xs text-gray-500 mt-1">Necessário para continuar e receber seu diagnóstico.</p>
+        </div>
         {/* Token Allocation */}
         <div className="space-y-4">
           
@@ -113,8 +148,11 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
           {allocation.map((item) => (
             <div key={item.token} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
               <div className="flex-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {item.token}
+                <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center justify-center space-x-2">
+                  {tokenImages[item.token.toUpperCase()] && (
+                    <img src={tokenImages[item.token.toUpperCase()]} alt={`${item.token} logo`} className="w-5 h-5 rounded-full" />
+                  )}
+                  <span>{item.token}</span>
                 </label>
                 <div className="flex items-center space-x-3">
                   <div className="relative">
@@ -125,7 +163,7 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
                       value={item.percentage === 0 ? '' : item.percentage}
                       onChange={(e) => handlePercentageChange(item.token, sanitizeNumber(e.target.value))}
                       onBlur={(e) => { if (e.currentTarget.value === '') handlePercentageChange(item.token, 0); }}
-                      className="w-24 pr-8 pl-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-bomdigma-500 focus:border-transparent text-right"
+                      className="w-24 pr-8 pl-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-bomdigma-500 focus:border-transparent text-center"
                     />
                     <span className="absolute inset-y-0 right-2 flex items-center text-gray-500 text-sm">%</span>
                   </div>
@@ -216,7 +254,7 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={Math.abs(totalPercentage - 100) > 0.1}
+          disabled={Math.abs(totalPercentage - 100) > 0.1 || !/^\S+@\S+\.\S+$/.test(email)}
           className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
         >
           Continuar para Quiz de Perfil
