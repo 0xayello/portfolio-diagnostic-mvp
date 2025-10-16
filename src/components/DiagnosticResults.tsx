@@ -55,7 +55,7 @@ export default function DiagnosticResults({
           </button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+        <div className="space-y-6">
           <div className="text-center">
             <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold ${getAdherenceColor(diagnostic.adherenceLevel)}`}>
               {getAdherenceLabel(diagnostic.adherenceLevel)}
@@ -80,7 +80,7 @@ export default function DiagnosticResults({
             </div>
           </div>
 
-          <div>
+          <div className="w-full">
             {diagView === 'allocation' ? (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <div className="lg:col-span-2">
@@ -104,7 +104,7 @@ export default function DiagnosticResults({
                 </div>
               </div>
             ) : (
-              <BacktestChart backtest={diagnostic.backtest} series={diagnostic.backtestSeries} theme="light" compact />
+              <BacktestChart backtest={diagnostic.backtest} series={diagnostic.backtestSeries} theme="light" />
             )}
           </div>
         </div>
