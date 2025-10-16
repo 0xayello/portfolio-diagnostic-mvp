@@ -14,7 +14,6 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
   const [searchResults, setSearchResults] = useState<AutocompleteOption[]>([]);
   const [showSearch, setShowSearch] = useState(false);
   const [totalPercentage, setTotalPercentage] = useState(0);
-  const [email, setEmail] = useState('');
   const [tokenImages, setTokenImages] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -105,14 +104,6 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
       alert('A soma das porcentagens deve ser exatamente 100%');
       return;
     }
-
-    try {
-      await fetch('/api/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-    } catch {}
 
     onSubmit(allocation);
   };
@@ -242,28 +233,14 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
           </span>
         </div>
 
-        {/* Email gate moved to bottom */}
-        <div className="mx-auto max-w-xl">
-          <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
-          <input
-            type="email"
-            placeholder="seu@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="form-input text-center bg-white text-black placeholder-gray-400"
-            required
-          />
-          <p className="text-xs text-gray-500 mt-1">Necessário para continuar e receber seu diagnóstico.</p>
-        </div>
-
         {/* Ações removidas conforme solicitado */}
 
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={Math.abs(totalPercentage - 100) > 0.1 || !/^\S+@\S+\.\S+$/.test(email)}
+          disabled={Math.abs(totalPercentage - 100) > 0.1}
           className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
-        >
+          >
           Continuar para Quiz de Perfil
         </button>
       </form>

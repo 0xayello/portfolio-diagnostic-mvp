@@ -94,11 +94,9 @@ export default function Home() {
           {/* Progress Steps */}
           <div className="flex justify-center mb-8">
             <div className="flex items-center space-x-6">
-              {['portfolio','quiz','results'].map((step, idx) => (
-                <div key={step} className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                  currentStep === step ? 'bg-[#27224e] text-white border-white' : 'bg-transparent text-white border-white/60'
-                }`}>
-                  {idx + 1}
+              {[1,2,3].map((n) => (
+                <div key={n} className="flex items-center justify-center w-10 h-10 rounded-full bg-[#27224e] text-white">
+                  {n}
                 </div>
               ))}
             </div>
