@@ -12,6 +12,7 @@ export interface DefiLlamaUnlockRaw {
 
 export class DefiLlamaService {
   private readonly BASE_URL = 'https://api.llama.fi';
+  private readonly VESTING_URL = 'https://vesting-api.llama.fi';
 
   private toISODate(value?: string | number): string | null {
     if (value === undefined || value === null) return null;
@@ -42,24 +43,45 @@ export class DefiLlamaService {
     for (const sym of symbols) {
       const upper = sym.toUpperCase();
       try {
-        // Endpoint comum observado: /unlocks?symbol=SYMBOL
-        const url = `${this.BASE_URL}/unlocks?symbol=${encodeURIComponent(upper)}`;
-        const resp = await fetch(url);
-        if (!resp.ok) {
-          // fallback possível no futuro: vesting-api.llama.fi
-          console.warn(`DeFiLlama unlocks not ok for ${upper}: ${resp.status}`);
-          continue;
+        // 1) Tenta endpoint principal
+        const primaryUrl = `${this.BASE_URL}/unlocks?symbol=${encodeURIComponent(upper)}`;
+        const primaryResp = await fetch(primaryUrl);
+        if (primaryResp.ok) {
+          const data = await primaryResp.json();
+          const items: DefiLlamaUnlockRaw[] = Array.isArray(data) ? data : (data?.unlocks || data?.data || []);
+          for (const raw of items) {
+            const iso = this.toISODate(raw.date ?? raw.timestamp);
+            if (!iso) continue;
+            if (!this.withinNextNDays(iso, daysWindow)) continue;
+            const pct = typeof raw.percentage === 'number' ? raw.percentage : (raw.amount && raw.totalSupply ? (raw.amount / raw.totalSupply) * 100 : 0);
+            const amt = typeof raw.amount === 'number' ? raw.amount : 0;
+            results.push({ token: upper, unlockDate: iso, percentage: pct, amount: amt });
+          }
         }
-        const data = await resp.json();
-        const items: DefiLlamaUnlockRaw[] = Array.isArray(data) ? data : (data?.unlocks || data?.data || []);
-        for (const raw of items) {
-          const iso = this.toISODate(raw.date ?? raw.timestamp);
-          if (!iso) continue;
-          if (!this.withinNextNDays(iso, daysWindow)) continue;
-          const pct = typeof raw.percentage === 'number' ? raw.percentage : (raw.amount && raw.totalSupply ? (raw.amount / raw.totalSupply) * 100 : 0);
-          const amt = typeof raw.amount === 'number' ? raw.amount : 0;
-          // incluir todos os eventos (sem filtro de relevância)
-          results.push({ token: upper, unlockDate: iso, percentage: pct, amount: amt });
+
+        // 2) Fallback: vesting API (alguns tokens, ex: TIA)
+        if (!results.some(r => r.token === upper)) {
+          const vestingUrl = `${this.VESTING_URL}/vesting/${encodeURIComponent(upper)}`;
+          const vestResp = await fetch(vestingUrl);
+          if (vestResp.ok) {
+            const vdata = await vestResp.json();
+            const schedules: any[] = Array.isArray(vdata) ? vdata : (vdata?.schedules || vdata?.data || vdata?.vestings || []);
+            for (const item of schedules) {
+              const dateVal = item.date ?? item.timestamp ?? item.startTimestamp ?? item.t ?? item.time;
+              const iso = this.toISODate(dateVal);
+              if (!iso) continue;
+              if (!this.withinNextNDays(iso, daysWindow)) continue;
+              const pct = typeof item.percentage === 'number'
+                ? item.percentage
+                : typeof item.pct === 'number'
+                  ? item.pct
+                  : (item.amount && (item.totalSupply || item.supply))
+                    ? (item.amount / (item.totalSupply || item.supply)) * 100
+                    : 0;
+              const amt = typeof item.amount === 'number' ? item.amount : (typeof item.tokens === 'number' ? item.tokens : 0);
+              results.push({ token: upper, unlockDate: iso, percentage: pct, amount: amt });
+            }
+          }
         }
       } catch (e) {
         console.warn(`DeFiLlama unlocks fetch failed for ${upper}`);
