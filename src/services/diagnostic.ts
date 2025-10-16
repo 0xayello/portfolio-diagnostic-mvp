@@ -267,7 +267,7 @@ export class DiagnosticService {
     try {
       const upcoming = await this.defiLlamaService.getUpcomingUnlocks(
         Array.from(new Set(symbols.map(s => s.toUpperCase()))),
-        60
+        180
       );
       return upcoming.map(u => ({
         token: u.token,

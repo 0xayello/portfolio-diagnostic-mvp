@@ -31,7 +31,7 @@ export class DefiLlamaService {
     return diff >= 0 && diff <= days * 24 * 60 * 60 * 1000;
   }
 
-  async getUpcomingUnlocks(symbols: string[], daysWindow: number = 60): Promise<Array<{
+  async getUpcomingUnlocks(symbols: string[], daysWindow: number = 180): Promise<Array<{
     token: string;
     unlockDate: string;
     percentage: number;
@@ -58,9 +58,8 @@ export class DefiLlamaService {
           if (!this.withinNextNDays(iso, daysWindow)) continue;
           const pct = typeof raw.percentage === 'number' ? raw.percentage : (raw.amount && raw.totalSupply ? (raw.amount / raw.totalSupply) * 100 : 0);
           const amt = typeof raw.amount === 'number' ? raw.amount : 0;
-          if (pct >= 5) {
-            results.push({ token: upper, unlockDate: iso, percentage: pct, amount: amt });
-          }
+          // incluir todos os eventos (sem filtro de relevância)
+          results.push({ token: upper, unlockDate: iso, percentage: pct, amount: amt });
         }
       } catch (e) {
         console.warn(`DeFiLlama unlocks fetch failed for ${upper}`);
