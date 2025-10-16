@@ -13,6 +13,23 @@ export interface DefiLlamaUnlockRaw {
 export class DefiLlamaService {
   private readonly BASE_URL = 'https://api.llama.fi';
   private readonly VESTING_URL = 'https://vesting-api.llama.fi';
+  private readonly SYMBOL_ALIASES: { [symbol: string]: string[] } = {
+    'TIA': ['celestia', 'TIA'],
+    'ARB': ['arbitrum', 'ARB'],
+    'OP': ['optimism', 'OP'],
+    'APT': ['aptos', 'APT'],
+    'SUI': ['sui', 'SUI'],
+    'SEI': ['sei', 'SEI'],
+    'DYDX': ['dydx', 'DYDX'],
+    'BLUR': ['blur', 'BLUR']
+  };
+
+  private getAliasCandidates(symbol: string): string[] {
+    const upper = symbol.toUpperCase();
+    const aliases = this.SYMBOL_ALIASES[upper] || [upper];
+    const set = new Set<string>([upper, ...aliases]);
+    return Array.from(set);
+  }
 
   private toISODate(value?: string | number): string | null {
     if (value === undefined || value === null) return null;
@@ -41,27 +58,30 @@ export class DefiLlamaService {
     const results: Array<{ token: string; unlockDate: string; percentage: number; amount: number; }> = [];
 
     for (const sym of symbols) {
-      const upper = sym.toUpperCase();
+      const candidates = this.getAliasCandidates(sym);
       try {
-        // 1) Tenta endpoint principal
-        const primaryUrl = `${this.BASE_URL}/unlocks?symbol=${encodeURIComponent(upper)}`;
-        const primaryResp = await fetch(primaryUrl);
-        if (primaryResp.ok) {
-          const data = await primaryResp.json();
-          const items: DefiLlamaUnlockRaw[] = Array.isArray(data) ? data : (data?.unlocks || data?.data || []);
-          for (const raw of items) {
-            const iso = this.toISODate(raw.date ?? raw.timestamp);
-            if (!iso) continue;
-            if (!this.withinNextNDays(iso, daysWindow)) continue;
-            const pct = typeof raw.percentage === 'number' ? raw.percentage : (raw.amount && raw.totalSupply ? (raw.amount / raw.totalSupply) * 100 : 0);
-            const amt = typeof raw.amount === 'number' ? raw.amount : 0;
-            results.push({ token: upper, unlockDate: iso, percentage: pct, amount: amt });
-          }
-        }
+        for (const cand of candidates) {
+          const upper = cand.toUpperCase();
+          const lower = cand.toLowerCase();
 
-        // 2) Fallback: vesting API (alguns tokens, ex: TIA)
-        if (!results.some(r => r.token === upper)) {
-          const vestingUrl = `${this.VESTING_URL}/vesting/${encodeURIComponent(upper)}`;
+          // 1) endpoint principal por symbol/id
+          const primaryUrl = `${this.BASE_URL}/unlocks?symbol=${encodeURIComponent(cand)}`;
+          const primaryResp = await fetch(primaryUrl);
+          if (primaryResp.ok) {
+            const data = await primaryResp.json();
+            const items: DefiLlamaUnlockRaw[] = Array.isArray(data) ? data : (data?.unlocks || data?.data || []);
+            for (const raw of items) {
+              const iso = this.toISODate(raw.date ?? raw.timestamp);
+              if (!iso) continue;
+              if (!this.withinNextNDays(iso, daysWindow)) continue;
+              const pct = typeof raw.percentage === 'number' ? raw.percentage : (raw.amount && raw.totalSupply ? (raw.amount / raw.totalSupply) * 100 : 0);
+              const amt = typeof raw.amount === 'number' ? raw.amount : 0;
+              results.push({ token: upper, unlockDate: iso, percentage: pct, amount: amt });
+            }
+          }
+
+          // 2) fallback vesting (usa id/nome minúsculo)
+          const vestingUrl = `${this.VESTING_URL}/vesting/${encodeURIComponent(lower)}`;
           const vestResp = await fetch(vestingUrl);
           if (vestResp.ok) {
             const vdata = await vestResp.json();
@@ -84,13 +104,14 @@ export class DefiLlamaService {
           }
         }
       } catch (e) {
-        console.warn(`DeFiLlama unlocks fetch failed for ${upper}`);
+        console.warn(`DeFiLlama unlocks fetch failed for ${sym}`);
         continue;
       }
     }
 
-    // ordenar por data
-    return results.sort((a, b) => new Date(a.unlockDate).getTime() - new Date(b.unlockDate).getTime());
+    const key = (r: { token: string; unlockDate: string; percentage: number; amount: number; }) => `${r.token}|${r.unlockDate}|${r.percentage}|${r.amount}`;
+    const deduped = Array.from(new Map(results.map(r => [key(r), r])).values());
+    return deduped.sort((a, b) => new Date(a.unlockDate).getTime() - new Date(b.unlockDate).getTime());
   }
 }
 
