@@ -51,21 +51,21 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
           {
             label: 'Portfólio',
             data: series.map(p => p.portfolio),
-            borderColor: '#3B82F6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            borderWidth: 2,
+            borderColor: '#27224e',
+            backgroundColor: 'rgba(39, 34, 78, 0.08)',
+            borderWidth: 3,
             fill: false,
-            tension: 0.2,
+            tension: 0.25,
             pointRadius: 0,
           },
           {
             label: 'Bitcoin',
             data: series.map(p => p.btc),
-            borderColor: '#9CA3AF',
-            backgroundColor: 'rgba(156, 163, 175, 0.1)',
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.08)',
             borderWidth: 2,
             fill: false,
-            tension: 0.2,
+            tension: 0.25,
             pointRadius: 0,
           },
         ],
@@ -76,8 +76,8 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
           {
             label: 'Portfólio',
             data: backtest.map(result => result.portfolioReturn),
-            borderColor: '#3B82F6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderColor: '#27224e',
+            backgroundColor: 'rgba(39, 34, 78, 0.08)',
             borderWidth: 3,
             fill: true,
             tension: 0.4,
@@ -85,8 +85,8 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
           {
             label: 'Bitcoin',
             data: backtest.map(result => result.benchmarkReturns?.btc ?? 0),
-            borderColor: '#9CA3AF',
-            backgroundColor: 'rgba(156, 163, 175, 0.1)',
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.08)',
             borderWidth: 2,
             fill: false,
             tension: 0.4,
@@ -158,44 +158,13 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
     <div className="space-y-6">
       {/* Chart */}
       <div className={theme === 'dark' ? 'bg-gray-900 p-6 rounded-lg border border-gray-800' : 'bg-gray-50 p-6 rounded-lg'}>
-        <div className={compact ? 'relative h-56' : 'relative h-80'}>
+        <div className={compact ? 'relative h-72' : 'relative h-96'}>
           <Line data={chartData} options={options} />
         </div>
       </div>
 
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-blue-50 p-4 rounded-lg text-center">
-          <div className="text-2xl font-bold text-blue-600">
-            {totalReturn.toFixed(1)}%
-          </div>
-          <div className="text-sm text-gray-600">Retorno Total</div>
-        </div>
-        
-        <div className="bg-green-50 p-4 rounded-lg text-center">
-          <div className="text-2xl font-bold text-green-600">
-            {avgReturn.toFixed(1)}%
-          </div>
-          <div className="text-sm text-gray-600">Retorno Médio</div>
-        </div>
-        
-        <div className="bg-yellow-50 p-4 rounded-lg text-center">
-          <div className="text-2xl font-bold text-yellow-600">
-            {bestPeriod.portfolioReturn.toFixed(1)}%
-          </div>
-          <div className="text-sm text-gray-600">Melhor Período ({bestPeriod.period})</div>
-        </div>
-        
-        <div className="bg-red-50 p-4 rounded-lg text-center">
-          <div className="text-2xl font-bold text-red-600">
-            {worstPeriod.portfolioReturn.toFixed(1)}%
-          </div>
-          <div className="text-sm text-gray-600">Pior Período ({worstPeriod.period})</div>
-        </div>
-      </div>
-
-      {/* Performance by Token */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
+      {/* Performance by Token - full width below chart */}
+      <div className="bg-white border border-gray-200 rounded-lg p-6 w-full">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">
           Performance por Ativo
         </h3>

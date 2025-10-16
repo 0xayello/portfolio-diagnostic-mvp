@@ -18,7 +18,7 @@ export default function DiagnosticResults({
   onBackToQuiz, 
   onBackToPortfolio 
 }: DiagnosticResultsProps) {
-  const [activeTab, setActiveTab] = useState<'backtest' | 'flags' | 'unlocks' | 'rebalance'>('backtest');
+  const [activeTab, setActiveTab] = useState<'flags' | 'unlocks' | 'backtest'>('unlocks');
   const [diagView, setDiagView] = useState<'performance' | 'allocation'>('performance');
 
   const getAdherenceColor = (level: string) => {
@@ -110,15 +110,13 @@ export default function DiagnosticResults({
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs (somente Alertas e Unlocks; backtest exibido dentro de Overview removido) */}
       <div className="bg-white rounded-lg shadow-lg">
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8 px-6">
             {[
               { id: 'flags', label: 'Alertas', icon: '⚠️', count: diagnostic.flags.length },
-              { id: 'backtest', label: 'Backtest', icon: '📈' },
-              { id: 'unlocks', label: 'Unlocks', icon: '🔓', count: diagnostic.unlockAlerts.length },
-              { id: 'rebalance', label: 'Rebalanceamento', icon: '⚖️' }
+              { id: 'unlocks', label: 'Unlocks', icon: '🔓', count: diagnostic.unlockAlerts.length }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -146,16 +144,8 @@ export default function DiagnosticResults({
             <FlagsList flags={diagnostic.flags} />
           )}
 
-          {activeTab === 'backtest' && (
-            <BacktestChart backtest={diagnostic.backtest} />
-          )}
-
           {activeTab === 'unlocks' && (
             <UnlockAlerts alerts={diagnostic.unlockAlerts} />
-          )}
-
-          {activeTab === 'rebalance' && (
-            <RebalanceSuggestions suggestions={diagnostic.rebalanceSuggestions} />
           )}
         </div>
       </div>
