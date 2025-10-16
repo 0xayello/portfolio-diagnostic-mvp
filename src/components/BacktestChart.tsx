@@ -154,18 +154,18 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
         grid: { color: theme === 'dark' ? 'rgba(75,85,99,0.4)' : undefined },
       },
       x: {
+        display: true,
         ticks: {
           color: theme === 'dark' ? '#9CA3AF' : '#4B5563',
           callback: (val: any, index: number) => {
-            if (!series || !series[index]) return '';
+            if (!series || !series.length) return '';
+            const step = Math.max(1, Math.floor(series.length / 6)); // ~6 rótulos visíveis
+            if (index % step !== 0) return '';
             const d = new Date(series[index].date);
-            // Mostrar apenas a cada 3 meses, no início do mês
-            if (d.getDate() > 3 || d.getMonth() % 3 !== 0) return '';
             return `${monthPt[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}`;
           },
           maxRotation: 0,
-          autoSkip: true,
-          autoSkipPadding: 20,
+          autoSkip: false,
         },
         grid: { color: theme === 'dark' ? 'rgba(75,85,99,0.2)' : undefined },
       },

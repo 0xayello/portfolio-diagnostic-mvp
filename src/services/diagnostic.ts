@@ -10,14 +10,17 @@ import {
 import { CoinGeckoService } from './coingecko';
 import sectorsData from '../data/sectors.json';
 import { DefiLlamaService } from './defillama';
+import { UnlocksAppService } from './unlocksapp';
 
 export class DiagnosticService {
   private coinGeckoService: CoinGeckoService;
   private defiLlamaService: DefiLlamaService;
+  private unlocksAppService: UnlocksAppService;
 
   constructor() {
     this.coinGeckoService = new CoinGeckoService();
     this.defiLlamaService = new DefiLlamaService();
+    this.unlocksAppService = new UnlocksAppService();
   }
 
   async generateDiagnostic(
@@ -265,11 +268,20 @@ export class DiagnosticService {
 
   private async getUnlockAlerts(symbols: string[]): Promise<UnlockAlert[]> {
     try {
-      const upcoming = await this.defiLlamaService.getUpcomingUnlocks(
-        Array.from(new Set(symbols.map(s => s.toUpperCase()))),
-        180
-      );
-      return upcoming.map(u => ({
+      const unique = Array.from(new Set(symbols.map(s => s.toUpperCase())));
+
+      // 1) provedor primário: UnlocksApp
+      const fromUnlocks = await this.unlocksAppService.getUpcomingUnlocks(unique, 180);
+
+      // 2) fallback: DeFiLlama (unlocks + vesting aliases)
+      const fromLlama = await this.defiLlamaService.getUpcomingUnlocks(unique, 180);
+
+      // 3) merge + dedupe
+      const all = [...fromUnlocks, ...fromLlama];
+      const key = (r: { token: string; unlockDate: string; percentage: number; amount: number }) => `${r.token}|${r.unlockDate}|${r.percentage}|${r.amount}`;
+      const deduped = Array.from(new Map(all.map(r => [key(r), r])).values());
+
+      return deduped.map(u => ({
         token: u.token,
         unlockDate: u.unlockDate,
         percentage: u.percentage,
