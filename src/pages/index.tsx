@@ -84,7 +84,7 @@ export default function Home() {
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
               Diagnóstico Cripto da Paradigma
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 mx-auto" style={{ maxWidth: '100%' }}>
               Receba um diagnóstico simples e direto sobre sua carteira de investimentos em cripto.
             </p>
             <div className="mt-4" />

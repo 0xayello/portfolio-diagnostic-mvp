@@ -153,7 +153,7 @@ input[type="range"]::-moz-range-thumb {
 
 /* Button styles */
 .btn-primary {
-  @apply bg-bomdigma-600 text-white font-semibold py-2 px-5 rounded-md hover:bg-bomdigma-700 transition-colors duration-200 inline-flex items-center justify-center max-w-sm mx-auto;
+  @apply bg-[#2ce699] text-[#27224e] font-semibold py-2 px-5 rounded-md hover:brightness-90 transition-colors duration-200 inline-flex items-center justify-center max-w-sm mx-auto;
 }
 
 .btn-secondary {

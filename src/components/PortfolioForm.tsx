@@ -101,16 +101,15 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 card-hover">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">
+      <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
         Configure sua Alocação de Portfólio
       </h2>
       
       <form onSubmit={handleSubmit} className="space-y-6 text-center">
         {/* Token Allocation */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-800">Distribuição por Ativo</h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {allocation.map((item) => (
             <div key={item.token} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
               <div className="flex-1">
@@ -126,7 +125,7 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
                       value={item.percentage === 0 ? '' : item.percentage}
                       onChange={(e) => handlePercentageChange(item.token, sanitizeNumber(e.target.value))}
                       onBlur={(e) => { if (e.currentTarget.value === '') handlePercentageChange(item.token, 0); }}
-                      className="w-24 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-bomdigma-500 focus:border-transparent text-right"
+                      className="w-24 pr-8 pl-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-bomdigma-500 focus:border-transparent text-right"
                     />
                     <span className="absolute inset-y-0 right-2 flex items-center text-gray-500 text-sm">%</span>
                   </div>
@@ -203,7 +202,7 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
         </div>
 
         {/* Total Percentage */}
-        <div className="flex justify-between items-center p-4 bg-blue-50 rounded-lg">
+        <div className="flex justify-between items-center p-4 bg-blue-50 rounded-lg mx-auto max-w-xl">
           <span className="font-semibold text-gray-800">Total:</span>
           <span className={`font-bold text-lg ${
             Math.abs(totalPercentage - 100) < 0.1 ? 'text-green-600' : 'text-red-600'
@@ -218,7 +217,7 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
         <button
           type="submit"
           disabled={Math.abs(totalPercentage - 100) > 0.1}
-          className="w-full btn-primary disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
         >
           Continuar para Quiz de Perfil
         </button>
