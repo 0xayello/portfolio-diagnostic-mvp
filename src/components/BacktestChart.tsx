@@ -46,7 +46,8 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
 
   const chartData = series && series.length > 0
     ? {
-        labels: series.map(p => new Date(p.date).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })),
+        // usamos as datas originais como labels e formatamos no eixo (ticks.callback)
+        labels: series.map(p => p.date),
         datasets: [
           {
             label: 'Portfólio',
@@ -94,9 +95,12 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
         ],
       };
 
+  const monthPt = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
   const options = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: { mode: 'index' as const, intersect: false },
     plugins: {
       legend: {
         position: 'top' as const,
@@ -114,6 +118,8 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
         color: theme === 'dark' ? '#F9FAFB' : '#111827',
       },
       tooltip: {
+        mode: 'index' as const,
+        intersect: false,
         callbacks: {
           label: (context: any) => {
             const label = context.dataset.label || '';
@@ -138,7 +144,18 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
         grid: { color: theme === 'dark' ? 'rgba(75,85,99,0.4)' : undefined },
       },
       x: {
-        ticks: { color: theme === 'dark' ? '#9CA3AF' : '#4B5563' },
+        ticks: {
+          color: theme === 'dark' ? '#9CA3AF' : '#4B5563',
+          callback: (val: any, index: number) => {
+            if (!series || !series.length) return '';
+            const d = new Date(series[index].date);
+            // mostrar 1 rótulo a cada ~3 meses, preferencialmente no início do mês
+            const show = (d.getMonth() % 3 === 0) && d.getDate() <= 3;
+            return show ? `${monthPt[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}` : '';
+          },
+          maxRotation: 0,
+          autoSkip: false,
+        },
         grid: { color: theme === 'dark' ? 'rgba(75,85,99,0.2)' : undefined },
       },
     },
@@ -178,11 +195,13 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Carteira
                 </th>
-                {Object.keys(backtest[0]?.tokenReturns || {}).map(token => (
-                  <th key={token} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {token}
-                  </th>
-                ))}
+                {Object.keys(backtest[0]?.tokenReturns || {})
+                  .filter(token => token !== 'USDC' && token !== 'USDT')
+                  .map(token => (
+                    <th key={token} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {token}
+                    </th>
+                  ))}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -196,13 +215,15 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
                   }`}>
                     {result.portfolioReturn.toFixed(2)}%
                   </td>
-                  {Object.entries(result.tokenReturns).map(([token, returnValue]) => (
-                    <td key={token} className={`px-6 py-4 whitespace-nowrap text-sm ${
-                      returnValue >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {returnValue.toFixed(2)}%
-                    </td>
-                  ))}
+                  {Object.entries(result.tokenReturns)
+                    .filter(([token]) => token !== 'USDC' && token !== 'USDT')
+                    .map(([token, returnValue]) => (
+                      <td key={token} className={`px-6 py-4 whitespace-nowrap text-sm ${
+                        returnValue >= 0 ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {returnValue.toFixed(2)}%
+                      </td>
+                    ))}
                 </tr>
               ))}
             </tbody>
@@ -210,22 +231,7 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
         </div>
       </div>
 
-      {/* Disclaimer */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <div className="flex items-start space-x-3">
-          <span className="text-yellow-600 text-xl">⚠️</span>
-          <div>
-            <h4 className="font-semibold text-yellow-800 mb-1">
-              Aviso Importante
-            </h4>
-            <p className="text-sm text-yellow-700">
-              Este backtest é ilustrativo e assume que a carteira foi mantida estática durante todo o período. 
-              Não considera taxas de transação, slippage, rebalanceamentos ou outros custos operacionais. 
-              Performance passada não garante resultados futuros.
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Aviso removido conforme solicitação */}
     </div>
   );
 }
