@@ -360,8 +360,16 @@ export class DiagnosticService {
       }
     }
 
-    // alinhar por datas do BTC para suavizar diferenças
-    const dates = baseDates.length ? baseDates : Object.keys(priceSeriesByToken).sort();
+    // alinhar pelo ponto em comum: começar no MAIOR entre as primeiras datas disponíveis de todos os tokens e BTC
+    const firstDates: string[] = [];
+    firstDates.push(btcSeries[0]?.date);
+    for (const token of symbols) {
+      const s = seriesMap[token] || [];
+      if (s.length) firstDates.push(s[0].date);
+    }
+    const startAt = firstDates.filter(Boolean).sort()[firstDates.length ? firstDates.length - 1 : 0];
+    const allDates = baseDates.length ? baseDates : Object.keys(priceSeriesByToken).sort();
+    const dates = allDates.filter(d => !startAt || d >= startAt);
     if (!dates.length) return [];
 
     const firstDate = dates[0];
