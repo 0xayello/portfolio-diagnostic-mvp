@@ -51,14 +51,13 @@ export default function PortfolioChart({ title, data, theme = 'light', hideLegen
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        display: !hideLegend,
-        position: 'bottom' as const,
-        labels: {
-          padding: 20,
-          usePointStyle: true,
-        },
-      },
+      legend: hideLegend
+        ? { display: false }
+        : {
+            display: true,
+            position: 'right' as const,
+            labels: { padding: 12, usePointStyle: true },
+          },
       tooltip: {
         callbacks: {
           label: (context: any) => {
@@ -79,29 +78,7 @@ export default function PortfolioChart({ title, data, theme = 'light', hideLegen
       <div className="relative h-64">
         <Doughnut data={chartData} options={options} />
       </div>
-      
-      {/* Summary */}
-      <div className="mt-4 space-y-2">
-        {data.slice(0, 5).map((item, index) => (
-          <div key={item.name} className="flex items-center justify-between text-sm">
-            <div className="flex items-center space-x-2">
-              <div 
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: COLORS[index] }}
-              />
-              <span className={theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}>{item.name}</span>
-            </div>
-            <span className={theme === 'dark' ? 'font-medium text-gray-100' : 'font-medium text-gray-900'}>
-              {item.value.toFixed(1)}%
-            </span>
-          </div>
-        ))}
-        {data.length > 5 && (
-          <div className={theme === 'dark' ? 'text-xs text-gray-400 text-center' : 'text-xs text-gray-500 text-center'}>
-            +{data.length - 5} outros
-          </div>
-        )}
-      </div>
+      {/* Sem resumo duplicado; legenda fica ao lado (position right) */}
     </div>
   );
 }
