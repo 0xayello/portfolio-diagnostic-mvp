@@ -105,11 +105,12 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
         Configure sua Alocação de Portfólio
       </h2>
       
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6 text-center">
         {/* Token Allocation */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-800">Distribuição por Ativo</h3>
           
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {allocation.map((item) => (
             <div key={item.token} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
               <div className="flex-1">
@@ -143,20 +144,30 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
               )}
             </div>
           ))}
+          </div>
         </div>
 
         {/* Add Token Search */}
         <div className="relative">
           <button
             type="button"
-            onClick={() => setShowSearch(!showSearch)}
-            className="w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-800 transition-colors"
+            onClick={async () => {
+              setShowSearch(!showSearch);
+              if (!showSearch) {
+                try {
+                  const resp = await fetch('/api/search-coins?top=true');
+                  const data = await resp.json();
+                  setSearchResults(data);
+                } catch {}
+              }
+            }}
+            className="mx-auto max-w-xl px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-800 transition-colors"
           >
             + Adicionar outro ativo
           </button>
           
           {showSearch && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+            <div className="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-2xl mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
               <input
                 type="text"
                 placeholder="Digite o símbolo do token..."
@@ -167,7 +178,7 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
               />
               
               {searchResults.length > 0 && (
-                <div className="max-h-48 overflow-y-auto">
+                <div className="max-h-64 overflow-y-auto grid grid-cols-2 gap-0">
                   {searchResults.map((option) => (
                     <button
                       key={option.symbol}

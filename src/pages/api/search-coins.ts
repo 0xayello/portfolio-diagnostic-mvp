@@ -6,7 +6,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { q } = req.query;
+  const { q, top } = req.query as { q?: string; top?: string } as any;
+
+  try {
+    const coinGeckoService = new CoinGeckoService();
+    if (top === 'true') {
+      const results = await coinGeckoService.getTopCoinsSymbols(20, ['BTC', 'ETH', 'SOL', 'USDC']);
+      return res.status(200).json(results);
+    }
+  } catch {}
 
   if (!q || typeof q !== 'string') {
     return res.status(400).json({ error: 'Query parameter is required' });

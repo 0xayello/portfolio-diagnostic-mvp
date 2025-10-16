@@ -108,6 +108,23 @@ export class CoinGeckoService {
     }
   }
 
+  async getTopCoinsSymbols(limit: number = 20, exclude: string[] = []): Promise<AutocompleteOption[]> {
+    try {
+      const response = await fetch(
+        `${this.BASE_URL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${limit}&page=1`,
+        { headers: this.getHeaders() }
+      );
+      if (!response.ok) throw new Error('CoinGecko markets error');
+      const markets: CoinGeckoMarket[] = await response.json();
+      const ex = new Set(exclude.map(s => s.toUpperCase()));
+      return markets
+        .map(m => ({ symbol: m.symbol.toUpperCase(), name: m.name, marketCap: m.market_cap, image: m.image }))
+        .filter(c => !ex.has(c.symbol));
+    } catch (e) {
+      return [];
+    }
+  }
+
   async getTokenData(symbols: string[]): Promise<TokenData[]> {
     try {
       console.log('Fetching token data from CoinGecko', { symbols });
