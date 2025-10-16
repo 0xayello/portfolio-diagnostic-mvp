@@ -18,13 +18,12 @@ body {
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  color: #111827;
+  /* Plano de fundo com gradiente Paradigma e imagem sutil do logo */
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(44,230,153,0.25), transparent 60%),
+    radial-gradient(1200px 600px at 10% 110%, rgba(39,34,78,0.25), transparent 60%),
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
 }
 
 a {

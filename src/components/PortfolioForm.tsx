@@ -6,7 +6,7 @@ interface PortfolioFormProps {
   onSubmit: (allocation: PortfolioAllocation[]) => void;
 }
 
-const PREDEFINED_TOKENS = ['BTC', 'ETH', 'SOL', 'USDC', 'USDT'];
+const PREDEFINED_TOKENS = ['BTC', 'ETH', 'SOL', 'USDC'];
 
 export default function PortfolioForm({ initialAllocation, onSubmit }: PortfolioFormProps) {
   const [allocation, setAllocation] = useState<PortfolioAllocation[]>(initialAllocation);
@@ -19,6 +19,13 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     const total = allocation.reduce((sum, item) => sum + item.percentage, 0);
     setTotalPercentage(total);
   }, [allocation]);
+
+  // Sincroniza quando a prop initialAllocation mudar (ex.: inicialização pelo parent)
+  useEffect(() => {
+    if (initialAllocation && initialAllocation.length > 0) {
+      setAllocation(initialAllocation);
+    }
+  }, [initialAllocation]);
 
   const handlePercentageChange = (token: string, percentage: number) => {
     setAllocation(prev => 
@@ -118,21 +125,9 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
                       value={item.percentage === 0 ? '' : item.percentage}
                       onChange={(e) => handlePercentageChange(item.token, sanitizeNumber(e.target.value))}
                       onBlur={(e) => { if (e.currentTarget.value === '') handlePercentageChange(item.token, 0); }}
-                      className="w-24 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-bomdigma-500 focus:border-transparent text-right"
+                      className="w-24 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-bomdigma-500 focus:border-transparent text-right"
                     />
                     <span className="absolute inset-y-0 right-2 flex items-center text-gray-500 text-sm">%</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {[10, 25, 33, 50].map(p => (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => handlePercentageChange(item.token, p)}
-                        className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50"
-                      >
-                        {p}%
-                      </button>
-                    ))}
                   </div>
                 </div>
               </div>
@@ -206,24 +201,7 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
           </span>
         </div>
 
-        {/* Quick Actions */}
-        <div className="flex space-x-4">
-          <button
-            type="button"
-            onClick={distributeEvenly}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-          >
-            Distribuir Igualmente
-          </button>
-          
-          <button
-            type="button"
-            onClick={() => setAllocation(prev => prev.map(item => ({ ...item, percentage: 0 })))}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-          >
-            Limpar Tudo
-          </button>
-        </div>
+        {/* Ações removidas conforme solicitado */}
 
         {/* Submit Button */}
         <button

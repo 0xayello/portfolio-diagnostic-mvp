@@ -77,16 +77,15 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="min-h-screen bg-gradient-to-br from-bomdigma-50 to-blue-100">
+      <main className="min-h-screen" style={{ backgroundImage: 'url(/logo-paradigma-bg.svg)', backgroundRepeat: 'no-repeat', backgroundPosition: 'top right', backgroundSize: '22vw auto' }}>
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Diagnóstico de Portfólio Cripto 💼 — Powered by Bom Digma
+              Diagnóstico Cripto da Paradigma
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Analise sua carteira de criptomoedas e receba insights personalizados sobre risco, 
-              diversificação e oportunidades de rebalanceamento.
+              Receba um diagnóstico simples e direto sobre sua carteira de investimentos em cripto.
             </p>
             <div className="mt-4" />
           </div>
