@@ -146,15 +146,18 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
       x: {
         ticks: {
           color: theme === 'dark' ? '#9CA3AF' : '#4B5563',
-          callback: (val: any, index: number) => {
-            if (!series || !series.length) return '';
-            const d = new Date(series[index].date);
-            // mostrar 1 rótulo a cada ~3 meses, preferencialmente no início do mês
-            const show = (d.getMonth() % 3 === 0) && d.getDate() <= 3;
-            return show ? `${monthPt[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}` : '';
+          callback: (val: any, index: number, ticks: any) => {
+            // Evitar labels sobrepostos: usa o valor do label real (data ISO) garantido por ChartJS em ticks[index].value
+            const labelDateISO = (ticks && ticks[index] && ticks[index].value) || (series && series[index]?.date);
+            if (!labelDateISO) return '';
+            const d = new Date(labelDateISO);
+            // Mostrar apenas a cada 3 meses, no início do mês
+            if (d.getDate() > 3 || d.getMonth() % 3 !== 0) return '';
+            return `${monthPt[d.getMonth()]} ${d.getFullYear().toString().slice(-2)}`;
           },
           maxRotation: 0,
-          autoSkip: false,
+          autoSkip: true,
+          autoSkipPadding: 20,
         },
         grid: { color: theme === 'dark' ? 'rgba(75,85,99,0.2)' : undefined },
       },

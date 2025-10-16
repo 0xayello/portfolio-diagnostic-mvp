@@ -8,11 +8,22 @@ export default function Footer() {
           <img src="/logo-paradigma-bg.svg" alt="Paradigma" className="w-6 h-6" />
           <span>Paradigma Education © {new Date().getFullYear()}</span>
         </div>
-        <div className="flex items-center space-x-4 mt-4 md:mt-0">
-          <a className="hover:underline" href="https://twitter.com/" target="_blank" rel="noreferrer">Twitter</a>
-          <a className="hover:underline" href="https://instagram.com/" target="_blank" rel="noreferrer">Instagram</a>
-          <a className="hover:underline" href="https://youtube.com/" target="_blank" rel="noreferrer">YouTube</a>
-          <a className="hover:underline" href="https://www.bomdigma.com.br/" target="_blank" rel="noreferrer">Site oficial</a>
+        <div className="flex items-center space-x-5 mt-4 md:mt-0">
+          <a className="flex items-center space-x-2 hover:underline" href="https://x.com/ParadigmaEdu" target="_blank" rel="noreferrer">
+            <span aria-hidden>𝕏</span><span>Twitter / X</span>
+          </a>
+          <a className="flex items-center space-x-2 hover:underline" href="https://www.instagram.com/paradigma.education/" target="_blank" rel="noreferrer">
+            <span aria-hidden>📸</span><span>Instagram</span>
+          </a>
+          <a className="flex items-center space-x-2 hover:underline" href="https://www.youtube.com/@ParadigmaEducation" target="_blank" rel="noreferrer">
+            <span aria-hidden>▶️</span><span>YouTube</span>
+          </a>
+          <a className="flex items-center space-x-2 hover:underline" href="https://paradigma.education/" target="_blank" rel="noreferrer">
+            <span aria-hidden>🌐</span><span>Site oficial</span>
+          </a>
+          <a className="flex items-center space-x-2 hover:underline" href="https://www.bomdigma.com.br/" target="_blank" rel="noreferrer">
+            <span aria-hidden>📰</span><span>Bom Digma</span>
+          </a>
         </div>
       </div>
     </footer>

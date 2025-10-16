@@ -148,16 +148,14 @@ export default function FlagsList({ flags }: FlagsListProps) {
       {/* CTA Paradigma Pro */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <p className="text-sm text-purple-900">
-            Para entender a nossa visão sobre esses alertas, entre para o <span className="font-semibold">Paradigma Pro</span> e tenha suporte exclusivo 24/7 com nossos analistas.
-          </p>
+          <p className="text-sm text-purple-900">Em dúvida sobre os alertas? Entre para o <span className="font-semibold">Paradigma PRO</span> e tenha acesso 24/7 com nossos analistas.</p>
           <a
-            href="https://paradigma.education" 
+            href="https://paradigma.education/pro" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="inline-flex items-center px-4 py-2 rounded-md bg-purple-600 text-white text-sm hover:bg-purple-700"
           >
-            Conheça o Paradigma Pro
+            Conheça o Paradigma PRO
           </a>
         </div>
       </div>
