@@ -98,13 +98,21 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (Math.abs(totalPercentage - 100) > 0.1) {
       alert('A soma das porcentagens deve ser exatamente 100%');
       return;
     }
+
+    try {
+      await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+    } catch {}
 
     onSubmit(allocation);
   };
@@ -128,19 +136,6 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
       </h2>
       
       <form onSubmit={handleSubmit} className="space-y-6 text-center">
-        {/* Email gate */}
-        <div className="mx-auto max-w-xl">
-          <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
-          <input
-            type="email"
-            placeholder="seu@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="form-input text-center"
-            required
-          />
-          <p className="text-xs text-gray-500 mt-1">Necessário para continuar e receber seu diagnóstico.</p>
-        </div>
         {/* Token Allocation */}
         <div className="space-y-4">
           
@@ -154,7 +149,7 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
                   )}
                   <span>{item.token}</span>
                 </label>
-                <div className="flex items-center space-x-3">
+                <div className="flex flex-col items-center space-y-2">
                   <div className="relative">
                     <input
                       inputMode="decimal"
@@ -248,6 +243,29 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
             {totalPercentage.toFixed(1)}%
           </span>
         </div>
+
+        {/* Email gate moved to bottom */}
+        <div className="mx-auto max-w-xl">
+          <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+          <input
+            type="email"
+            placeholder="seu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="form-input text-center"
+            required
+          />
+          <p className="text-xs text-gray-500 mt-1">Necessário para continuar e receber seu diagnóstico.</p>
+        </div>
+
+        {/* Embed de inscrição Substack (pode ser bloqueado por X-Frame-Options) */}
+        {email && (
+          <iframe
+            title="subscribe"
+            src={`https://www.bomdigma.com.br/subscribe?email=${encodeURIComponent(email)}`}
+            className="mx-auto w-full max-w-xl h-24 border-0"
+          />
+        )}
 
         {/* Ações removidas conforme solicitado */}
 
