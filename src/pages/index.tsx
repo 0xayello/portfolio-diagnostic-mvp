@@ -4,6 +4,7 @@ import { PortfolioAllocation, InvestorProfile, PortfolioDiagnostic, Autocomplete
 import PortfolioForm from '../components/PortfolioForm';
 import ProfileQuiz from '../components/ProfileQuiz';
 import DiagnosticResults from '../components/DiagnosticResults';
+import Footer from '../components/Footer';
 
 const PREDEFINED_TOKENS = ['BTC', 'ETH', 'SOL', 'USDC'];
 
@@ -128,6 +129,7 @@ export default function Home() {
               />
             )}
           </div>
+          <Footer />
         </div>
       </main>
     </>

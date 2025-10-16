@@ -141,7 +141,7 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {allocation.map((item) => (
-            <div key={item.token} className="flex items-center space-x-4 p-4 bg-[#2ce699] rounded-lg">
+            <div key={item.token} className="relative flex items-center space-x-4 p-4 bg-[#2ce699] rounded-lg">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-[#27224e] mb-2 flex items-center justify-center space-x-2">
                   {tokenImages[item.token.toUpperCase()] && (
@@ -164,16 +164,14 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
                   </div>
                 </div>
               </div>
-              
-              {!PREDEFINED_TOKENS.includes(item.token) && (
-                <button
-                  type="button"
-                  onClick={() => removeToken(item.token)}
-                  className="text-red-500 hover:text-red-700 font-bold text-lg"
-                >
-                  ×
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => removeToken(item.token)}
+                className="absolute top-2 right-2 text-black hover:opacity-80"
+                aria-label={`Remover ${item.token}`}
+              >
+                ×
+              </button>
             </div>
           ))}
           </div>
