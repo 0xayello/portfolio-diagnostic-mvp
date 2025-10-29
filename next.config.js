@@ -1,10 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
-  env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
-  },
+  // swcMinify is now default in Next.js 15+ and this option has been removed
   async headers() {
     return [
       {
