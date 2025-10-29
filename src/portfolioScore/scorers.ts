@@ -43,10 +43,11 @@ export function scoreDiversification(input: PortfolioInput): number {
 
   // aggressive:
   // (60 + sectorIndex*40) - |core-30|*1.0 - |numAssets-10|*1.5
-  const sectorBonus = (sectorIndex || 0) * (cfg.sectorBonusFactor || 0);
-  const base = (cfg.base || 0) + sectorBonus;
-  const corePenalty = absDiff(core, cfg.targetCore) * cfg.coreSlope;
-  const numPenalty = Math.abs(numAssets - cfg.numAssetsIdeal) * (cfg.numAssetsSlope || 0);
+  const aggr = T.diversification.aggressive;
+  const sectorBonus = (sectorIndex || 0) * (aggr.sectorBonusFactor || 0);
+  const base = (aggr.base || 0) + sectorBonus;
+  const corePenalty = absDiff(core, aggr.targetCore) * aggr.coreSlope;
+  const numPenalty = Math.abs(numAssets - aggr.numAssetsIdeal) * (aggr.numAssetsSlope || 0);
   const raw = base - corePenalty - numPenalty;
   return norm(clamp(raw));
 }
