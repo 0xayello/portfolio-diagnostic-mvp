@@ -92,9 +92,8 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
   };
 
   const removeToken = (token: string) => {
-    if (!PREDEFINED_TOKENS.includes(token)) {
-      setAllocation(prev => prev.filter(item => item.token !== token));
-    }
+    // Permitir remover QUALQUER token, inclusive os pré-definidos
+    setAllocation(prev => prev.filter(item => item.token !== token));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
