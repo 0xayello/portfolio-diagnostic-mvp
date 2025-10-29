@@ -1,8 +1,6 @@
 {
   "framework": "nextjs",
-  "env": {
-    "COINGECKO_API_KEY": "CG-WfDyPhLk9fNigX2kdLZ3fzC1",
-    "COINMARKETCAP_API_KEY": "14db9c0b-8f13-4200-aab1-9336d4802e72"
-  },
+  "buildCommand": "next build",
+  "installCommand": "npm install",
   "regions": ["iad1"]
 }
