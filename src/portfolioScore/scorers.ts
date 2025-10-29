@@ -26,8 +26,9 @@ export function scoreDiversification(input: PortfolioInput): number {
 
   if (risk === 'conservative') {
     // 100 - |core-80|*1.0 - (sectorIndex*30)
-    const coreTerm = 100 - absDiff(core, cfg.targetCore) * cfg.coreSlope;
-    const sectorPenalty = (sectorIndex || 0) * (cfg.sectorPenaltyFactor || 0);
+    const cons = T.diversification.conservative;
+    const coreTerm = 100 - absDiff(core, cons.targetCore) * cons.coreSlope;
+    const sectorPenalty = (sectorIndex || 0) * (cons.sectorPenaltyFactor || 0);
     const raw = coreTerm - sectorPenalty;
     return norm(clamp(raw));
   }
