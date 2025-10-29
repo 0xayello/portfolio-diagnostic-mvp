@@ -140,11 +140,11 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
           {allocation.map((item) => (
             <div key={item.token} className="relative flex items-center space-x-4 p-4 bg-[#2ce699] rounded-lg">
               <div className="flex-1">
-                <label className="block text-sm font-medium text-[#27224e] mb-2 flex items-center justify-center space-x-2">
+                <label className="inline-flex items-center justify-center gap-2 text-sm font-medium text-[#27224e] mb-2 h-7">
                   <img
                     src={tokenImages[item.token.toUpperCase()] || FALLBACK_LOGOS[item.token.toUpperCase()]}
                     alt={`${item.token} logo`}
-                    className="w-6 h-6 rounded-full object-contain"
+                    className="w-6 h-6 rounded-full object-contain bg-white p-0.5 shadow-sm"
                     onError={(e) => {
                       const sym = item.token.toUpperCase();
                       // fallback definitivo para evitar ícone quebrado
