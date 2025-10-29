@@ -19,9 +19,8 @@ MVP de diagnóstico de portfólio cripto que analisa a alocação do usuário, g
 - ✅ Design responsivo e moderno
 
 ### 🔧 APIs Integradas
-- ✅ CoinGecko API (principal)
-- ✅ CoinMarketCap API (fallback)
-- ✅ DeFiLlama (preparado para unlocks)
+- ✅ **CoinGecko API** (dados de mercado e preços - PRINCIPAL)
+- ✅ **CoinMarketCap API** (unlocks oficiais de tokens - REQUERIDO)
 
 ## 🛠️ Instalação e Configuração
 
@@ -34,10 +33,10 @@ npm install
 Crie um arquivo `.env.local` na raiz do projeto:
 
 ```env
-# CoinGecko API Configuration
+# CoinGecko API Configuration (REQUERIDO)
 COINGECKO_API_KEY=your_coingecko_api_key_here
 
-# CoinMarketCap API Configuration (fallback)
+# CoinMarketCap API Configuration (OPCIONAL - para unlocks)
 COINMARKETCAP_API_KEY=your_coinmarketcap_api_key_here
 
 # Application Configuration
@@ -47,17 +46,37 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ### 3. Obter Chaves de API
 
-#### CoinGecko (Recomendado)
+#### CoinGecko (⚠️ REQUERIDO)
 1. Acesse: https://www.coingecko.com/en/api
 2. Registre-se e obtenha uma chave Demo (gratuita)
 3. Limite: ~30 requisições/minuto
+4. **Usado para**: Preços, market cap, dados históricos, busca de tokens
 
-#### CoinMarketCap (Fallback)
+#### CoinMarketCap (⚠️ REQUERIDO - para unlocks)
 1. Acesse: https://coinmarketcap.com/api/
 2. Registre-se no plano Basic (gratuito)
 3. Limite: 10.000 requisições/mês
+4. **Usado para**: Dados oficiais de unlocks de tokens
+5. ⚠️ **Nota**: O endpoint de unlocks pode não estar disponível no plano Basic. Pode ser necessário upgrade para Hobbyist ou superior.
 
-### 4. Executar o Projeto
+📖 **[Guia completo de configuração do CoinMarketCap](docs/COINMARKETCAP_SETUP.md)**
+
+### 4. Testar APIs (Recomendado)
+
+Teste se as APIs estão configuradas corretamente:
+
+```bash
+# Instalar ts-node
+npm install -D ts-node
+
+# Testar CoinMarketCap com vários tokens
+npx ts-node scripts/test-coinmarketcap.ts
+
+# Testar especificamente com Meteora
+npx ts-node scripts/test-meteora.ts
+```
+
+### 5. Executar o Projeto
 ```bash
 npm run dev
 ```

@@ -9,18 +9,15 @@ import {
 } from '../types/portfolio';
 import { CoinGeckoService } from './coingecko';
 import sectorsData from '../data/sectors.json';
-import { DefiLlamaService } from './defillama';
-import { UnlocksAppService } from './unlocksapp';
+import { CoinMarketCapService } from './coinmarketcap';
 
 export class DiagnosticService {
   private coinGeckoService: CoinGeckoService;
-  private defiLlamaService: DefiLlamaService;
-  private unlocksAppService: UnlocksAppService;
+  private coinMarketCapService: CoinMarketCapService;
 
   constructor() {
     this.coinGeckoService = new CoinGeckoService();
-    this.defiLlamaService = new DefiLlamaService();
-    this.unlocksAppService = new UnlocksAppService();
+    this.coinMarketCapService = new CoinMarketCapService();
   }
 
   async generateDiagnostic(
@@ -270,26 +267,30 @@ export class DiagnosticService {
     try {
       const unique = Array.from(new Set(symbols.map(s => s.toUpperCase())));
 
-      // 1) provedor primário: UnlocksApp
-      const fromUnlocks = await this.unlocksAppService.getUpcomingUnlocks(unique, 180);
+      console.log('🔍 Buscando unlocks no CoinMarketCap para:', unique);
 
-      // 2) fallback: DeFiLlama (unlocks + vesting aliases)
-      const fromLlama = await this.defiLlamaService.getUpcomingUnlocks(unique, 180);
+      // Buscar apenas do CoinMarketCap
+      const unlockEvents = await this.coinMarketCapService.getUpcomingUnlocks(unique, 180);
 
-      // 3) merge + dedupe
-      const all = [...fromUnlocks, ...fromLlama];
-      const key = (r: { token: string; unlockDate: string; percentage: number; amount: number }) => `${r.token}|${r.unlockDate}|${r.percentage}|${r.amount}`;
-      const deduped = Array.from(new Map(all.map(r => [key(r), r])).values());
+      console.log('✅ CoinMarketCap retornou:', unlockEvents.length, 'eventos');
+      
+      if (unlockEvents.length > 0) {
+        console.log('📊 Detalhes dos unlocks encontrados:');
+        unlockEvents.forEach(e => {
+          console.log(`  - ${e.token}: ${e.amount.toLocaleString()} tokens (${e.percentage.toFixed(2)}%) em ${e.unlockDate}`);
+        });
+      }
 
-      return deduped.map(u => ({
+      return unlockEvents.map(u => ({
         token: u.token,
         unlockDate: u.unlockDate,
         percentage: u.percentage,
         amount: u.amount,
-        type: 'token_unlock',
-        severity: u.percentage >= 10 ? 'red' : 'yellow',
+        type: 'token_unlock' as const,
+        severity: u.percentage >= 10 ? ('red' as const) : ('yellow' as const),
       }));
     } catch (e) {
+      console.error('❌ Erro ao buscar unlock alerts:', e);
       return [];
     }
   }
