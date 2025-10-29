@@ -12,7 +12,7 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
     horizon: undefined,
     riskTolerance: undefined,
     cryptoPercentage: 0,
-    objective: undefined,
+    objective: [],
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -34,8 +34,8 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
       newErrors.cryptoPercentage = 'Informe a porcentagem do patrimônio em cripto';
     }
     
-    if (!profile.objective) {
-      newErrors.objective = 'Selecione seu objetivo principal';
+    if (!profile.objective || (Array.isArray(profile.objective) && profile.objective.length === 0)) {
+      newErrors.objective = 'Selecione pelo menos um objetivo';
     }
     
     setErrors(newErrors);
@@ -172,7 +172,7 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
         {/* Objetivo Principal */}
         <div>
           <label className="block text-lg font-semibold text-gray-800 mb-4">
-            4. Qual é seu objetivo principal com criptomoedas?
+            4. Quais são seus objetivos com criptomoedas? (múltipla escolha)
           </label>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
@@ -198,9 +198,16 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
               <button
                 key={option.value}
                 type="button"
-                onClick={() => handleChange('objective', option.value)}
+                onClick={() => {
+                  const current = Array.isArray(profile.objective) ? profile.objective : [];
+                  const exists = current.includes(option.value as any);
+                  const next = exists
+                    ? current.filter(v => v !== option.value)
+                    : [...current, option.value as any];
+                  handleChange('objective', next);
+                }}
                 className={`p-4 border-2 rounded-lg text-left transition-all ${
-                  profile.objective === option.value
+                  (Array.isArray(profile.objective) && profile.objective.includes(option.value as any))
                     ? 'border-bomdigma-500 bg-bomdigma-50 text-bomdigma-900'
                     : 'border-gray-200 hover:border-gray-300 text-gray-700'
                 }`}

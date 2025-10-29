@@ -15,6 +15,13 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
   const [showSearch, setShowSearch] = useState(false);
   const [totalPercentage, setTotalPercentage] = useState(0);
   const [tokenImages, setTokenImages] = useState<Record<string, string>>({});
+  const FALLBACK_LOGOS: Record<string, string> = {
+    BTC: 'https://cryptoicons.org/api/icon/btc/64',
+    ETH: 'https://cryptoicons.org/api/icon/eth/64',
+    SOL: 'https://cryptoicons.org/api/icon/sol/64',
+    USDC: 'https://cryptoicons.org/api/icon/usdc/64',
+    USDT: 'https://cryptoicons.org/api/icon/usdt/64'
+  };
 
   useEffect(() => {
     const total = allocation.reduce((sum, item) => sum + item.percentage, 0);
@@ -134,9 +141,16 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
             <div key={item.token} className="relative flex items-center space-x-4 p-4 bg-[#2ce699] rounded-lg">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-[#27224e] mb-2 flex items-center justify-center space-x-2">
-                  {tokenImages[item.token.toUpperCase()] && (
-                    <img src={tokenImages[item.token.toUpperCase()]} alt={`${item.token} logo`} className="w-6 h-6 rounded-full object-contain" />
-                  )}
+                  <img
+                    src={tokenImages[item.token.toUpperCase()] || FALLBACK_LOGOS[item.token.toUpperCase()]}
+                    alt={`${item.token} logo`}
+                    className="w-6 h-6 rounded-full object-contain"
+                    onError={(e) => {
+                      const sym = item.token.toUpperCase();
+                      // fallback definitivo para evitar ícone quebrado
+                      (e.currentTarget as HTMLImageElement).src = FALLBACK_LOGOS[sym] || '';
+                    }}
+                  />
                   <span>{item.token}</span>
                 </label>
                 <div className="flex flex-col items-center space-y-2">

@@ -24,7 +24,7 @@ export interface InvestorProfile {
   horizon: 'short' | 'medium' | 'long';
   riskTolerance: 'low' | 'medium' | 'high';
   cryptoPercentage: number;
-  objective: 'preserve' | 'passive_income' | 'multiply';
+  objective: Array<'preserve' | 'passive_income' | 'multiply'>;
 }
 
 export interface DiagnosticFlag {
