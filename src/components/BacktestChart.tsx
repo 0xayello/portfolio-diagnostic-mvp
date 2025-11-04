@@ -44,24 +44,109 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
     );
   }
 
-  // Cores vibrantes para cada token
+  // Cores representativas de cada token (cores oficiais das marcas)
   const tokenColors: { [key: string]: { border: string; bg: string } } = {
-    BTC: { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.08)' },
-    ETH: { border: '#627eea', bg: 'rgba(98, 126, 234, 0.08)' },
-    SOL: { border: '#9945ff', bg: 'rgba(153, 69, 255, 0.08)' },
-    USDC: { border: '#2775ca', bg: 'rgba(39, 117, 202, 0.08)' },
-    USDT: { border: '#26a17b', bg: 'rgba(38, 161, 123, 0.08)' },
-    DOGE: { border: '#c2a633', bg: 'rgba(194, 166, 51, 0.08)' },
-    SHIB: { border: '#ffa409', bg: 'rgba(255, 164, 9, 0.08)' },
-    ARB: { border: '#28a0f0', bg: 'rgba(40, 160, 240, 0.08)' },
-    OP: { border: '#ff0420', bg: 'rgba(255, 4, 32, 0.08)' },
-    MATIC: { border: '#8247e5', bg: 'rgba(130, 71, 229, 0.08)' },
-    AVAX: { border: '#e84142', bg: 'rgba(232, 65, 66, 0.08)' },
-    DOT: { border: '#e6007a', bg: 'rgba(230, 0, 122, 0.08)' },
-    LINK: { border: '#2a5ada', bg: 'rgba(42, 90, 218, 0.08)' },
-    UNI: { border: '#ff007a', bg: 'rgba(255, 0, 122, 0.08)' },
-    AAVE: { border: '#b6509e', bg: 'rgba(182, 80, 158, 0.08)' },
-    DEFAULT: { border: '#6366f1', bg: 'rgba(99, 102, 241, 0.08)' },
+    // Majors
+    BTC: { border: '#f7931a', bg: 'rgba(247, 147, 26, 0.08)' }, // Laranja Bitcoin
+    ETH: { border: '#627eea', bg: 'rgba(98, 126, 234, 0.08)' }, // Azul Ethereum
+    SOL: { border: '#9945ff', bg: 'rgba(153, 69, 255, 0.08)' }, // Roxo Solana
+    BNB: { border: '#f3ba2f', bg: 'rgba(243, 186, 47, 0.08)' }, // Amarelo Binance
+    XRP: { border: '#23292f', bg: 'rgba(35, 41, 47, 0.08)' }, // Preto Ripple
+    ADA: { border: '#0033ad', bg: 'rgba(0, 51, 173, 0.08)' }, // Azul escuro Cardano
+    
+    // Stablecoins
+    USDC: { border: '#2775ca', bg: 'rgba(39, 117, 202, 0.08)' }, // Azul USDC
+    USDT: { border: '#26a17b', bg: 'rgba(38, 161, 123, 0.08)' }, // Verde Tether
+    DAI: { border: '#f5ac37', bg: 'rgba(245, 172, 55, 0.08)' }, // Amarelo DAI
+    BUSD: { border: '#f0b90b', bg: 'rgba(240, 185, 11, 0.08)' }, // Amarelo BUSD
+    USDD: { border: '#0a1f3d', bg: 'rgba(10, 31, 61, 0.08)' }, // Azul escuro
+    TUSD: { border: '#002868', bg: 'rgba(0, 40, 104, 0.08)' }, // Azul TrueUSD
+    FDUSD: { border: '#00d4aa', bg: 'rgba(0, 212, 170, 0.08)' }, // Verde água
+    
+    // Memecoins
+    DOGE: { border: '#c2a633', bg: 'rgba(194, 166, 51, 0.08)' }, // Dourado Dogecoin
+    SHIB: { border: '#ffa409', bg: 'rgba(255, 164, 9, 0.08)' }, // Laranja Shiba
+    PEPE: { border: '#3b8428', bg: 'rgba(59, 132, 40, 0.08)' }, // Verde Pepe
+    FLOKI: { border: '#ff4d00', bg: 'rgba(255, 77, 0, 0.08)' }, // Laranja Floki
+    BONK: { border: '#ff6b35', bg: 'rgba(255, 107, 53, 0.08)' }, // Laranja BONK
+    WIF: { border: '#ffb3ba', bg: 'rgba(255, 179, 186, 0.08)' }, // Rosa WIF
+    BOME: { border: '#8b4513', bg: 'rgba(139, 69, 19, 0.08)' }, // Marrom
+    
+    // Layer 1s
+    AVAX: { border: '#e84142', bg: 'rgba(232, 65, 66, 0.08)' }, // Vermelho Avalanche
+    DOT: { border: '#e6007a', bg: 'rgba(230, 0, 122, 0.08)' }, // Rosa Polkadot
+    MATIC: { border: '#8247e5', bg: 'rgba(130, 71, 229, 0.08)' }, // Roxo Polygon
+    ATOM: { border: '#2e3148', bg: 'rgba(46, 49, 72, 0.08)' }, // Cinza escuro Cosmos
+    TIA: { border: '#7b2bf9', bg: 'rgba(123, 43, 249, 0.08)' }, // Roxo Celestia
+    SEI: { border: '#b91c1c', bg: 'rgba(185, 28, 28, 0.08)' }, // Vermelho Sei
+    SUI: { border: '#4da2ff', bg: 'rgba(77, 162, 255, 0.08)' }, // Azul Sui
+    APT: { border: '#00d4aa', bg: 'rgba(0, 212, 170, 0.08)' }, // Verde água Aptos
+    INJ: { border: '#00f2fe', bg: 'rgba(0, 242, 254, 0.08)' }, // Ciano Injective
+    NEAR: { border: '#000000', bg: 'rgba(0, 0, 0, 0.08)' }, // Preto NEAR
+    FTM: { border: '#1969ff', bg: 'rgba(25, 105, 255, 0.08)' }, // Azul Fantom
+    ALGO: { border: '#000000', bg: 'rgba(0, 0, 0, 0.08)' }, // Preto Algorand
+    
+    // Layer 2s
+    ARB: { border: '#28a0f0', bg: 'rgba(40, 160, 240, 0.08)' }, // Azul Arbitrum
+    OP: { border: '#ff0420', bg: 'rgba(255, 4, 32, 0.08)' }, // Vermelho Optimism
+    MNT: { border: '#000000', bg: 'rgba(0, 0, 0, 0.08)' }, // Preto Mantle
+    STRK: { border: '#ec796b', bg: 'rgba(236, 121, 107, 0.08)' }, // Coral Starknet
+    IMX: { border: '#0bb2f5', bg: 'rgba(11, 178, 245, 0.08)' }, // Azul claro IMX
+    METIS: { border: '#00dacc', bg: 'rgba(0, 218, 204, 0.08)' }, // Ciano Metis
+    
+    // DeFi
+    UNI: { border: '#ff007a', bg: 'rgba(255, 0, 122, 0.08)' }, // Rosa Uniswap
+    AAVE: { border: '#b6509e', bg: 'rgba(182, 80, 158, 0.08)' }, // Roxo AAVE
+    LDO: { border: '#00a3ff', bg: 'rgba(0, 163, 255, 0.08)' }, // Azul Lido
+    CRV: { border: '#ff0000', bg: 'rgba(255, 0, 0, 0.08)' }, // Vermelho Curve
+    MKR: { border: '#1aab9b', bg: 'rgba(26, 171, 155, 0.08)' }, // Verde Maker
+    COMP: { border: '#00d395', bg: 'rgba(0, 211, 149, 0.08)' }, // Verde Compound
+    SNX: { border: '#00d1ff', bg: 'rgba(0, 209, 255, 0.08)' }, // Ciano Synthetix
+    PENDLE: { border: '#16c784', bg: 'rgba(22, 199, 132, 0.08)' }, // Verde Pendle
+    JTO: { border: '#9945ff', bg: 'rgba(153, 69, 255, 0.08)' }, // Roxo Jito
+    ONDO: { border: '#1e3a8a', bg: 'rgba(30, 58, 138, 0.08)' }, // Azul escuro Ondo
+    JUP: { border: '#c7f284', bg: 'rgba(199, 242, 132, 0.08)' }, // Verde claro Jupiter
+    RUNE: { border: '#00ccff', bg: 'rgba(0, 204, 255, 0.08)' }, // Ciano Thor
+    GMX: { border: '#5294ff', bg: 'rgba(82, 148, 255, 0.08)' }, // Azul GMX
+    DYDX: { border: '#6966ff', bg: 'rgba(105, 102, 255, 0.08)' }, // Roxo dYdX
+    
+    // Oracles
+    LINK: { border: '#2a5ada', bg: 'rgba(42, 90, 218, 0.08)' }, // Azul Chainlink
+    PYTH: { border: '#7141f1', bg: 'rgba(113, 65, 241, 0.08)' }, // Roxo Pyth
+    GRT: { border: '#6f4cff', bg: 'rgba(111, 76, 255, 0.08)' }, // Roxo The Graph
+    BAND: { border: '#516aff', bg: 'rgba(81, 106, 255, 0.08)' }, // Azul Band
+    
+    // AI & Compute
+    WLD: { border: '#000000', bg: 'rgba(0, 0, 0, 0.08)' }, // Preto Worldcoin
+    FET: { border: '#0048ff', bg: 'rgba(0, 72, 255, 0.08)' }, // Azul Fetch.ai
+    AGIX: { border: '#5e2aff', bg: 'rgba(94, 42, 255, 0.08)' }, // Roxo SingularityNET
+    RNDR: { border: '#ff6b00', bg: 'rgba(255, 107, 0, 0.08)' }, // Laranja Render
+    OCEAN: { border: '#141414', bg: 'rgba(20, 20, 20, 0.08)' }, // Preto Ocean
+    ARKM: { border: '#000000', bg: 'rgba(0, 0, 0, 0.08)' }, // Preto Arkham
+    
+    // Storage
+    FIL: { border: '#0090ff', bg: 'rgba(0, 144, 255, 0.08)' }, // Azul Filecoin
+    AR: { border: '#222326', bg: 'rgba(34, 35, 38, 0.08)' }, // Cinza escuro Arweave
+    
+    // Gaming & NFT
+    BLUR: { border: '#ff8700', bg: 'rgba(255, 135, 0, 0.08)' }, // Laranja Blur
+    GALA: { border: '#000000', bg: 'rgba(0, 0, 0, 0.08)' }, // Preto Gala
+    SAND: { border: '#00adef', bg: 'rgba(0, 173, 239, 0.08)' }, // Azul Sandbox
+    MANA: { border: '#ff2d55', bg: 'rgba(255, 45, 85, 0.08)' }, // Rosa Decentraland
+    AXS: { border: '#0055d5', bg: 'rgba(0, 85, 213, 0.08)' }, // Azul Axie
+    
+    // Liquid Staking
+    RPL: { border: '#e57a3f', bg: 'rgba(229, 122, 63, 0.08)' }, // Laranja Rocket Pool
+    ETHFI: { border: '#704af5', bg: 'rgba(112, 74, 245, 0.08)' }, // Roxo EtherFi
+    
+    // Exchanges
+    HYPE: { border: '#10b981', bg: 'rgba(16, 185, 129, 0.08)' }, // Verde Hyperliquid
+    
+    // Others
+    STX: { border: '#5546ff', bg: 'rgba(85, 70, 255, 0.08)' }, // Roxo Stacks
+    ROSE: { border: '#0500fb', bg: 'rgba(5, 0, 251, 0.08)' }, // Azul Oasis
+    
+    DEFAULT: { border: '#6366f1', bg: 'rgba(99, 102, 241, 0.08)' }, // Índigo padrão
   };
 
   const getTokenColor = (token: string) => {

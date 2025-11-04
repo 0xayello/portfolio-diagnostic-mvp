@@ -2,61 +2,107 @@
  * Utilitário para gerar links e formatar dados do CoinMarketCap
  */
 
-// Mapeamento manual de símbolos para slugs do CoinMarketCap
+// Mapeamento manual de símbolos para slugs do CoinMarketCap - 80+ tokens
 const SYMBOL_TO_SLUG: { [symbol: string]: string } = {
+  // Majors
   BTC: 'bitcoin',
   ETH: 'ethereum',
   SOL: 'solana',
+  BNB: 'bnb',
+  XRP: 'xrp',
+  ADA: 'cardano',
+  
+  // Stablecoins
   USDC: 'usd-coin',
   USDT: 'tether',
   USDD: 'usdd',
   DAI: 'multi-collateral-dai',
   BUSD: 'binance-usd',
+  TUSD: 'trueusd',
+  FDUSD: 'first-digital-usd',
+  
+  // Memecoins
   DOGE: 'dogecoin',
   SHIB: 'shiba-inu',
   PEPE: 'pepe',
   FLOKI: 'floki',
   BONK: 'bonk',
   WIF: 'dogwifcoin',
+  BOME: 'book-of-meme',
+  
+  // Layer 1s
   ARB: 'arbitrum',
   OP: 'optimism-ethereum',
   MATIC: 'polygon',
   AVAX: 'avalanche',
   DOT: 'polkadot-new',
-  LINK: 'chainlink',
-  UNI: 'uniswap',
-  AAVE: 'aave',
-  CRV: 'curve-dao-token',
-  COMP: 'compound',
-  MKR: 'maker',
-  SNX: 'synthetix-network-token',
-  LDO: 'lido-dao',
-  RPL: 'rocket-pool',
-  JTO: 'jito',
-  PYTH: 'pyth-network',
-  GRT: 'the-graph',
-  RNDR: 'render-token',
-  FIL: 'filecoin',
-  AR: 'arweave',
-  INJ: 'injective',
+  ATOM: 'cosmos',
+  TIA: 'celestia',
   SEI: 'sei',
   SUI: 'sui',
   APT: 'aptos',
-  TIA: 'celestia',
-  BLUR: 'blur',
+  INJ: 'injective',
+  NEAR: 'near-protocol',
+  FTM: 'fantom',
+  ALGO: 'algorand',
+  
+  // Layer 2s
+  MNT: 'mantle',
+  STRK: 'starknet',
+  IMX: 'immutable-x',
+  METIS: 'metis-token',
+  
+  // DeFi
+  LINK: 'chainlink',
+  UNI: 'uniswap',
+  AAVE: 'aave',
+  LDO: 'lido-dao',
+  CRV: 'curve-dao-token',
+  MKR: 'maker',
+  COMP: 'compound',
+  SNX: 'synthetix-network-token',
   PENDLE: 'pendle',
+  JTO: 'jito',
+  ONDO: 'ondo-finance',
+  JUP: 'jupiter-exchange-solana',
+  RUNE: 'thorchain',
+  GMX: 'gmx',
+  DYDX: 'dydx',
+  
+  // Oracles
+  PYTH: 'pyth-network',
+  GRT: 'the-graph',
+  BAND: 'band-protocol',
+  
+  // AI & Compute
   WLD: 'worldcoin',
   FET: 'fetch-ai',
   AGIX: 'singularitynet',
-  JUP: 'jupiter',
-  ONDO: 'ondo-finance',
-  MNT: 'mantle',
-  STX: 'stacks',
-  RUNE: 'thorchain',
+  RNDR: 'render-token',
   OCEAN: 'ocean-protocol',
-  IMX: 'immutable-x',
-  GMX: 'gmx',
+  ARKM: 'arkham',
+  
+  // Storage
+  FIL: 'filecoin',
+  AR: 'arweave',
+  
+  // Gaming & NFT
+  BLUR: 'blur',
+  GALA: 'gala',
+  SAND: 'the-sandbox',
+  MANA: 'decentraland',
+  AXS: 'axie-infinity',
+  
+  // Liquid Staking
+  RPL: 'rocket-pool',
+  ETHFI: 'ether-fi',
+  
+  // Exchanges
   HYPE: 'hyperliquid',
+  
+  // Others
+  STX: 'stacks',
+  ROSE: 'oasis-network',
 };
 
 /**
