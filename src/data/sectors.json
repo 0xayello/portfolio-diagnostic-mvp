@@ -190,5 +190,191 @@
     "category": "Meme Coin",
     "chain": "Ethereum",
     "ecosystem": "Shiba Inu"
+  },
+  "PEPE": {
+    "sector": "Meme",
+    "category": "Meme Coin",
+    "chain": "Ethereum",
+    "ecosystem": "Pepe"
+  },
+  "ARB": {
+    "sector": "Layer 2",
+    "category": "Optimistic Rollup",
+    "chain": "Ethereum L2",
+    "ecosystem": "Arbitrum"
+  },
+  "OP": {
+    "sector": "Layer 2",
+    "category": "Optimistic Rollup",
+    "chain": "Ethereum L2",
+    "ecosystem": "Optimism"
+  },
+  "IMX": {
+    "sector": "Layer 2",
+    "category": "ZK Rollup",
+    "chain": "Ethereum L2",
+    "ecosystem": "Immutable X"
+  },
+  "LDO": {
+    "sector": "Liquid Staking",
+    "category": "Staking Derivative",
+    "chain": "Ethereum",
+    "ecosystem": "Lido"
+  },
+  "RPL": {
+    "sector": "Liquid Staking",
+    "category": "Staking Derivative",
+    "chain": "Ethereum",
+    "ecosystem": "Rocket Pool"
+  },
+  "GMX": {
+    "sector": "Derivatives",
+    "category": "Perpetuals DEX",
+    "chain": "Arbitrum",
+    "ecosystem": "GMX"
+  },
+  "GRT": {
+    "sector": "Infrastructure",
+    "category": "Indexing Protocol",
+    "chain": "Ethereum",
+    "ecosystem": "The Graph"
+  },
+  "RNDR": {
+    "sector": "Infrastructure",
+    "category": "GPU Rendering",
+    "chain": "Ethereum",
+    "ecosystem": "Render"
+  },
+  "FIL": {
+    "sector": "Storage",
+    "category": "Decentralized Storage",
+    "chain": "Filecoin",
+    "ecosystem": "Filecoin"
+  },
+  "AR": {
+    "sector": "Storage",
+    "category": "Permanent Storage",
+    "chain": "Arweave",
+    "ecosystem": "Arweave"
+  },
+  "INJ": {
+    "sector": "Derivatives",
+    "category": "DEX",
+    "chain": "Cosmos",
+    "ecosystem": "Injective"
+  },
+  "SEI": {
+    "sector": "Smart Contract Platform",
+    "category": "Trading-Optimized L1",
+    "chain": "Cosmos",
+    "ecosystem": "Sei"
+  },
+  "SUI": {
+    "sector": "Smart Contract Platform",
+    "category": "Move-based L1",
+    "chain": "Sui",
+    "ecosystem": "Sui"
+  },
+  "APT": {
+    "sector": "Smart Contract Platform",
+    "category": "Move-based L1",
+    "chain": "Aptos",
+    "ecosystem": "Aptos"
+  },
+  "TIA": {
+    "sector": "Infrastructure",
+    "category": "Modular Blockchain",
+    "chain": "Celestia",
+    "ecosystem": "Celestia"
+  },
+  "BLUR": {
+    "sector": "NFT",
+    "category": "NFT Marketplace",
+    "chain": "Ethereum",
+    "ecosystem": "Blur"
+  },
+  "PENDLE": {
+    "sector": "Yield Farming",
+    "category": "Yield Trading",
+    "chain": "Ethereum",
+    "ecosystem": "Pendle"
+  },
+  "JTO": {
+    "sector": "Liquid Staking",
+    "category": "Staking Derivative",
+    "chain": "Solana",
+    "ecosystem": "Jito"
+  },
+  "WLD": {
+    "sector": "AI",
+    "category": "Identity",
+    "chain": "Ethereum",
+    "ecosystem": "Worldcoin"
+  },
+  "FET": {
+    "sector": "AI",
+    "category": "AI Agent",
+    "chain": "Ethereum",
+    "ecosystem": "Fetch.ai"
+  },
+  "AGIX": {
+    "sector": "AI",
+    "category": "AI Marketplace",
+    "chain": "Cardano",
+    "ecosystem": "SingularityNET"
+  },
+  "JUP": {
+    "sector": "DEX",
+    "category": "DEX Aggregator",
+    "chain": "Solana",
+    "ecosystem": "Jupiter"
+  },
+  "PYTH": {
+    "sector": "Oracle",
+    "category": "Price Oracle",
+    "chain": "Solana",
+    "ecosystem": "Pyth"
+  },
+  "WIF": {
+    "sector": "Meme",
+    "category": "Meme Coin",
+    "chain": "Solana",
+    "ecosystem": "Dogwifhat"
+  },
+  "BONK": {
+    "sector": "Meme",
+    "category": "Meme Coin",
+    "chain": "Solana",
+    "ecosystem": "Bonk"
+  },
+  "ONDO": {
+    "sector": "RWA",
+    "category": "Tokenized Assets",
+    "chain": "Ethereum",
+    "ecosystem": "Ondo Finance"
+  },
+  "MNT": {
+    "sector": "Layer 2",
+    "category": "Optimistic Rollup",
+    "chain": "Ethereum L2",
+    "ecosystem": "Mantle"
+  },
+  "STX": {
+    "sector": "Smart Contract Platform",
+    "category": "Bitcoin L2",
+    "chain": "Bitcoin",
+    "ecosystem": "Stacks"
+  },
+  "RUNE": {
+    "sector": "DEX",
+    "category": "Cross-chain DEX",
+    "chain": "Multi-chain",
+    "ecosystem": "THORChain"
+  },
+  "OCEAN": {
+    "sector": "AI",
+    "category": "Data Marketplace",
+    "chain": "Ethereum",
+    "ecosystem": "Ocean Protocol"
   }
 }
