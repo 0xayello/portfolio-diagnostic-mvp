@@ -34,43 +34,79 @@ function IconYouTube() {
 
 export default function Footer() {
   return (
-    <footer className="mt-12 border-t border-gray-200">
-      <div className="max-w-6xl mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between text-sm text-black">
-        <div className="flex items-center space-x-3">
-          <img
-            src="/logo-paradigma-bg.svg"
-            alt="Paradigma"
-            className="w-6 h-6"
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = 'https://paradigma.education/favicon-196x196.png';
-            }}
-          />
-          <span>Paradigma Education © {new Date().getFullYear()}</span>
-        </div>
-        <div className="flex items-center space-x-5 mt-4 md:mt-0">
-          <a className="flex items-center space-x-2 hover:underline" href="https://x.com/ParadigmaEdu" target="_blank" rel="noreferrer">
-            <span aria-hidden>𝕏</span><span>Twitter / X</span>
-          </a>
-          <a className="flex items-center space-x-2 hover:underline" href="https://www.instagram.com/paradigma.education/" target="_blank" rel="noreferrer">
-            <IconInstagram /><span>Instagram</span>
-          </a>
-          <a className="flex items-center space-x-2 hover:underline" href="https://www.youtube.com/@ParadigmaEducation" target="_blank" rel="noreferrer">
-            <IconYouTube /><span>YouTube</span>
-          </a>
-          <a className="flex items-center space-x-2 hover:underline" href="https://paradigma.education/" target="_blank" rel="noreferrer">
-            <img
-              src="/logo-paradigma-bg.svg"
-              alt="Paradigma"
-              className="w-4 h-4"
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src = 'https://paradigma.education/favicon-196x196.png';
-              }}
-            />
-            <span>Site oficial</span>
-          </a>
-          <a className="flex items-center space-x-2 hover:underline" href="https://www.bomdigma.com.br/" target="_blank" rel="noreferrer">
-            <span aria-hidden>📰</span><span>Bom Digma</span>
-          </a>
+    <footer className="mt-16 relative">
+      <div className="absolute inset-0 bg-gradient-to-t from-white/80 to-transparent backdrop-blur-sm"></div>
+      <div className="relative z-10 max-w-6xl mx-auto px-4 py-8">
+        <div className="glass-card rounded-3xl p-6 shadow-xl">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            {/* Logo e Copyright */}
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl">
+                <img
+                  src="/logo-paradigma-bg.svg"
+                  alt="Paradigma"
+                  className="w-6 h-6 brightness-0 invert"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = 'https://paradigma.education/favicon-196x196.png';
+                  }}
+                />
+              </div>
+              <div>
+                <div className="font-bold text-gray-900">Paradigma Education</div>
+                <div className="text-sm text-gray-600">© {new Date().getFullYear()} Todos os direitos reservados</div>
+              </div>
+            </div>
+
+            {/* Social Links */}
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <a 
+                className="group flex items-center gap-2 px-4 py-2 bg-white hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 rounded-xl border-2 border-gray-200 hover:border-violet-300 transition-all duration-300 hover:shadow-lg" 
+                href="https://x.com/ParadigmaEdu" 
+                target="_blank" 
+                rel="noreferrer"
+              >
+                <span className="text-lg" aria-hidden>𝕏</span>
+                <span className="text-sm font-medium text-gray-700 group-hover:text-violet-600">Twitter</span>
+              </a>
+              
+              <a 
+                className="group flex items-center gap-2 px-4 py-2 bg-white hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 rounded-xl border-2 border-gray-200 hover:border-violet-300 transition-all duration-300 hover:shadow-lg" 
+                href="https://www.instagram.com/paradigma.education/" 
+                target="_blank" 
+                rel="noreferrer"
+              >
+                <IconInstagram />
+                <span className="text-sm font-medium text-gray-700 group-hover:text-violet-600">Instagram</span>
+              </a>
+              
+              <a 
+                className="group flex items-center gap-2 px-4 py-2 bg-white hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 rounded-xl border-2 border-gray-200 hover:border-violet-300 transition-all duration-300 hover:shadow-lg" 
+                href="https://www.youtube.com/@ParadigmaEducation" 
+                target="_blank" 
+                rel="noreferrer"
+              >
+                <IconYouTube />
+                <span className="text-sm font-medium text-gray-700 group-hover:text-violet-600">YouTube</span>
+              </a>
+              
+              <a 
+                className="group flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 rounded-xl transition-all duration-300 hover:shadow-xl" 
+                href="https://paradigma.education/" 
+                target="_blank" 
+                rel="noreferrer"
+              >
+                <img
+                  src="/logo-paradigma-bg.svg"
+                  alt="Paradigma"
+                  className="w-4 h-4 brightness-0 invert"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = 'https://paradigma.education/favicon-196x196.png';
+                  }}
+                />
+                <span className="text-sm font-bold text-white">Site Oficial</span>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
