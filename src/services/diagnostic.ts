@@ -10,6 +10,7 @@ import {
 import { CoinGeckoService } from './coingecko';
 import sectorsData from '../data/sectors.json';
 import { CoinMarketCapService } from './coinmarketcap';
+import { AdherenceCalculator } from './adherence-rules';
 
 export class DiagnosticService {
   private coinGeckoService: CoinGeckoService;
@@ -437,18 +438,23 @@ export class DiagnosticService {
   }
 
   private calculateAdherenceScore(flags: DiagnosticFlag[], profile: InvestorProfile): number {
+    // Nova fórmula: Score inicial 100, penalidades progressivas
     let score = 100;
     
     flags.forEach(flag => {
+      // Pesos ajustados baseados na severidade
       switch (flag.severity) {
-        case 4: score -= 25; break; // Red crítico
-        case 3: score -= 15; break; // Red
-        case 2: score -= 8; break;  // Yellow
-        case 1: score -= 3; break;  // Green
+        case 5: score -= 25; break; // Red crítico (severidade máxima)
+        case 4: score -= 15; break; // Red alto
+        case 3: score -= 12; break; // Red
+        case 2: score -= 8; break;  // Yellow alto
+        case 1: score -= 3; break;  // Yellow
+        default: score -= 5; break;
       }
     });
     
-    return Math.max(0, score);
+    // Garantir que o score fique entre 0 e 100
+    return Math.max(0, Math.min(100, score));
   }
 
   private getAdherenceLevel(score: number): 'high' | 'medium' | 'low' {
