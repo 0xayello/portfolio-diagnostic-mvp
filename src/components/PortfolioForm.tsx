@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PortfolioAllocation, AutocompleteOption } from '../types/portfolio';
+import TokenLink from './TokenLink';
 
 interface PortfolioFormProps {
   initialAllocation: PortfolioAllocation[];
@@ -15,12 +16,38 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
   const [showSearch, setShowSearch] = useState(false);
   const [totalPercentage, setTotalPercentage] = useState(0);
   const [tokenImages, setTokenImages] = useState<Record<string, string>>({});
+  
+  // Logos de alta qualidade do CoinGecko
   const FALLBACK_LOGOS: Record<string, string> = {
-    BTC: 'https://cryptoicons.org/api/icon/btc/64',
-    ETH: 'https://cryptoicons.org/api/icon/eth/64',
-    SOL: 'https://cryptoicons.org/api/icon/sol/64',
-    USDC: 'https://cryptoicons.org/api/icon/usdc/64',
-    USDT: 'https://cryptoicons.org/api/icon/usdt/64'
+    BTC: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png',
+    ETH: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+    SOL: 'https://assets.coingecko.com/coins/images/4128/small/solana.png',
+    USDC: 'https://assets.coingecko.com/coins/images/6319/small/usdc.png',
+    USDT: 'https://assets.coingecko.com/coins/images/325/small/Tether.png',
+    USDD: 'https://assets.coingecko.com/coins/images/25380/small/USDD.png',
+    DAI: 'https://assets.coingecko.com/coins/images/9956/small/Badge_Dai.png',
+    BUSD: 'https://assets.coingecko.com/coins/images/9576/small/BUSD.png',
+    DOGE: 'https://assets.coingecko.com/coins/images/5/small/dogecoin.png',
+    SHIB: 'https://assets.coingecko.com/coins/images/11939/small/shiba.png',
+    PEPE: 'https://assets.coingecko.com/coins/images/29850/small/pepe-token.jpeg',
+    ARB: 'https://assets.coingecko.com/coins/images/16547/small/photo_2023-03-29_21.47.00.jpeg',
+    OP: 'https://assets.coingecko.com/coins/images/25244/small/Optimism.png',
+    MATIC: 'https://assets.coingecko.com/coins/images/4713/small/polygon.png',
+    AVAX: 'https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png',
+    DOT: 'https://assets.coingecko.com/coins/images/12171/small/polkadot.png',
+    LINK: 'https://assets.coingecko.com/coins/images/877/small/chainlink-new-logo.png',
+    UNI: 'https://assets.coingecko.com/coins/images/12504/small/uni.jpg',
+    AAVE: 'https://assets.coingecko.com/coins/images/12645/small/aave-token-round.png',
+    LDO: 'https://assets.coingecko.com/coins/images/13573/small/Lido_DAO.png',
+    CRV: 'https://assets.coingecko.com/coins/images/12124/small/Curve.png',
+    INJ: 'https://assets.coingecko.com/coins/images/12882/small/Secondary_Symbol.png',
+    SUI: 'https://assets.coingecko.com/coins/images/26375/small/sui_asset.jpeg',
+    APT: 'https://assets.coingecko.com/coins/images/26455/small/aptos_round.png',
+    WLD: 'https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg',
+    FET: 'https://assets.coingecko.com/coins/images/5681/small/Fetch.jpg',
+    RNDR: 'https://assets.coingecko.com/coins/images/11636/small/rndr.png',
+    FIL: 'https://assets.coingecko.com/coins/images/12817/small/filecoin.png',
+    AR: 'https://assets.coingecko.com/coins/images/4343/small/Arweave.png',
   };
 
   useEffect(() => {
@@ -40,7 +67,8 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     const loadImages = async () => {
       const symbolsToFetch = allocation
         .map(a => a.token.toUpperCase())
-        .filter(sym => !tokenImages[sym]);
+        .filter(sym => !tokenImages[sym] && !FALLBACK_LOGOS[sym]);
+      
       for (const sym of symbolsToFetch) {
         try {
           const resp = await fetch(`/api/search-coins?q=${encodeURIComponent(sym)}`);
@@ -48,12 +76,18 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
           const match = data.find(d => d.symbol.toUpperCase() === sym);
           if (match?.image) {
             setTokenImages(prev => ({ ...prev, [sym]: match.image! }));
+          } else {
+            // Se não encontrar na busca, usa um placeholder
+            setTokenImages(prev => ({ ...prev, [sym]: `https://ui-avatars.com/api/?name=${sym}&background=6366f1&color=fff&size=64&bold=true` }));
           }
-        } catch {}
+        } catch {
+          // Em caso de erro, usa placeholder
+          setTokenImages(prev => ({ ...prev, [sym]: `https://ui-avatars.com/api/?name=${sym}&background=6366f1&color=fff&size=64&bold=true` }));
+        }
       }
     };
     loadImages();
-  }, [allocation]);
+  }, [allocation, tokenImages]);
 
   const handlePercentageChange = (token: string, percentage: number) => {
     setAllocation(prev => 
@@ -154,17 +188,17 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
                   <div className="relative">
                     <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full opacity-0 group-hover:opacity-100 blur transition duration-300"></div>
                     <img
-                      src={tokenImages[item.token.toUpperCase()] || FALLBACK_LOGOS[item.token.toUpperCase()]}
+                      src={FALLBACK_LOGOS[item.token.toUpperCase()] || tokenImages[item.token.toUpperCase()] || `https://ui-avatars.com/api/?name=${item.token}&background=6366f1&color=fff&size=64&bold=true`}
                       alt={`${item.token} logo`}
                       className="relative w-12 h-12 rounded-full object-contain bg-white p-1.5 shadow-lg ring-2 ring-gray-200 group-hover:ring-violet-400 transition-all duration-300"
                       onError={(e) => {
-                        const sym = item.token.toUpperCase();
-                        (e.currentTarget as HTMLImageElement).src = FALLBACK_LOGOS[sym] || '';
+                        // Fallback final: placeholder com letra do token
+                        (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${item.token}&background=6366f1&color=fff&size=64&bold=true`;
                       }}
                     />
                   </div>
                   <label className="text-sm font-bold text-gray-800 tracking-wide">
-                    {item.token}
+                    <TokenLink symbol={item.token} />
                   </label>
                   <div className="relative w-full">
                     <input

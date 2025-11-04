@@ -6,6 +6,7 @@ import BacktestChart from './BacktestChart';
 import UnlockAlerts from './UnlockAlerts';
 import RebalanceSuggestions from './RebalanceSuggestions';
 import CTAs from './CTAs';
+import { getCoinMarketCapUrl } from '../utils/coinmarketcap';
 
 interface DiagnosticResultsProps {
   diagnostic: PortfolioDiagnostic;
@@ -126,7 +127,14 @@ export default function DiagnosticResults({
                   <div className="space-y-3">
                     {diagnostic.allocation.map((item) => (
                       <div key={item.token} className="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-200 hover:border-violet-300 transition-all">
-                        <span className="font-bold text-gray-900">{item.token}</span>
+                        <a 
+                          href={getCoinMarketCapUrl(item.token)} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="font-bold text-gray-900 hover:text-violet-600 transition-colors underline"
+                        >
+                          {item.token}
+                        </a>
                         <span className="text-violet-600 font-bold text-lg">{item.percentage.toFixed(1)}%</span>
                       </div>
                     ))}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { UnlockAlert } from '../types/portfolio';
+import TokenLink from './TokenLink';
 
 interface UnlockAlertsProps {
   alerts: UnlockAlert[];
@@ -91,7 +92,9 @@ export default function UnlockAlerts({ alerts }: UnlockAlertsProps) {
               const daysUntil = getDaysUntilUnlock(alert.unlockDate);
               return (
                 <tr key={idx}>
-                  <td className="px-4 py-3 whitespace-nowrap font-medium text-gray-900">{alert.token}</td>
+                  <td className="px-4 py-3 whitespace-nowrap font-medium text-gray-900">
+                    <TokenLink symbol={alert.token} />
+                  </td>
                   <td className="px-4 py-3 whitespace-nowrap text-gray-700">{alert.percentage.toFixed(2)}%</td>
                   <td className="px-4 py-3 whitespace-nowrap text-gray-700">{formatDate(alert.unlockDate)}</td>
                   <td className="px-4 py-3 whitespace-nowrap text-gray-700">{daysUntil > 0 ? daysUntil : 0}</td>

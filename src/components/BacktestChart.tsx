@@ -44,54 +44,92 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
     );
   }
 
+  // Cores vibrantes para cada token
+  const tokenColors: { [key: string]: { border: string; bg: string } } = {
+    BTC: { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.08)' },
+    ETH: { border: '#627eea', bg: 'rgba(98, 126, 234, 0.08)' },
+    SOL: { border: '#9945ff', bg: 'rgba(153, 69, 255, 0.08)' },
+    USDC: { border: '#2775ca', bg: 'rgba(39, 117, 202, 0.08)' },
+    USDT: { border: '#26a17b', bg: 'rgba(38, 161, 123, 0.08)' },
+    DOGE: { border: '#c2a633', bg: 'rgba(194, 166, 51, 0.08)' },
+    SHIB: { border: '#ffa409', bg: 'rgba(255, 164, 9, 0.08)' },
+    ARB: { border: '#28a0f0', bg: 'rgba(40, 160, 240, 0.08)' },
+    OP: { border: '#ff0420', bg: 'rgba(255, 4, 32, 0.08)' },
+    MATIC: { border: '#8247e5', bg: 'rgba(130, 71, 229, 0.08)' },
+    AVAX: { border: '#e84142', bg: 'rgba(232, 65, 66, 0.08)' },
+    DOT: { border: '#e6007a', bg: 'rgba(230, 0, 122, 0.08)' },
+    LINK: { border: '#2a5ada', bg: 'rgba(42, 90, 218, 0.08)' },
+    UNI: { border: '#ff007a', bg: 'rgba(255, 0, 122, 0.08)' },
+    AAVE: { border: '#b6509e', bg: 'rgba(182, 80, 158, 0.08)' },
+    DEFAULT: { border: '#6366f1', bg: 'rgba(99, 102, 241, 0.08)' },
+  };
+
+  const getTokenColor = (token: string) => {
+    return tokenColors[token.toUpperCase()] || tokenColors.DEFAULT;
+  };
+
   const chartData = series && series.length > 0
     ? {
         // usamos as datas originais como labels e formatamos no eixo (ticks.callback)
         labels: series.map(p => p.date),
         datasets: [
+          // BTC sempre como benchmark (linha laranja)
           {
-            label: 'Portfólio',
-            data: series.map(p => p.portfolio),
-            borderColor: '#27224e',
-            backgroundColor: 'rgba(39, 34, 78, 0.08)',
+            label: 'Bitcoin (Benchmark)',
+            data: series.map(p => p.btc),
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.08)',
             borderWidth: 3,
             fill: false,
             tension: 0.25,
             pointRadius: 0,
+            borderDash: [5, 5], // linha tracejada para destacar como benchmark
           },
-          {
-            label: 'Bitcoin',
-            data: series.map(p => p.btc),
-            borderColor: '#f59e0b',
-            backgroundColor: 'rgba(245, 158, 11, 0.08)',
-            borderWidth: 2,
-            fill: false,
-            tension: 0.25,
-            pointRadius: 0,
-          },
+          // Adicionar uma linha para cada token individual
+          ...(series[0]?.tokens
+            ? Object.keys(series[0].tokens)
+                .filter(token => token !== 'BTC') // BTC já está como benchmark
+                .map((token, idx) => {
+                  const color = getTokenColor(token);
+                  return {
+                    label: token,
+                    data: series.map(p => p.tokens?.[token] ?? 0),
+                    borderColor: color.border,
+                    backgroundColor: color.bg,
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.25,
+                    pointRadius: 0,
+                  };
+                })
+            : []),
         ],
       }
     : {
         labels: backtest.map(result => result.period.toUpperCase()),
         datasets: [
           {
-            label: 'Portfólio',
-            data: backtest.map(result => result.portfolioReturn),
-            borderColor: '#27224e',
-            backgroundColor: 'rgba(39, 34, 78, 0.08)',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4,
-          },
-          {
-            label: 'Bitcoin',
+            label: 'Bitcoin (Benchmark)',
             data: backtest.map(result => result.benchmarkReturns?.btc ?? 0),
             borderColor: '#f59e0b',
             backgroundColor: 'rgba(245, 158, 11, 0.08)',
-            borderWidth: 2,
+            borderWidth: 3,
             fill: false,
             tension: 0.4,
+            borderDash: [5, 5],
           },
+          ...Object.keys(backtest[0]?.tokenReturns || {}).map((token, idx) => {
+            const color = getTokenColor(token);
+            return {
+              label: token,
+              data: backtest.map(result => result.tokenReturns[token]),
+              borderColor: color.border,
+              backgroundColor: color.bg,
+              borderWidth: 2,
+              fill: false,
+              tension: 0.4,
+            };
+          }),
         ],
       };
 

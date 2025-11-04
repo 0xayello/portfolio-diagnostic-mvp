@@ -1,5 +1,6 @@
 import React from 'react';
 import { RebalanceSuggestion } from '../types/portfolio';
+import TokenLink from './TokenLink';
 
 interface RebalanceSuggestionsProps {
   suggestions: RebalanceSuggestion[];
@@ -97,7 +98,7 @@ export default function RebalanceSuggestions({ suggestions }: RebalanceSuggestio
                   <span className="text-2xl">{getChangeIcon(changeType)}</span>
                   <div>
                     <h4 className="text-lg font-semibold text-gray-800">
-                      {suggestion.token}
+                      <TokenLink symbol={suggestion.token} />
                     </h4>
                     <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
                       changeType === 'increase' 

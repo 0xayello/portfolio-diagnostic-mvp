@@ -49,6 +49,7 @@ export interface BacktestPoint {
   date: string; // ISO date
   portfolio: number; // % from base (0% at T0)
   btc: number; // % from base (0% at T0)
+  tokens?: { [token: string]: number }; // % from base for each token
 }
 
 export interface UnlockAlert {

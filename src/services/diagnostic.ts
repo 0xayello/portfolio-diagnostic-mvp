@@ -640,7 +640,24 @@ export class DiagnosticService {
       const portfolioBase = basePortfolio;
       const portfolioPct = portfolioPrice && portfolioBase ? ((portfolioPrice - portfolioBase) / portfolioBase) * 100 : 0;
 
-      return { date, portfolio: portfolioPct, btc: btcPct };
+      // Calcular performance individual de cada token
+      const tokenPerformances: { [token: string]: number } = {};
+      allocation.forEach(item => {
+        const token = item.token.toUpperCase();
+        const s = seriesMap[token] || [];
+        const tokenFirstPrice = s.find(p => p.date === firstDate)?.price || s[0]?.price;
+        const exact = s.find(p => p.date === date)?.price;
+        const prev = s.reduce((acc, p) => (p.date <= date ? p.price : acc), undefined as number | undefined);
+        const currentPrice = exact ?? prev;
+        
+        if (tokenFirstPrice && currentPrice) {
+          tokenPerformances[token] = ((currentPrice - tokenFirstPrice) / tokenFirstPrice) * 100;
+        } else {
+          tokenPerformances[token] = 0;
+        }
+      });
+
+      return { date, portfolio: portfolioPct, btc: btcPct, tokens: tokenPerformances };
     });
 
     return points;

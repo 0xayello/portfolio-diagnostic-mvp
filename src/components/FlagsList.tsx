@@ -1,5 +1,6 @@
 import React from 'react';
 import { DiagnosticFlag } from '../types/portfolio';
+import { TokenLinkedText } from './TokenLink';
 
 interface FlagsListProps {
   flags: DiagnosticFlag[];
@@ -84,11 +85,11 @@ export default function FlagsList({ flags }: FlagsListProps) {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <p className="font-medium text-gray-800 mb-1">
-                      {flag.message}
+                      <TokenLinkedText text={flag.message} />
                     </p>
                     {flag.actionable && (
                       <p className="text-sm text-gray-600">
-                        💡 {flag.actionable}
+                        💡 <TokenLinkedText text={flag.actionable} />
                       </p>
                     )}
                   </div>
