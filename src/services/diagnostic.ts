@@ -135,26 +135,7 @@ export class DiagnosticService {
         });
       }
       
-      // Análise específica por setor - MEMECOINS
-      if (sector === 'Meme' && item.percentage > 0) {
-        const maxByProfile = {
-          low: 0,      // Conservador: 0%
-          medium: 5,   // Moderado: 5%
-          high: 20     // Arrojado: 20%
-        };
-        
-        const maxAllowed = maxByProfile[profile.riskTolerance as keyof typeof maxByProfile] || 5;
-        
-        if (item.percentage > maxAllowed) {
-          flags.push({
-            type: item.percentage > maxAllowed * 2 ? 'red' : 'yellow',
-            category: 'asset',
-            message: `🎲 Exposição Alta em ${item.token} (${item.percentage.toFixed(1)}%)`,
-            actionable: `Memecoins são extremamente voláteis e especulativos. Recomendado máximo 20% em perfil arrojado, 5% em moderado, 0% em conservador. Você está ${(item.percentage - maxAllowed).toFixed(1)}% acima do recomendado.`,
-            severity: item.percentage > maxAllowed * 2 ? 3 : 2
-          });
-        }
-      }
+      // Análise de memecoins por token individual será consolidada no alerta geral de memecoins mais abaixo
       
       if ((sector === 'Gaming' || sector === 'Metaverse') && item.percentage > 10) {
         flags.push({
@@ -195,8 +176,8 @@ export class DiagnosticService {
     
     // Flags por setor - Análise Profissional
     Object.entries(sectorBreakdown).forEach(([sector, percentage]) => {
-      // Concentração setorial crítica
-      if (percentage > 50) {
+      // Concentração setorial crítica (exceto Meme que tem alerta próprio abaixo)
+      if (percentage > 50 && sector !== 'Meme') {
         const severity = profile.riskTolerance === 'low' ? 'red' : 'yellow';
         const sectorAnalysis = this.getSectorDiversificationAdvice(sector, percentage, profile);
         flags.push({
@@ -208,7 +189,7 @@ export class DiagnosticService {
         });
       }
       
-      // Análise específica por tipo de setor - MEMECOINS TOTAL
+      // Análise específica por tipo de setor - MEMECOINS TOTAL (CONSOLIDADO)
       if (sector === 'Meme') {
         const maxByProfile = {
           low: 0,      // Conservador: 0%
@@ -218,21 +199,31 @@ export class DiagnosticService {
         
         const maxAllowed = maxByProfile[profile.riskTolerance as keyof typeof maxByProfile] || 5;
         
+        // Listar memecoins individuais
+        const memecoins = allocation.filter(a => {
+          const sectorData = this.getSectorInfo(a.token);
+          return sectorData?.sector === 'Meme';
+        });
+        const memecoinsList = memecoins.map(m => `${m.token} (${Math.round(m.percentage)}%)`).join(', ');
+        
         if (percentage > maxAllowed) {
+          const isHighPercentage = percentage > 60;
+          const isCritical = maxAllowed === 0; // Conservador com qualquer memecoin é crítico
+          
           flags.push({
-            type: percentage > maxAllowed * 1.5 ? 'red' : 'yellow',
+            type: isCritical || isHighPercentage ? 'red' : 'yellow',
             category: 'sector',
-            message: `🎰 Exposição Total em Memecoins: ${percentage.toFixed(1)}%`,
-            actionable: `Para seu perfil ${profile.riskTolerance === 'high' ? 'arrojado' : profile.riskTolerance === 'medium' ? 'moderado' : 'conservador'}, o máximo recomendado é ${maxAllowed}%. Altíssima volatilidade e risco de perda total.`,
-            severity: percentage > maxAllowed * 1.5 ? 4 : 3
+            message: `🎲 Exposição em Memecoins: ${Math.round(percentage)}%${memecoinsList ? ` - ${memecoinsList}` : ''}`,
+            actionable: `Memecoins são extremamente voláteis e especulativos. Recomendado máximo 20% em perfil arrojado, 5% em moderado, 0% em conservador. Você está ${Math.round(percentage - maxAllowed)}% acima do recomendado. Distribua para BTC/ETH/SOL/stables e mantenha no máximo ${maxAllowed}% em Memecoins.`,
+            severity: isCritical || isHighPercentage ? 5 : 3
           });
         } else if (percentage > 0 && percentage <= maxAllowed) {
           // ✅ PONTO POSITIVO: Memecoin dentro do limite
           flags.push({
             type: 'green',
             category: 'sector',
-            message: `✅ Exposição Controlada em Memecoins: ${percentage.toFixed(1)}%`,
-            actionable: `Sua exposição em memecoins (${percentage.toFixed(1)}%) está dentro do limite de ${maxAllowed}% para perfil ${profile.riskTolerance === 'high' ? 'arrojado' : profile.riskTolerance === 'medium' ? 'moderado' : 'conservador'}. Você mantém oportunidades especulativas sem comprometer a carteira.`,
+            message: `✅ Exposição Controlada em Memecoins: ${Math.round(percentage)}%`,
+            actionable: `Sua exposição em memecoins (${Math.round(percentage)}%) está dentro do limite de ${maxAllowed}% para perfil ${profile.riskTolerance === 'high' ? 'arrojado' : profile.riskTolerance === 'medium' ? 'moderado' : 'conservador'}. Você mantém oportunidades especulativas sem comprometer a carteira.`,
             severity: 0
           });
         }
@@ -769,8 +760,14 @@ export class DiagnosticService {
       return `Excesso de stables reduz potencial de retorno. Considere alocar em BTC/ETH e altcoins de qualidade.`;
     }
     
+    if (sector === 'Meme') {
+      // Nunca deve chegar aqui pois Meme tem tratamento separado
+      const maxAllowed = profile.riskTolerance === 'low' ? 0 : profile.riskTolerance === 'medium' ? 5 : 20;
+      return `Perfil ${profile.riskTolerance === 'low' ? 'conservador' : profile.riskTolerance === 'medium' ? 'moderado' : 'arrojado'}: Distribua ${Math.round(percentage)}% para BTC/ETH/SOL/stables e mantenha no máximo ${maxAllowed}% em Meme.`;
+    }
+    
     if (profile.riskTolerance === 'low') {
-      return `Perfil conservador: Distribua ${(percentage - 40).toFixed(0)}% para BTC/ETH/stables e mantenha no máximo 40% em ${sector}.`;
+      return `Perfil conservador: Distribua ${Math.round(percentage - 40)}% para BTC/ETH/stables e mantenha no máximo 40% em ${sector}.`;
     }
     
     return `Rebalanceie para no máximo 30-40% em ${sector} e diversifique em 2-3 setores adicionais.`;

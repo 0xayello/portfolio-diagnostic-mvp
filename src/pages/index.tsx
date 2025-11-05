@@ -101,7 +101,7 @@ export default function Home() {
               </span>
             </h1>
             <p className="text-xl text-white/90 max-w-2xl mx-auto drop-shadow-lg">
-              Receba um diagnóstico profissional e personalizado sobre sua carteira de investimentos em criptomoedas
+              Receba um diagnóstico personalizado de seu portfólio
             </p>
           </div>
 
