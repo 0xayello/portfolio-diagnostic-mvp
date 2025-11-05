@@ -226,6 +226,15 @@ export class DiagnosticService {
             actionable: `Para seu perfil ${profile.riskTolerance === 'high' ? 'arrojado' : profile.riskTolerance === 'medium' ? 'moderado' : 'conservador'}, o máximo recomendado é ${maxAllowed}%. Altíssima volatilidade e risco de perda total.`,
             severity: percentage > maxAllowed * 1.5 ? 4 : 3
           });
+        } else if (percentage > 0 && percentage <= maxAllowed) {
+          // ✅ PONTO POSITIVO: Memecoin dentro do limite
+          flags.push({
+            type: 'green',
+            category: 'sector',
+            message: `✅ Exposição Controlada em Memecoins: ${percentage.toFixed(1)}%`,
+            actionable: `Sua exposição em memecoins (${percentage.toFixed(1)}%) está dentro do limite de ${maxAllowed}% para perfil ${profile.riskTolerance === 'high' ? 'arrojado' : profile.riskTolerance === 'medium' ? 'moderado' : 'conservador'}. Você mantém oportunidades especulativas sem comprometer a carteira.`,
+            severity: 0
+          });
         }
       }
       
@@ -258,6 +267,7 @@ export class DiagnosticService {
     
     const expectedStablecoinRange = this.getExpectedStablecoinRange(profile.riskTolerance, profile.horizon);
     
+    // Análise de Stablecoins: verificar se está dentro da faixa ideal
     if (stablecoinPercentage === 0 && profile.riskTolerance === 'low') {
       flags.push({
         type: 'red',
@@ -283,6 +293,15 @@ export class DiagnosticService {
         actionable: `Você está perdendo potencial de valorização. Para perfil ${profile.riskTolerance === 'high' ? 'arrojado' : profile.riskTolerance === 'medium' ? 'moderado' : 'conservador'}, realoque ${(stablecoinPercentage - expectedStablecoinRange.max).toFixed(1)}% em ${this.getSuggestedAllocationByProfile(profile)}.`,
         severity: 1
       });
+    } else {
+      // ✅ PONTO POSITIVO: Alocação de stablecoins está correta!
+      flags.push({
+        type: 'green',
+        category: 'profile',
+        message: `✅ Alocação Ideal de Stablecoins: ${stablecoinPercentage.toFixed(1)}%`,
+        actionable: `Sua alocação em stablecoins (${stablecoinPercentage.toFixed(1)}%) está dentro da faixa recomendada de ${expectedStablecoinRange.min}-${expectedStablecoinRange.max}% para perfil ${profile.riskTolerance === 'high' ? 'arrojado' : profile.riskTolerance === 'medium' ? 'moderado' : 'conservador'}. Isso garante boa gestão de risco e liquidez.`,
+        severity: 0
+      });
     }
     
     // Análise de diversificação geral - NOVA LÓGICA
@@ -307,7 +326,25 @@ export class DiagnosticService {
           actionable: 'Com poucos ativos, concentre em BTC+ETH+SOL (70%+) ou diversifique para 5-8 ativos de qualidade.',
           severity: 4
         });
+      } else {
+        // ✅ PONTO POSITIVO: Poucos ativos mas concentrados em majors
+        flags.push({
+          type: 'green',
+          category: 'asset',
+          message: `✅ Concentração Estratégica em Majors: ${numAssets} ativos`,
+          actionable: `Excelente! ${majorPercentage.toFixed(0)}% em BTC/ETH/SOL é uma estratégia sólida de baixo risco e boa liquidez. Abordagem "keep it simple" comprovada.`,
+          severity: 0
+        });
       }
+    } else if (numAssets >= 4 && numAssets <= 8) {
+      // ✅ PONTO POSITIVO: Número ideal de ativos
+      flags.push({
+        type: 'green',
+        category: 'asset',
+        message: `✅ Diversificação Ideal: ${numAssets} ativos`,
+        actionable: `Ótima diversificação com ${numAssets} ativos. Isso permite exposição a diferentes teses sem diluir demais o portfólio. Ideal para gestão ativa.`,
+        severity: 0
+      });
     } else if (numAssets > 15) {
       flags.push({
         type: 'yellow',
@@ -331,7 +368,16 @@ export class DiagnosticService {
       .filter(item => MAJOR_COINS.includes(item.token))
       .reduce((sum, item) => sum + item.percentage, 0);
     
-    if (majorCoinsTotal < 40 && profile.riskTolerance !== 'high') {
+    if (majorCoinsTotal >= 40 && majorCoinsTotal <= 100) {
+      // ✅ PONTO POSITIVO: Majors na faixa ideal
+      flags.push({
+        type: 'green',
+        category: 'asset',
+        message: `✅ Exposição Sólida em Majors: ${majorCoinsTotal.toFixed(0)}%`,
+        actionable: `Excelente alocação de ${majorCoinsTotal.toFixed(0)}% em BTC/ETH/SOL. Essa base sólida garante liquidez, menor volatilidade e correlação com o mercado cripto geral.`,
+        severity: 0
+      });
+    } else if (majorCoinsTotal < 40 && profile.riskTolerance !== 'high') {
       flags.push({
         type: profile.riskTolerance === 'low' ? 'red' : 'yellow',
         category: 'asset',
@@ -412,26 +458,20 @@ export class DiagnosticService {
   }
 
   private getExpectedStablecoinRange(riskTolerance: string, horizon?: string): { min: number; max: number } {
-    // Faixas: 10-50% dependendo do prazo e risco
+    // Faixas baseadas APENAS em tolerância ao risco (não horizonte)
     
     if (riskTolerance === 'low') {
-      // Conservador: precisa mais stables
-      return horizon === 'short' ? { min: 30, max: 50 } : { min: 20, max: 40 };
+      // Conservador: 20-40%
+      return { min: 20, max: 40 };
     }
     
     if (riskTolerance === 'medium') {
-      // Moderado: balanceado
-      return horizon === 'short' ? { min: 20, max: 35 } : { min: 10, max: 25 };
+      // Moderado: 10-20%
+      return { min: 10, max: 20 };
     }
     
-    // Arrojado: menos stables, mais upside
-    if (horizon === 'short') {
-      return { min: 10, max: 20 }; // Curto prazo ainda precisa liquidez
-    } else if (horizon === 'long') {
-      return { min: 5, max: 15 }; // Longo prazo pode ser mais agressivo
-    }
-    
-    return { min: 10, max: 20 }; // Medium horizon
+    // Arrojado: 0-10%
+    return { min: 0, max: 10 };
   }
 
   private calculateAdherenceScore(flags: DiagnosticFlag[], profile: InvestorProfile): number {
