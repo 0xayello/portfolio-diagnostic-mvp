@@ -480,13 +480,15 @@ export class DiagnosticService {
     
     flags.forEach(flag => {
       // Pesos ajustados baseados na severidade
+      // Flags verdes (severity 0) não penalizam
       switch (flag.severity) {
         case 5: score -= 25; break; // Red crítico (severidade máxima)
         case 4: score -= 15; break; // Red alto
         case 3: score -= 12; break; // Red
         case 2: score -= 8; break;  // Yellow alto
         case 1: score -= 3; break;  // Yellow
-        default: score -= 5; break;
+        case 0: break; // Green (pontos positivos) - não penaliza
+        default: break; // Qualquer outra - não penaliza
       }
     });
     
