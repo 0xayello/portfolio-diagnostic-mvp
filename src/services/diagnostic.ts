@@ -737,10 +737,6 @@ export class DiagnosticService {
   private getStablecoinAdvice(current: number, expected: { min: number; max: number }, profile: InvestorProfile): string {
     const diff = expected.min - current;
     
-    if (profile.horizon === 'short') {
-      return `Horizonte curto precisa de liquidez. Converta ${diff.toFixed(0)}% de altcoins voláteis para stables.`;
-    }
-    
     if (profile.riskTolerance === 'low') {
       return `Perfil conservador necessita colchão de segurança. Aumente stables para ${expected.min}% vendendo posições de maior risco.`;
     }
@@ -749,7 +745,11 @@ export class DiagnosticService {
       return `Para renda passiva, mantenha ${expected.min}-${expected.max}% em stables gerando yield em protocolos seguros (AAVE, Compound).`;
     }
     
-    return `Aloque ${diff.toFixed(0)}% adicional em USDC para gestão de risco e aproveitar oportunidades de compra.`;
+    if (profile.riskTolerance === 'high') {
+      return `Mesmo em perfil arrojado, mantenha ${expected.min}-${expected.max}% em stables para gestão de risco e aproveitar oportunidades.`;
+    }
+    
+    return `Aloque ${diff.toFixed(0)}% adicional em USDC/USDT para gestão de risco e liquidez.`;
   }
   
   private getSuggestedAllocationByProfile(profile: InvestorProfile): string {
