@@ -47,9 +47,6 @@ export class DiagnosticService {
     // Gerar sugestões de rebalanceamento
     const rebalanceSuggestions = this.generateRebalanceSuggestions(enrichedAllocation, profile);
     
-    // Buscar alertas de unlocks (mock por enquanto)
-    const unlockAlerts = await this.getUnlockAlerts(symbols);
-    
     // Calcular backtest (agregado) e série normalizada (180d)
     const backtest = await this.calculateBacktest(enrichedAllocation);
     const backtestSeries = await this.calculateBacktestSeries(enrichedAllocation);
@@ -65,7 +62,7 @@ export class DiagnosticService {
       flags,
       backtest,
       backtestSeries,
-      unlockAlerts,
+      unlockAlerts: [],
       rebalanceSuggestions,
       sectorBreakdown,
       metrics
@@ -506,37 +503,6 @@ export class DiagnosticService {
     return suggestions;
   }
 
-  private async getUnlockAlerts(symbols: string[]): Promise<UnlockAlert[]> {
-    try {
-      const unique = Array.from(new Set(symbols.map(s => s.toUpperCase())));
-
-      console.log('🔍 Buscando unlocks no CoinMarketCap para:', unique);
-
-      // Buscar apenas do CoinMarketCap
-      const unlockEvents = await this.coinMarketCapService.getUpcomingUnlocks(unique, 180);
-
-      console.log('✅ CoinMarketCap retornou:', unlockEvents.length, 'eventos');
-      
-      if (unlockEvents.length > 0) {
-        console.log('📊 Detalhes dos unlocks encontrados:');
-        unlockEvents.forEach(e => {
-          console.log(`  - ${e.token}: ${e.amount.toLocaleString()} tokens (${e.percentage.toFixed(2)}%) em ${e.unlockDate}`);
-        });
-      }
-
-      return unlockEvents.map(u => ({
-        token: u.token,
-        unlockDate: u.unlockDate,
-        percentage: u.percentage,
-        amount: u.amount,
-        type: 'token_unlock' as const,
-        severity: u.percentage >= 10 ? ('red' as const) : ('yellow' as const),
-      }));
-    } catch (e) {
-      console.error('❌ Erro ao buscar unlock alerts:', e);
-      return [];
-    }
-  }
 
   private async calculateBacktest(
     allocation: (PortfolioAllocation & { tokenData?: TokenData })[]
@@ -827,17 +793,6 @@ export class DiagnosticService {
       .reduce((sum, item) => sum + item.percentage, 0);
     
     const liquidPercentage = majorPercentage + stablePercentage;
-    
-    // Curto prazo precisa de liquidez (60-70% em majors + stables)
-    if (profile.horizon === 'short' && liquidPercentage < 60) {
-      flags.push({
-        type: 'yellow',
-        category: 'profile',
-        message: `⏱️ Desalinhamento Temporal: Horizonte curto com apenas ${liquidPercentage.toFixed(0)}% em ativos líquidos`,
-        actionable: `Para horizonte de até 1 ano, mantenha 60-70% em ativos líquidos (BTC/ETH/SOL + stables) para facilitar saídas.`,
-        severity: 2
-      });
-    }
     
     // Longo prazo arrojado pode ser mais agressivo
     if (profile.horizon === 'long' && majorPercentage > 80 && profile.riskTolerance === 'high') {

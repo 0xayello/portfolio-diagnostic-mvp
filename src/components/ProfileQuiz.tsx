@@ -11,7 +11,7 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
   const [profile, setProfile] = useState<Partial<InvestorProfile>>({
     horizon: undefined,
     riskTolerance: undefined,
-    cryptoPercentage: 0,
+    cryptoPercentage: 50,
     objective: [],
   });
 
@@ -28,10 +28,6 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
     
     if (!profile.riskTolerance) {
       newErrors.riskTolerance = 'Selecione sua tolerância ao risco';
-    }
-    
-    if (profile.cryptoPercentage === undefined || profile.cryptoPercentage <= 0) {
-      newErrors.cryptoPercentage = 'Informe a porcentagem do patrimônio em cripto';
     }
     
     if (!profile.objective || (Array.isArray(profile.objective) && profile.objective.length === 0)) {
@@ -190,56 +186,11 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
           )}
         </div>
 
-        {/* Porcentagem em Cripto */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 text-white font-bold text-sm">
-              3
-            </div>
-            <label className="text-xl font-bold text-gray-900">
-              Que % do seu patrimônio está em cripto?
-            </label>
-          </div>
-          <div className="max-w-md mx-auto">
-            <div className="relative">
-              <input
-                type="number"
-                min="0"
-                max="100"
-                step="1"
-                value={profile.cryptoPercentage || ''}
-                onChange={(e) => handleChange('cryptoPercentage', parseFloat(e.target.value) || 0)}
-                placeholder="Ex: 15"
-                className="w-full text-center text-2xl font-bold px-6 py-4 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-gradient-to-br from-white to-gray-50 text-gray-900 placeholder-gray-400 transition-all duration-300 hover:border-violet-300"
-              />
-              <div className="absolute inset-y-0 right-6 flex items-center text-2xl font-bold text-violet-600">
-                %
-              </div>
-            </div>
-            <div className="flex items-center justify-center gap-2 mt-4 text-gray-600">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-sm">
-                do patrimônio total em criptomoedas
-              </span>
-            </div>
-          </div>
-          {errors.cryptoPercentage && (
-            <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-xl border border-red-200 max-w-md mx-auto">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p className="text-sm font-medium">{errors.cryptoPercentage}</p>
-            </div>
-          )}
-        </div>
-
         {/* Objetivo Principal */}
         <div className="space-y-4">
           <div className="flex items-center gap-3 mb-6">
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 text-white font-bold text-sm">
-              4
+              3
             </div>
             <label className="text-xl font-bold text-gray-900">
               Quais são seus objetivos? <span className="text-sm font-normal text-gray-600">(múltipla escolha)</span>

@@ -56,16 +56,14 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             {/* Logo e Copyright */}
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl">
-                <img
-                  src="https://media.licdn.com/dms/image/v2/D4D0BAQETEPky0ZRPdg/company-logo_200_200/B4DZZnzRItGgAM-/0/1745498217461/paradigma_research_logo?e=2147483647&v=beta&t=r_o4vq9caKxdnm0WzPrnm5R_uTa1A81nzX6DINDn-Rk"
-                  alt="Paradigma"
-                  className="w-6 h-6 rounded"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = 'https://paradigma.education/favicon-196x196.png';
-                  }}
-                />
-              </div>
+              <img
+                src="https://media.licdn.com/dms/image/v2/D4D0BAQETEPky0ZRPdg/company-logo_200_200/B4DZZnzRItGgAM-/0/1745498217461/paradigma_research_logo?e=2147483647&v=beta&t=r_o4vq9caKxdnm0WzPrnm5R_uTa1A81nzX6DINDn-Rk"
+                alt="Paradigma"
+                className="w-12 h-12 rounded-xl"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = 'https://paradigma.education/favicon-196x196.png';
+                }}
+              />
               <div>
                 <div className="font-bold text-gray-900">Paradigma Education</div>
                 <div className="text-sm text-gray-600">© {new Date().getFullYear()} Todos os direitos reservados</div>
@@ -105,13 +103,13 @@ export default function Footer() {
               </a>
               
               <a 
-                className="group flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 rounded-xl transition-all duration-300 hover:shadow-xl" 
+                className="group flex items-center gap-2 px-4 py-2 bg-white hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 rounded-xl border-2 border-gray-200 hover:border-violet-300 transition-all duration-300 hover:shadow-lg" 
                 href="https://paradigma.education/" 
                 target="_blank" 
                 rel="noreferrer"
               >
                 <IconWebsite />
-                <span className="text-sm font-bold text-white">Site Oficial</span>
+                <span className="text-sm font-medium text-gray-700 group-hover:text-violet-600">Site Oficial</span>
               </a>
             </div>
           </div>
