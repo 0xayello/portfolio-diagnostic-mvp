@@ -80,6 +80,28 @@ export default function DiagnosticResults({
                 {diagnostic.adherenceScore.toFixed(0)}<span className="text-3xl">/100</span>
               </div>
               <div className="text-base text-gray-600 mt-2 font-medium">Score de Aderência ao Perfil</div>
+              
+              {diagnostic.adherenceScore < 100 && (
+                <div className="mt-4 max-w-2xl mx-auto">
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <div className="flex items-start gap-3">
+                      <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className="text-sm text-gray-700">
+                        <span className="font-semibold text-blue-900">Por que não é 100?</span> 
+                        <span className="ml-1">
+                          {diagnostic.adherenceScore >= 80 
+                            ? 'Seu portfólio está muito bem alinhado! Os pequenos ajustes sugeridos nos alertas podem levar você à pontuação máxima.'
+                            : diagnostic.adherenceScore >= 60
+                            ? 'Seu portfólio tem uma base boa, mas alguns ajustes importantes nos alertas abaixo podem melhorar significativamente sua aderência ao perfil ideal.'
+                            : 'Identificamos diversos pontos que estão desalinhados com seu perfil e objetivos. Revise os alertas abaixo para entender como otimizar sua carteira.'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             <div className="mt-8 inline-flex bg-gray-100 rounded-2xl p-1.5 shadow-inner">
               <button 
                 onClick={() => setDiagView('performance')} 
@@ -162,9 +184,11 @@ export default function DiagnosticResults({
                 </svg>
               </div>
               <span className="text-gray-900">Alertas Importantes</span>
-              <span className="bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-lg">
-                {diagnostic.flags.filter(flag => flag.type !== 'green').length + diagnostic.unlockAlerts.length}
-              </span>
+              {(diagnostic.flags.filter(flag => flag.type !== 'green').length + diagnostic.unlockAlerts.length) > 0 && (
+                <span className="bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-lg">
+                  {diagnostic.flags.filter(flag => flag.type !== 'green').length + diagnostic.unlockAlerts.length}
+                </span>
+              )}
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 to-purple-600 rounded-t-full"></div>
             </button>
           </nav>

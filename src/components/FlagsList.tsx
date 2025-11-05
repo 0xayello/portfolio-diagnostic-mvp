@@ -56,14 +56,28 @@ export default function FlagsList({ flags }: FlagsListProps) {
     }
   };
 
+  const greenFlags = flags.filter(flag => flag.type === 'green');
+  const alertFlags = flags.filter(flag => flag.type !== 'green');
+  
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
         <h3 className="text-xl font-semibold text-gray-800 mb-2">
-          Análise de Riscos e Oportunidades
+          Diagnóstico Final
         </h3>
         <p className="text-gray-600">
-          Identificamos {flags.length} ponto{flags.length !== 1 ? 's' : ''} de atenção na sua carteira.
+          {greenFlags.length > 0 && alertFlags.length > 0 && (
+            <>Identificamos <span className="font-semibold text-green-600">{greenFlags.length} ponto{greenFlags.length !== 1 ? 's positivos' : ' positivo'}</span> e <span className="font-semibold text-amber-600">{alertFlags.length} ponto{alertFlags.length !== 1 ? 's' : ''} de atenção</span> na sua carteira.</>
+          )}
+          {greenFlags.length > 0 && alertFlags.length === 0 && (
+            <>Identificamos <span className="font-semibold text-green-600">{greenFlags.length} ponto{greenFlags.length !== 1 ? 's positivos' : ' positivo'}</span> na sua carteira.</>
+          )}
+          {greenFlags.length === 0 && alertFlags.length > 0 && (
+            <>Identificamos <span className="font-semibold text-amber-600">{alertFlags.length} ponto{alertFlags.length !== 1 ? 's' : ''} de atenção</span> na sua carteira.</>
+          )}
+          {greenFlags.length === 0 && alertFlags.length === 0 && (
+            <>Nenhum ponto de atenção identificado.</>
+          )}
         </p>
       </div>
 

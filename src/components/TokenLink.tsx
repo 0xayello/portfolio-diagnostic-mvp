@@ -16,7 +16,7 @@ export function TokenLink({ symbol, className = '', children }: TokenLinkProps) 
       href={getCoinMarketCapUrl(symbol)}
       target="_blank"
       rel="noopener noreferrer"
-      className={`text-violet-600 hover:text-violet-700 underline font-semibold transition-colors ${className}`}
+      className={`text-gray-900 hover:text-gray-700 underline font-semibold transition-colors ${className}`}
       onClick={(e) => e.stopPropagation()}
     >
       {children || symbol}
