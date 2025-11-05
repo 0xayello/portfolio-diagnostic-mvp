@@ -220,7 +220,7 @@ export class AdherenceCalculator {
             this.addViolation({
               type: 'red',
               category: 'memecoins',
-              message: `🎲 Exposição Crítica em Memecoin: ${meme.token} (${meme.percentage.toFixed(1)}%)`,
+              message: `🎲 Exposição Crítica em ${meme.token} (${meme.percentage.toFixed(1)}%)`,
               actionable: `Perfil conservador NÃO deve ter memecoins. Elimine 100% da posição em ${meme.token}.`,
               severity: 4,
               penaltyPoints: PENALTY_WEIGHTS.RED_HIGH
@@ -229,7 +229,7 @@ export class AdherenceCalculator {
             this.addViolation({
               type: 'yellow',
               category: 'memecoins',
-              message: `⚠️ Exposição Baixa em Memecoin: ${meme.token} (${meme.percentage.toFixed(1)}%)`,
+              message: `⚠️ Exposição Baixa em ${meme.token} (${meme.percentage.toFixed(1)}%)`,
               actionable: `Perfil conservador deve evitar memecoins. Reduza exposição em ${meme.token} para 0%.`,
               severity: 2,
               penaltyPoints: PENALTY_WEIGHTS.YELLOW_HIGH
@@ -241,7 +241,7 @@ export class AdherenceCalculator {
             this.addViolation({
               type: 'red',
               category: 'memecoins',
-              message: `🚨 Exposição Alta em Memecoin: ${meme.token} (${meme.percentage.toFixed(1)}%)`,
+              message: `🚨 Exposição Alta em ${meme.token} (${meme.percentage.toFixed(1)}%)`,
               actionable: `Máximo recomendado: ${maxLimit}% para seu perfil. Reduza ${excess.toFixed(1)}% de ${meme.token}.`,
               severity: 3,
               penaltyPoints: PENALTY_WEIGHTS.RED
@@ -250,7 +250,7 @@ export class AdherenceCalculator {
             this.addViolation({
               type: 'yellow',
               category: 'memecoins',
-              message: `⚠️ Exposição Moderada em Memecoin: ${meme.token} (${meme.percentage.toFixed(1)}%)`,
+              message: `⚠️ Exposição Moderada em ${meme.token} (${meme.percentage.toFixed(1)}%)`,
               actionable: `Próximo do limite de ${maxLimit}%. Considere reduzir ${excess.toFixed(1)}% de ${meme.token}.`,
               severity: 2,
               penaltyPoints: PENALTY_WEIGHTS.YELLOW_HIGH

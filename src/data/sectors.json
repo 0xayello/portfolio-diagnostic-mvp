@@ -102,7 +102,7 @@
     "ecosystem": "Synthetix"
   },
   "YFI": {
-    "sector": "Yield Farming",
+    "sector": "DeFi Tokens",
     "category": "Yield Aggregator",
     "chain": "Ethereum",
     "ecosystem": "Yearn Finance"
@@ -294,7 +294,7 @@
     "ecosystem": "Blur"
   },
   "PENDLE": {
-    "sector": "Yield Farming",
+    "sector": "DeFi Tokens",
     "category": "Yield Trading",
     "chain": "Ethereum",
     "ecosystem": "Pendle"

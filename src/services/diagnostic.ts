@@ -152,7 +152,7 @@ export class DiagnosticService {
           flags.push({
             type: item.percentage > maxAllowed * 2 ? 'red' : 'yellow',
             category: 'asset',
-            message: `🎲 Exposição Alta em Memecoin: ${item.token} (${item.percentage.toFixed(1)}%)`,
+            message: `🎲 Exposição Alta em ${item.token} (${item.percentage.toFixed(1)}%)`,
             actionable: `Memecoins são extremamente voláteis e especulativos. Recomendado máximo 20% em perfil arrojado, 5% em moderado, 0% em conservador. Você está ${(item.percentage - maxAllowed).toFixed(1)}% acima do recomendado.`,
             severity: item.percentage > maxAllowed * 2 ? 3 : 2
           });
@@ -387,7 +387,7 @@ export class DiagnosticService {
           flags.push({
             type: 'yellow',
             category: 'sector',
-            message: `🎯 Concentração Setorial em Altcoins: ${percentage.toFixed(0)}% em ${sector}`,
+            message: `🎯 Concentração Setorial em Altcoins: ${percentage.toFixed(0)}% em ${sector} (excluindo BTC, ETH, SOL e stables)`,
             actionable: `${percentage.toFixed(0)}% das suas altcoins estão em ${sector}. Diversifique em outros setores para reduzir correlação.`,
             severity: 2
           });
@@ -710,7 +710,7 @@ export class DiagnosticService {
       'Smart Contract Platform': 'L1s competem por desenvolvedores, TVL e market share. Altamente competitivo.',
       'Oracle': 'Oracles são infraestrutura crítica mas com forte competição. Winner-takes-most.',
       'Derivatives': 'Derivativos cripto têm risco adicional de alavancagem e liquidações.',
-      'Yield Farming': 'Yield farming tem risco de rugs, variação de APY e exploits de protocol.',
+      'DeFi Tokens': 'DeFi tokens têm risco de rugs, variação de APY e exploits de protocol.',
       'AI': 'Tokens de AI são altamente especulativos, dependentes de adoção real vs hype.',
       'RWA': 'Real World Assets têm risco regulatório mas potencial institucional forte.',
       'Liquid Staking': 'Staking líquido tem risco de smart contract mas gera yield consistente.',
