@@ -49,9 +49,10 @@ function IconWebsite() {
 
 export default function Footer() {
   return (
-    <footer className="mt-16 relative bg-gradient-to-b from-transparent to-purple-50/30">
+    <footer className="mt-16 relative">
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="bg-white rounded-3xl p-6 shadow-lg border border-gray-100">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             {/* Logo e Copyright */}
             <div className="flex items-center gap-3">
               <img
@@ -111,6 +112,7 @@ export default function Footer() {
               </a>
             </div>
           </div>
+        </div>
       </div>
     </footer>
   );

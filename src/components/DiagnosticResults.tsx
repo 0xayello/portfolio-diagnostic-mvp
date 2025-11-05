@@ -5,6 +5,7 @@ import FlagsList from './FlagsList';
 import BacktestChart from './BacktestChart';
 import RebalanceSuggestions from './RebalanceSuggestions';
 import CTAs from './CTAs';
+import DisclaimerCTA from './DisclaimerCTA';
 import { getCoinMarketCapUrl } from '../utils/coinmarketcap';
 
 interface DiagnosticResultsProps {
@@ -171,6 +172,7 @@ export default function DiagnosticResults({
 
         <div className="p-8 space-y-8 bg-gradient-to-br from-white to-gray-50">
           <FlagsList flags={diagnostic.flags} />
+          <DisclaimerCTA />
         </div>
       </div>
 
