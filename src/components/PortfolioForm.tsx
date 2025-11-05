@@ -239,10 +239,10 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
           </svg>
         </div>
         <h2 className="text-3xl font-bold mb-2 text-gray-900">
-          Configure sua Alocação
+          Como está sua carteira de cripto hoje?
         </h2>
         <p className="text-gray-600">
-          Ajuste as porcentagens de cada ativo no seu portfólio
+          Informe a porcentagem de cada ativo no seu portfólio
         </p>
       </div>
       

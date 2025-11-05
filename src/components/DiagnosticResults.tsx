@@ -163,7 +163,7 @@ export default function DiagnosticResults({
               </div>
               <span className="text-gray-900">Alertas Importantes</span>
               <span className="bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-lg">
-                {diagnostic.flags.length + diagnostic.unlockAlerts.length}
+                {diagnostic.flags.filter(flag => flag.type !== 'green').length + diagnostic.unlockAlerts.length}
               </span>
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 to-purple-600 rounded-t-full"></div>
             </button>
