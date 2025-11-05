@@ -201,8 +201,8 @@ export class DiagnosticService {
         
         // Listar memecoins individuais
         const memecoins = allocation.filter(a => {
-          const sectorData = this.getSectorInfo(a.token);
-          return sectorData?.sector === 'Meme';
+          const sector = this.getTokenSector(a.token);
+          return sector === 'Meme';
         });
         const memecoinsList = memecoins.map(m => `${m.token} (${Math.round(m.percentage)}%)`).join(', ');
         
