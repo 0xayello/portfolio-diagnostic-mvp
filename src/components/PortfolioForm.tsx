@@ -35,6 +35,8 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     BUSD: 'https://assets.coingecko.com/coins/images/9576/small/BUSD.png',
     TUSD: 'https://assets.coingecko.com/coins/images/3449/small/tusd.png',
     FDUSD: 'https://assets.coingecko.com/coins/images/31079/small/firstdigi.jpeg',
+    PYUSD: 'https://assets.coingecko.com/coins/images/29825/small/pyusd.png',
+    USDE: 'https://assets.coingecko.com/coins/images/36514/small/usde.png',
     
     // Memecoins
     DOGE: 'https://assets.coingecko.com/coins/images/5/small/dogecoin.png',
@@ -44,6 +46,10 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     BONK: 'https://assets.coingecko.com/coins/images/28600/small/bonk.jpg',
     WIF: 'https://assets.coingecko.com/coins/images/33566/small/dogwifhat.jpg',
     BOME: 'https://assets.coingecko.com/coins/images/35591/small/book_of_meme_logo.jpg',
+    MYRO: 'https://assets.coingecko.com/coins/images/33968/small/myro.png',
+    POPCAT: 'https://assets.coingecko.com/coins/images/36087/small/popcat.png',
+    MEW: 'https://assets.coingecko.com/coins/images/36088/small/mew.png',
+    GME: 'https://assets.coingecko.com/coins/images/36089/small/gme.png',
     
     // Layer 1s
     AVAX: 'https://assets.coingecko.com/coins/images/12559/small/Avalanche_Circle_RedWhite_Trans.png',
@@ -58,6 +64,9 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     NEAR: 'https://assets.coingecko.com/coins/images/10365/small/near.jpg',
     FTM: 'https://assets.coingecko.com/coins/images/4001/small/Fantom_round.png',
     ALGO: 'https://assets.coingecko.com/coins/images/4380/small/download.png',
+    FLOW: 'https://assets.coingecko.com/coins/images/13446/small/flow5.png',
+    LTC: 'https://assets.coingecko.com/coins/images/2/small/litecoin.png',
+    BCH: 'https://assets.coingecko.com/coins/images/780/small/bitcoin-cash.png',
     
     // Layer 2s
     ARB: 'https://assets.coingecko.com/coins/images/16547/small/photo_2023-03-29_21.47.00.jpeg',
@@ -82,6 +91,10 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     RUNE: 'https://assets.coingecko.com/coins/images/6595/small/thor.png',
     GMX: 'https://assets.coingecko.com/coins/images/18323/small/arbit.png',
     DYDX: 'https://assets.coingecko.com/coins/images/17500/small/hjnIm9bV.jpg',
+    ENA: 'https://assets.coingecko.com/coins/images/36514/small/ethena.png',
+    SUSHI: 'https://assets.coingecko.com/coins/images/12271/small/sushiswap-512x512.png',
+    '1INCH': 'https://assets.coingecko.com/coins/images/13469/small/1inch.png',
+    YFI: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
     
     // Oracles & Infrastructure
     LINK: 'https://assets.coingecko.com/coins/images/877/small/chainlink-new-logo.png',
@@ -112,8 +125,11 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     RPL: 'https://assets.coingecko.com/coins/images/2090/small/rocket_pool.jpg',
     ETHFI: 'https://assets.coingecko.com/coins/images/35958/small/etherfi.jpeg',
     
-    // Exchanges
+    // Exchanges & Derivatives
     HYPE: 'https://assets.coingecko.com/coins/images/43164/small/hype_logo.jpg',
+    
+    // Infrastructure & Launchpads
+    PUMP: 'https://assets.coingecko.com/coins/images/36090/small/pump-fun.png',
     
     // Others
     STX: 'https://assets.coingecko.com/coins/images/2069/small/Stacks_logo_full.png',
