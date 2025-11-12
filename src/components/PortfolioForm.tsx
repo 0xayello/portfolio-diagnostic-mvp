@@ -224,7 +224,7 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     DXL: 'https://assets.coingecko.com/coins/images/15055/small/dxl.png',
     LIQ: 'https://assets.coingecko.com/coins/images/15056/small/liq.png',
     
-    // Top 200 - Mais tokens importantes adicionais
+    // Top 200 - Mais tokens importantes adicionais (apenas únicos)
     // DeFi & Yield
     FXS: 'https://assets.coingecko.com/coins/images/13423/small/frax_share.png',
     CVX: 'https://assets.coingecko.com/coins/images/15585/small/convex.png',
@@ -244,109 +244,27 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     ZKSYNC: 'https://assets.coingecko.com/coins/images/24242/small/zksync.png',
     LOOPRING: 'https://assets.coingecko.com/coins/images/913/small/loopring.png',
     
-    // Exchange Tokens
-    BNB: 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png',
+    // Exchange Tokens (apenas os que não estão acima)
     FTT: 'https://assets.coingecko.com/coins/images/9026/small/F.png',
     GT: 'https://assets.coingecko.com/coins/images/7603/small/gt.png',
     KCS: 'https://assets.coingecko.com/coins/images/1047/small/kucoin.png',
     MX: 'https://assets.coingecko.com/coins/images/12340/small/mxc.png',
     
-    // DeFi Protocols
-    UMA: 'https://assets.coingecko.com/coins/images/10951/small/UMA.png',
+    // DeFi Protocols (apenas os que não estão acima)
     BADGER: 'https://assets.coingecko.com/coins/images/13287/small/badger_dao_logo.png',
     ALPHA: 'https://assets.coingecko.com/coins/images/12338/small/alpha-finance.png',
     CREAM: 'https://assets.coingecko.com/coins/images/11969/small/Cream.png',
     PICKLE: 'https://assets.coingecko.com/coins/images/12435/small/pickle_finance.png',
     
-    // Gaming & Metaverse
+    // Gaming & Metaverse (apenas os que não estão acima)
     ENJIN: 'https://assets.coingecko.com/coins/images/1102/small/enjin-coin-logo.png',
-    SAND: 'https://assets.coingecko.com/coins/images/12129/small/sandbox_logo.jpg',
-    MANA: 'https://assets.coingecko.com/coins/images/878/small/decentraland-mana.png',
-    AXS: 'https://assets.coingecko.com/coins/images/13029/small/axie_infinity_logo.png',
-    GALA: 'https://assets.coingecko.com/coins/images/12493/small/GALA-COINGECKO.png',
-    ILV: 'https://assets.coingecko.com/coins/images/14468/small/ilv.png',
-    MAGIC: 'https://assets.coingecko.com/coins/images/18623/small/magic.png',
-    APE: 'https://assets.coingecko.com/coins/images/24383/small/apecoin.png',
-    GMT: 'https://assets.coingecko.com/coins/images/20360/small/gmt.png',
     
-    // AI & Compute
-    TAO: 'https://assets.coingecko.com/coins/images/34008/small/bittensor.png',
-    AKT: 'https://assets.coingecko.com/coins/images/12508/small/akash-logo.png',
-    RENDER: 'https://assets.coingecko.com/coins/images/11636/small/rndr.png',
-    
-    // Oracles & Data
-    BAND: 'https://assets.coingecko.com/coins/images/9545/small/Band_token_blue_violet_token.png',
+    // Oracles & Data (apenas os que não estão acima)
     API3: 'https://assets.coingecko.com/coins/images/13256/small/api3.jpg',
     DIA: 'https://assets.coingecko.com/coins/images/11955/small/DIA-icon-colour_%281%29.png',
-    UMA: 'https://assets.coingecko.com/coins/images/10951/small/UMA.png',
-    
-    // Privacy & Security
-    ZEC: 'https://assets.coingecko.com/coins/images/476/small/zcash.png',
-    XMR: 'https://assets.coingecko.com/coins/images/69/small/monero_logo.png',
-    DASH: 'https://assets.coingecko.com/coins/images/19/small/dash-logo.png',
-    
-    // Payment & Stablecoins
-    XLM: 'https://assets.coingecko.com/coins/images/100/small/Stellar_symbol_black_RGB.png',
-    XRP: 'https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png',
-    TRX: 'https://assets.coingecko.com/coins/images/1094/small/tron-logo.png',
-    
-    // Infrastructure
-    CHZ: 'https://assets.coingecko.com/coins/images/8834/small/Chiliz.png',
-    SXP: 'https://assets.coingecko.com/coins/images/9368/small/swipe.png',
-    C98: 'https://assets.coingecko.com/coins/images/17117/small/icon.png',
     
     // RWA & Tokenization
-    ONDO: 'https://assets.coingecko.com/coins/images/26580/small/ONDO.png',
     RWA: 'https://assets.coingecko.com/coins/images/26580/small/ONDO.png',
-    
-    // Memecoins adicionais
-    FLOKI: 'https://assets.coingecko.com/coins/images/16746/small/PNG_image.png',
-    BOME: 'https://assets.coingecko.com/coins/images/35591/small/book_of_meme_logo.jpg',
-    
-    // Solana Ecosystem
-    RAY: 'https://assets.coingecko.com/coins/images/13928/small/Raydium.png',
-    ORCA: 'https://assets.coingecko.com/coins/images/17547/small/Orca_Logo.png',
-    MNGO: 'https://assets.coingecko.com/coins/images/17103/small/mango.png',
-    SAMO: 'https://assets.coingecko.com/coins/images/15060/small/samoyedcoin.png',
-    
-    // Cosmos Ecosystem
-    OSMO: 'https://assets.coingecko.com/coins/images/16724/small/osmo.png',
-    JUNO: 'https://assets.coingecko.com/coins/images/19249/small/Juno_Logo.png',
-    EVMOS: 'https://assets.coingecko.com/coins/images/24023/small/evmos.png',
-    KUJI: 'https://assets.coingecko.com/coins/images/20685/small/kuji.png',
-    SCRT: 'https://assets.coingecko.com/coins/images/11871/small/Secret.png',
-    AXL: 'https://assets.coingecko.com/coins/images/27283/small/axelar.png',
-    
-    // Derivatives & Perpetuals
-    DYDX: 'https://assets.coingecko.com/coins/images/17500/small/hjnIm9bV.jpg',
-    GMX: 'https://assets.coingecko.com/coins/images/18323/small/arbit.png',
-    HYPE: 'https://assets.coingecko.com/coins/images/43164/small/hype_logo.jpg',
-    
-    // Liquid Staking
-    LDO: 'https://assets.coingecko.com/coins/images/13573/small/Lido_DAO.png',
-    RPL: 'https://assets.coingecko.com/coins/images/2090/small/rocket_pool.jpg',
-    ETHFI: 'https://assets.coingecko.com/coins/images/35958/small/etherfi.jpeg',
-    JTO: 'https://assets.coingecko.com/coins/images/32629/small/jto.png',
-    
-    // Storage & Data
-    FIL: 'https://assets.coingecko.com/coins/images/12817/small/filecoin.png',
-    AR: 'https://assets.coingecko.com/coins/images/4343/small/Arweave.png',
-    
-    // NFT & Marketplace
-    BLUR: 'https://assets.coingecko.com/coins/images/28453/small/blur.png',
-    
-    // Infrastructure & Launchpads
-    PUMP: 'https://assets.coingecko.com/coins/images/36090/small/pump-fun.png',
-    
-    // Others importantes
-    STX: 'https://assets.coingecko.com/coins/images/2069/small/Stacks_logo_full.png',
-    ROSE: 'https://assets.coingecko.com/coins/images/13162/small/rose.png',
-    ETC: 'https://assets.coingecko.com/coins/images/453/small/ethereum-classic.png',
-    ZEN: 'https://assets.coingecko.com/coins/images/691/small/horizen.png',
-    WAVES: 'https://assets.coingecko.com/coins/images/425/small/waves.png',
-    NEO: 'https://assets.coingecko.com/coins/images/480/small/neo.jpg',
-    ZIL: 'https://assets.coingecko.com/coins/images/2687/small/Zilliqa-logo.png',
-    IOTA: 'https://assets.coingecko.com/coins/images/701/small/iota-logo.png',
   };
 
   useEffect(() => {
