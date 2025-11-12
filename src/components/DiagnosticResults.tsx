@@ -81,24 +81,33 @@ export default function DiagnosticResults({
               </div>
               <div className="text-base text-gray-600 mt-2 font-medium">Score de Aderência ao Perfil</div>
               
-              {diagnostic.adherenceScore < 100 && (
-                <div className="mt-4 max-w-2xl mx-auto">
-                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                    <div className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <div className="text-sm text-gray-700">
-                        {diagnostic.adherenceScore >= 80 
-                          ? 'Identificamos diversos pontos que estão desalinhados com seu perfil e objetivos. Revise os alertas abaixo para entender como otimizar sua carteira.'
-                          : diagnostic.adherenceScore >= 60
-                          ? 'Seu portfólio tem uma base boa, mas alguns ajustes importantes nos alertas abaixo podem melhorar significativamente sua aderência ao perfil ideal.'
-                          : 'Identificamos diversos pontos que estão desalinhados com seu perfil e objetivos. Revise os alertas abaixo para entender como otimizar sua carteira.'}
+              {(() => {
+                // Contar apenas flags yellow e red (ignorar green)
+                const alertFlags = diagnostic.flags.filter(flag => flag.type !== 'green');
+                const hasAlerts = alertFlags.length > 0;
+                
+                if (diagnostic.adherenceScore < 100 && hasAlerts) {
+                  return (
+                    <div className="mt-4 max-w-2xl mx-auto">
+                      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                          <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div className="text-sm text-gray-700">
+                            {diagnostic.adherenceScore >= 80 
+                              ? 'Identificamos pontos que estão desalinhados com seu perfil e objetivos. Revise os alertas abaixo para entender como otimizar sua carteira.'
+                              : diagnostic.adherenceScore >= 60
+                              ? 'Seu portfólio tem uma base boa, mas alguns ajustes importantes nos alertas abaixo podem melhorar significativamente sua aderência ao perfil ideal.'
+                              : 'Identificamos pontos que estão desalinhados com seu perfil e objetivos. Revise os alertas abaixo para entender como otimizar sua carteira.'}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              )}
+                  );
+                }
+                return null;
+              })()}
             <div className="mt-8 inline-flex bg-gray-100 rounded-2xl p-1.5 shadow-inner">
               <button 
                 onClick={() => setDiagView('performance')} 
