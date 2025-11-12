@@ -33,8 +33,11 @@ export interface AdherenceScore {
 // CONSTANTES
 // ============================================================================
 
-const MAJOR_COINS = ['BTC', 'ETH', 'SOL'];
-const STABLECOINS = ['USDC', 'USDT', 'DAI', 'BUSD', 'TUSD', 'FDUSD'];
+const MAJOR_TIER_1 = ['BTC']; // Major tier 1
+const MAJOR_TIER_2 = ['ETH', 'SOL']; // Major tier 2
+const MAJOR_COINS = [...MAJOR_TIER_1, ...MAJOR_TIER_2]; // Todos os majors (mantido para compatibilidade)
+const MAJOR_STABLECOINS = ['USDC', 'USDT', 'DAI']; // Apenas major stablecoins
+const STABLECOINS = MAJOR_STABLECOINS; // Alias para compatibilidade
 
 // Pesos de penalidade por severidade
 const PENALTY_WEIGHTS = {
@@ -53,7 +56,7 @@ export function getMemecoinsLimitByHorizon(horizon: string): number {
   switch (horizon) {
     case 'long': return 0;
     case 'medium': return 5;
-    case 'short': return 20;
+    case 'short': return 10; // Alterado de 20% para 10%
     default: return 5;
   }
 }
@@ -84,7 +87,7 @@ export function getMemecoinsLimitByRisk(risk: string): number {
   switch (risk) {
     case 'low': return 0;
     case 'medium': return 5;
-    case 'high': return 20;
+    case 'high': return 10; // Alterado de 20% para 10% (alinhado com curto prazo)
     default: return 5;
   }
 }
@@ -122,7 +125,7 @@ export function getStablecoinsLimitByRisk(risk: string): { min: number; max: num
 
 export function getMemecoinsLimitByObjective(objectives: string[]): number {
   if (objectives.includes('preserve')) return 0;
-  if (objectives.includes('multiply')) return 20;
+  if (objectives.includes('multiply')) return 10; // Alterado de 20% para 10%
   return 0; // Renda passiva não interfere
 }
 
@@ -283,14 +286,20 @@ export class AdherenceCalculator {
   }
 
   // ========================================================================
-  // VALIDAÇÃO: MAJORS (BTC, ETH, SOL)
+  // VALIDAÇÃO: MAJORS (BTC tier 1, ETH/SOL tier 2)
   // ========================================================================
 
   private validateMajors(): void {
     const majors = this.allocation.filter(a => MAJOR_COINS.includes(a.token));
     const totalMajorsPercentage = majors.reduce((sum, a) => sum + a.percentage, 0);
 
-    // Limites combinados
+    // Separar por tier
+    const btcAllocation = this.allocation.find(a => a.token === 'BTC');
+    const ethSolAllocation = this.allocation.filter(a => MAJOR_TIER_2.includes(a.token));
+    const btcPercentage = btcAllocation?.percentage || 0;
+    const ethSolPercentage = ethSolAllocation.reduce((sum, a) => sum + a.percentage, 0);
+
+    // Limites combinados (total dos 3 majors)
     const limitByRisk = getMajorsLimitByRisk(this.profile.riskTolerance);
     const limitByHorizon = getMajorsLimitByHorizon(this.profile.horizon);
     const limitByObjective = getMajorsLimitByObjective(this.profile.objective);
@@ -299,7 +308,7 @@ export class AdherenceCalculator {
     const minLimit = Math.max(limitByRisk.min, limitByHorizon.min, limitByObjective.min);
     const maxLimit = Math.min(limitByRisk.max, limitByHorizon.max, limitByObjective.max);
 
-    // Verificar se está abaixo do mínimo
+    // Verificar se está abaixo do mínimo (total dos 3)
     if (totalMajorsPercentage < minLimit) {
       const deficit = minLimit - totalMajorsPercentage;
       
@@ -324,6 +333,42 @@ export class AdherenceCalculator {
       }
     }
 
+    // Validação de distribuição entre tier 1 (BTC) e tier 2 (ETH/SOL)
+    // Conservador + Longo Prazo: BTC deve ter peso maior
+    // Arrojado + Curto Prazo: ETH/SOL devem ter peso maior
+    if (totalMajorsPercentage >= minLimit) {
+      const isConservativeLongTerm = this.profile.riskTolerance === 'low' && this.profile.horizon === 'long';
+      const isAggressiveShortTerm = this.profile.riskTolerance === 'high' && this.profile.horizon === 'short';
+      
+      if (isConservativeLongTerm) {
+        // BTC deve ter pelo menos 50% dos majors
+        const btcRatioOfMajors = totalMajorsPercentage > 0 ? (btcPercentage / totalMajorsPercentage) * 100 : 0;
+        if (btcRatioOfMajors < 50) {
+          this.addViolation({
+            type: 'yellow',
+            category: 'majors',
+            message: `⚠️ Distribuição de Majors: BTC (${btcPercentage.toFixed(1)}%) vs ETH/SOL (${ethSolPercentage.toFixed(1)}%)`,
+            actionable: `Para perfil conservador e longo prazo, BTC deve ter peso maior (≥50% dos majors). Considere aumentar exposição em BTC.`,
+            severity: 2,
+            penaltyPoints: PENALTY_WEIGHTS.YELLOW_HIGH
+          });
+        }
+      } else if (isAggressiveShortTerm) {
+        // ETH/SOL devem ter pelo menos 40% dos majors
+        const ethSolRatioOfMajors = totalMajorsPercentage > 0 ? (ethSolPercentage / totalMajorsPercentage) * 100 : 0;
+        if (ethSolRatioOfMajors < 40) {
+          this.addViolation({
+            type: 'yellow',
+            category: 'majors',
+            message: `⚠️ Distribuição de Majors: BTC (${btcPercentage.toFixed(1)}%) vs ETH/SOL (${ethSolPercentage.toFixed(1)}%)`,
+            actionable: `Para perfil arrojado e curto prazo, ETH/SOL devem ter peso maior (≥40% dos majors). Considere aumentar exposição em ETH/SOL.`,
+            severity: 2,
+            penaltyPoints: PENALTY_WEIGHTS.YELLOW_HIGH
+          });
+        }
+      }
+    }
+
     // Verificar se objetivo é multiplicar e tem muitos majors
     if (this.profile.objective.includes('multiply') && totalMajorsPercentage >= 80) {
       this.addViolation({
@@ -342,9 +387,11 @@ export class AdherenceCalculator {
   // ========================================================================
 
   private validateAltcoins(): void {
+    // Altcoins = tudo que não é major tier 1/2, major stablecoins ou memecoins
+    // Outras stablecoins (BUSD, TUSD, FDUSD) agora são consideradas altcoins
     const altcoins = this.allocation.filter(a => 
       !MAJOR_COINS.includes(a.token) && 
-      !STABLECOINS.includes(a.token) &&
+      !MAJOR_STABLECOINS.includes(a.token) &&
       !this.isMeme(a.token)
     );
     const totalAltcoinsPercentage = altcoins.reduce((sum, a) => sum + a.percentage, 0);
@@ -406,11 +453,11 @@ export class AdherenceCalculator {
   }
 
   // ========================================================================
-  // VALIDAÇÃO: STABLECOINS
+  // VALIDAÇÃO: MAJOR STABLECOINS (USDC, USDT, DAI)
   // ========================================================================
 
   private validateStablecoins(): void {
-    const stables = this.allocation.filter(a => STABLECOINS.includes(a.token));
+    const stables = this.allocation.filter(a => MAJOR_STABLECOINS.includes(a.token));
     const totalStablesPercentage = stables.reduce((sum, a) => sum + a.percentage, 0);
 
     // Limites combinados
@@ -420,13 +467,13 @@ export class AdherenceCalculator {
     const minLimit = Math.max(limitByRisk.min, limitByObjective.min);
     const maxLimit = Math.min(limitByRisk.max, limitByObjective.max);
 
-    // Zero stables é crítico
+    // Zero major stablecoins é crítico
     if (totalStablesPercentage === 0) {
       this.addViolation({
         type: 'red',
         category: 'stablecoins',
-        message: `🚨 Zero Stablecoins: Sem proteção de capital`,
-        actionable: `CRÍTICO: Aloque ${minLimit}%+ em USDC/USDT para gerenciar volatilidade e liquidez.`,
+        message: `🚨 Zero Major Stablecoins: Sem proteção de capital`,
+        actionable: `CRÍTICO: Aloque ${minLimit}%+ em USDC/USDT/DAI para gerenciar volatilidade e liquidez.`,
         severity: 4,
         penaltyPoints: PENALTY_WEIGHTS.RED_HIGH
       });
@@ -443,8 +490,8 @@ export class AdherenceCalculator {
           this.addViolation({
             type: 'red',
             category: 'stablecoins',
-            message: `🚨 Stablecoins Insuficientes: ${totalStablesPercentage.toFixed(1)}%`,
-            actionable: `Objetivo preservar capital: mínimo ${minLimit}%. Aumente ${deficit.toFixed(1)}% em USDC.`,
+            message: `🚨 Major Stablecoins Insuficientes: ${totalStablesPercentage.toFixed(1)}%`,
+            actionable: `Objetivo preservar capital: mínimo ${minLimit}%. Aumente ${deficit.toFixed(1)}% em USDC/USDT/DAI.`,
             severity: 3,
             penaltyPoints: PENALTY_WEIGHTS.RED
           });
@@ -452,8 +499,8 @@ export class AdherenceCalculator {
           this.addViolation({
             type: 'yellow',
             category: 'stablecoins',
-            message: `⚠️ Stablecoins Abaixo do Ideal: ${totalStablesPercentage.toFixed(1)}%`,
-            actionable: `Para preservar capital: recomendado ${minLimit}%. Aumente ${deficit.toFixed(1)}%.`,
+            message: `⚠️ Major Stablecoins Abaixo do Ideal: ${totalStablesPercentage.toFixed(1)}%`,
+            actionable: `Para preservar capital: recomendado ${minLimit}%. Aumente ${deficit.toFixed(1)}% em USDC/USDT/DAI.`,
             severity: 2,
             penaltyPoints: PENALTY_WEIGHTS.YELLOW_HIGH
           });
@@ -462,8 +509,8 @@ export class AdherenceCalculator {
         this.addViolation({
           type: 'red',
           category: 'stablecoins',
-          message: `🚨 Stablecoins Insuficientes: ${totalStablesPercentage.toFixed(1)}%`,
-          actionable: `Perfil conservador: mínimo ${minLimit}%. Aumente ${deficit.toFixed(1)}% em USDC/USDT.`,
+          message: `🚨 Major Stablecoins Insuficientes: ${totalStablesPercentage.toFixed(1)}%`,
+          actionable: `Perfil conservador: mínimo ${minLimit}%. Aumente ${deficit.toFixed(1)}% em USDC/USDT/DAI.`,
           severity: 3,
           penaltyPoints: PENALTY_WEIGHTS.RED
         });
@@ -471,8 +518,8 @@ export class AdherenceCalculator {
         this.addViolation({
           type: 'yellow',
           category: 'stablecoins',
-          message: `⚠️ Stablecoins Baixas: ${totalStablesPercentage.toFixed(1)}%`,
-          actionable: `Recomendado: ${minLimit}-${maxLimit}%. Considere aumentar ${deficit.toFixed(1)}%.`,
+          message: `⚠️ Major Stablecoins Baixas: ${totalStablesPercentage.toFixed(1)}%`,
+          actionable: `Recomendado: ${minLimit}-${maxLimit}%. Considere aumentar ${deficit.toFixed(1)}% em USDC/USDT/DAI.`,
           severity: 2,
           penaltyPoints: PENALTY_WEIGHTS.YELLOW_HIGH
         });
@@ -486,8 +533,8 @@ export class AdherenceCalculator {
       this.addViolation({
         type: 'yellow',
         category: 'stablecoins',
-        message: `💡 Excesso de Stablecoins: ${totalStablesPercentage.toFixed(1)}%`,
-        actionable: `Perdendo potencial de valorização. Realoque ${excess.toFixed(1)}% em BTC/ETH ou altcoins.`,
+        message: `💡 Excesso de Major Stablecoins: ${totalStablesPercentage.toFixed(1)}%`,
+        actionable: `Perdendo potencial de valorização. Realoque ${excess.toFixed(1)}% em BTC/ETH/SOL ou altcoins.`,
         severity: 1,
         penaltyPoints: PENALTY_WEIGHTS.YELLOW
       });
@@ -549,7 +596,7 @@ export class AdherenceCalculator {
   private validateAssetConcentration(): void {
     this.allocation.forEach(asset => {
       const isMajor = MAJOR_COINS.includes(asset.token);
-      const isStable = STABLECOINS.includes(asset.token);
+      const isStable = MAJOR_STABLECOINS.includes(asset.token);
 
       if (!isMajor && !isStable) {
         // Ativos não-majors
@@ -581,10 +628,10 @@ export class AdherenceCalculator {
   // ========================================================================
 
   private validateSectorConcentration(): void {
-    // Calcular altcoins (excluindo majors e stables)
+    // Calcular altcoins (excluindo majors e major stablecoins)
     const altcoins = this.allocation.filter(a => 
       !MAJOR_COINS.includes(a.token) && 
-      !STABLECOINS.includes(a.token)
+      !MAJOR_STABLECOINS.includes(a.token)
     );
     const totalAltcoins = altcoins.reduce((sum, a) => sum + a.percentage, 0);
 
