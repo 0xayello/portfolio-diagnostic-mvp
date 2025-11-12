@@ -134,6 +134,73 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     // Others
     STX: 'https://assets.coingecko.com/coins/images/2069/small/Stacks_logo_full.png',
     ROSE: 'https://assets.coingecko.com/coins/images/13162/small/rose.png',
+    
+    // Top 200 - Stablecoins e DeFi adicionais
+    FRAX: 'https://assets.coingecko.com/coins/images/13422/small/frax.png',
+    LUSD: 'https://assets.coingecko.com/coins/images/14666/small/lusd.png',
+    MIM: 'https://assets.coingecko.com/coins/images/16786/small/mimlogopng.png',
+    CAKE: 'https://assets.coingecko.com/coins/images/12632/small/pancakeswap-cake-logo_%281%29.png',
+    
+    // Top 200 - Layer 1s adicionais
+    THETA: 'https://assets.coingecko.com/coins/images/2538/small/theta-token-logo.png',
+    EOS: 'https://assets.coingecko.com/coins/images/738/small/eos-eos-logo.png',
+    XLM: 'https://assets.coingecko.com/coins/images/100/small/Stellar_symbol_black_RGB.png',
+    TRX: 'https://assets.coingecko.com/coins/images/1094/small/tron-logo.png',
+    VET: 'https://assets.coingecko.com/coins/images/116/small/Vechain-icon_42.png',
+    ICP: 'https://assets.coingecko.com/coins/images/14495/small/Internet_Computer_logo.png',
+    HBAR: 'https://assets.coingecko.com/coins/images/4344/small/hbar.png',
+    CRO: 'https://assets.coingecko.com/coins/images/7310/small/cybercoin.png',
+    QNT: 'https://assets.coingecko.com/coins/images/3370/small/qnt.png',
+    EGLD: 'https://assets.coingecko.com/coins/images/12335/small/egld.png',
+    ASTR: 'https://assets.coingecko.com/coins/images/22623/small/astr.png',
+    KAS: 'https://assets.coingecko.com/coins/images/25751/small/kas.png',
+    TON: 'https://assets.coingecko.com/coins/images/17980/small/ton_symbol.png',
+    MANTA: 'https://assets.coingecko.com/coins/images/34220/small/manta.png',
+    ZK: 'https://assets.coingecko.com/coins/images/24242/small/zksync.png',
+    CORE: 'https://assets.coingecko.com/coins/images/24538/small/core.png',
+    
+    // Top 200 - Exchange Tokens
+    OKB: 'https://assets.coingecko.com/coins/images/4463/small/okb.png',
+    LEO: 'https://assets.coingecko.com/coins/images/8418/small/leo-token.png',
+    CEL: 'https://assets.coingecko.com/coins/images/3263/small/CEL_logo.png',
+    HT: 'https://assets.coingecko.com/coins/images/1304/small/huobi-token-logo.png',
+    
+    // Top 200 - DeFi adicionais
+    MKR: 'https://assets.coingecko.com/coins/images/1364/small/Mark_Maker.png',
+    COMP: 'https://assets.coingecko.com/coins/images/10775/small/COMP.png',
+    SNX: 'https://assets.coingecko.com/coins/images/3406/small/SNX.png',
+    BAL: 'https://assets.coingecko.com/coins/images/11683/small/Balancer.png',
+    SUSHI: 'https://assets.coingecko.com/coins/images/12271/small/sushiswap-512x512.png',
+    '1INCH': 'https://assets.coingecko.com/coins/images/13469/small/1inch.png',
+    YFI: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
+    CRV: 'https://assets.coingecko.com/coins/images/12124/small/Curve.png',
+    UNI: 'https://assets.coingecko.com/coins/images/12504/small/uni.jpg',
+    AAVE: 'https://assets.coingecko.com/coins/images/12645/small/aave-token-round.png',
+    
+    // Top 200 - AI & Compute adicionais
+    RENDER: 'https://assets.coingecko.com/coins/images/11636/small/rndr.png',
+    TAO: 'https://assets.coingecko.com/coins/images/34008/small/bittensor.png',
+    AKT: 'https://assets.coingecko.com/coins/images/12508/small/akash-logo.png',
+    
+    // Top 200 - Gaming adicionais
+    ENJ: 'https://assets.coingecko.com/coins/images/1102/small/enjin-coin-logo.png',
+    ILV: 'https://assets.coingecko.com/coins/images/14468/small/ilv.png',
+    MAGIC: 'https://assets.coingecko.com/coins/images/18623/small/magic.png',
+    
+    // Top 200 - Outros importantes
+    CHZ: 'https://assets.coingecko.com/coins/images/8834/small/Chiliz.png',
+    SXP: 'https://assets.coingecko.com/coins/images/9368/small/swipe.png',
+    ZEC: 'https://assets.coingecko.com/coins/images/476/small/zcash.png',
+    DASH: 'https://assets.coingecko.com/coins/images/19/small/dash-logo.png',
+    ETC: 'https://assets.coingecko.com/coins/images/453/small/ethereum-classic.png',
+    XMR: 'https://assets.coingecko.com/coins/images/69/small/monero_logo.png',
+    ZEN: 'https://assets.coingecko.com/coins/images/691/small/horizen.png',
+    WAVES: 'https://assets.coingecko.com/coins/images/425/small/waves.png',
+    NEO: 'https://assets.coingecko.com/coins/images/480/small/neo.jpg',
+    ZIL: 'https://assets.coingecko.com/coins/images/2687/small/Zilliqa-logo.png',
+    ONE: 'https://assets.coingecko.com/coins/images/4344/small/hbar.png',
+    IOTA: 'https://assets.coingecko.com/coins/images/701/small/iota-logo.png',
+    ETC: 'https://assets.coingecko.com/coins/images/453/small/ethereum-classic.png',
   };
 
   useEffect(() => {

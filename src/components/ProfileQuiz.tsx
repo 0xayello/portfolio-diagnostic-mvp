@@ -132,10 +132,10 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               { 
-                value: 'low', 
-                label: 'Conservador', 
-                desc: 'Preservar capital com baixo risco', 
-                icon: '🛡️'
+                value: 'high', 
+                label: 'Arrojado', 
+                desc: 'Aceita alto risco por maior retorno', 
+                icon: '🚀'
               },
               { 
                 value: 'medium', 
@@ -144,10 +144,10 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
                 icon: '⚖️'
               },
               { 
-                value: 'high', 
-                label: 'Arrojado', 
-                desc: 'Aceita alto risco por maior retorno', 
-                icon: '🚀'
+                value: 'low', 
+                label: 'Conservador', 
+                desc: 'Preservar capital com baixo risco', 
+                icon: '🛡️'
               }
             ].map((option) => (
               <button
