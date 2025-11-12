@@ -170,7 +170,14 @@ export class DiagnosticService {
       if (isBlueChip) {
         maxAllowed = profile.riskTolerance === 'low' ? 5 : 10; // 5% conservador, 10% moderado/arrojado
       } else if (isMidCap) {
-        maxAllowed = profile.riskTolerance === 'low' ? 5 : 8; // 5% conservador, 8% moderado/arrojado
+        // Mid-caps: 5% conservador, 8% moderado, 15% arrojado
+        if (profile.riskTolerance === 'low') {
+          maxAllowed = 5;
+        } else if (profile.riskTolerance === 'medium') {
+          maxAllowed = 8;
+        } else {
+          maxAllowed = 15; // Arrojado: 15%
+        }
       } else if (isVeryNew) {
         maxAllowed = 5; // Máximo 5% mesmo em perfil arrojado para tokens muito novos
       } else if (isNew) {
