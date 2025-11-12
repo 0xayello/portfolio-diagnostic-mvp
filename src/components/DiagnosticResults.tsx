@@ -96,10 +96,10 @@ export default function DiagnosticResults({
                           </svg>
                           <div className="text-sm text-gray-700">
                             {diagnostic.adherenceScore >= 80 
-                              ? 'Identificamos pontos que estão desalinhados com seu perfil e objetivos. Revise os alertas abaixo para entender como otimizar sua carteira.'
+                              ? <>Identificamos pontos que estão desalinhados com seu perfil e objetivos.<br />Revise os alertas abaixo para entender como otimizar sua carteira.</>
                               : diagnostic.adherenceScore >= 60
                               ? 'Seu portfólio tem uma base boa, mas alguns ajustes importantes nos alertas abaixo podem melhorar significativamente sua aderência ao perfil ideal.'
-                              : 'Identificamos pontos que estão desalinhados com seu perfil e objetivos. Revise os alertas abaixo para entender como otimizar sua carteira.'}
+                              : <>Identificamos pontos que estão desalinhados com seu perfil e objetivos.<br />Revise os alertas abaixo para entender como otimizar sua carteira.</>}
                           </div>
                         </div>
                       </div>
