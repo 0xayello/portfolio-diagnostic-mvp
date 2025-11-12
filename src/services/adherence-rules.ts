@@ -36,8 +36,9 @@ export interface AdherenceScore {
 const MAJOR_TIER_1 = ['BTC']; // Major tier 1
 const MAJOR_TIER_2 = ['ETH', 'SOL']; // Major tier 2
 const MAJOR_COINS = [...MAJOR_TIER_1, ...MAJOR_TIER_2]; // Todos os majors (mantido para compatibilidade)
-const MAJOR_STABLECOINS = ['USDC', 'USDT', 'DAI']; // Apenas major stablecoins
+const MAJOR_STABLECOINS = ['USDC', 'USDT', 'DAI', 'PYUSD']; // Major stablecoins (incluindo PYUSD)
 const STABLECOINS = MAJOR_STABLECOINS; // Alias para compatibilidade
+// Outras stablecoins (alto risco): USDE, FRAX, LUSD, MIM, USDD, TUSD, FDUSD, BUSD
 
 // Pesos de penalidade por severidade
 const PENALTY_WEIGHTS = {
@@ -52,11 +53,13 @@ const PENALTY_WEIGHTS = {
 // REGRAS POR HORIZONTE DE INVESTIMENTO
 // ============================================================================
 
-export function getMemecoinsLimitByHorizon(horizon: string): number {
+export function getMemecoinsLimitByHorizon(horizon: string, riskTolerance?: string): number {
   switch (horizon) {
     case 'long': return 0;
     case 'medium': return 5;
-    case 'short': return 10; // Alterado de 20% para 10%
+    case 'short': 
+      // Arrojado + Curto Prazo = 15%, outros = 10%
+      return riskTolerance === 'high' ? 15 : 10;
     default: return 5;
   }
 }
@@ -207,7 +210,7 @@ export class AdherenceCalculator {
 
     // Limites combinados (menor entre todos os critérios)
     const limitByRisk = getMemecoinsLimitByRisk(this.profile.riskTolerance);
-    const limitByHorizon = getMemecoinsLimitByHorizon(this.profile.horizon);
+    const limitByHorizon = getMemecoinsLimitByHorizon(this.profile.horizon, this.profile.riskTolerance);
     const limitByObjective = getMemecoinsLimitByObjective(this.profile.objective);
     
     const maxLimit = Math.min(limitByRisk, limitByHorizon, limitByObjective);
@@ -341,14 +344,14 @@ export class AdherenceCalculator {
       const isAggressiveShortTerm = this.profile.riskTolerance === 'high' && this.profile.horizon === 'short';
       
       if (isConservativeLongTerm) {
-        // BTC deve ter pelo menos 50% dos majors
+        // BTC deve ter pelo menos 60% dos majors (aumentado de 50% para 60%)
         const btcRatioOfMajors = totalMajorsPercentage > 0 ? (btcPercentage / totalMajorsPercentage) * 100 : 0;
-        if (btcRatioOfMajors < 50) {
+        if (btcRatioOfMajors < 60) {
           this.addViolation({
             type: 'yellow',
             category: 'majors',
             message: `⚠️ Distribuição de Majors: BTC (${btcPercentage.toFixed(1)}%) vs ETH/SOL (${ethSolPercentage.toFixed(1)}%)`,
-            actionable: `Para perfil conservador e longo prazo, BTC deve ter peso maior (≥50% dos majors). Considere aumentar exposição em BTC.`,
+            actionable: `Para perfil conservador e longo prazo, BTC deve ter peso maior (≥60% dos majors). Considere aumentar exposição em BTC.`,
             severity: 2,
             penaltyPoints: PENALTY_WEIGHTS.YELLOW_HIGH
           });
@@ -387,11 +390,14 @@ export class AdherenceCalculator {
   // ========================================================================
 
   private validateAltcoins(): void {
-    // Altcoins = tudo que não é major tier 1/2, major stablecoins ou memecoins
-    // Outras stablecoins (BUSD, TUSD, FDUSD) agora são consideradas altcoins
+    // Outras stablecoins (alto risco) - não são major stablecoins
+    const OTHER_STABLECOINS = ['USDE', 'FRAX', 'LUSD', 'MIM', 'USDD', 'TUSD', 'FDUSD', 'BUSD'];
+    
+    // Altcoins = tudo que não é major tier 1/2, major stablecoins, outras stablecoins ou memecoins
     const altcoins = this.allocation.filter(a => 
       !MAJOR_COINS.includes(a.token) && 
       !MAJOR_STABLECOINS.includes(a.token) &&
+      !OTHER_STABLECOINS.includes(a.token.toUpperCase()) &&
       !this.isMeme(a.token)
     );
     const totalAltcoinsPercentage = altcoins.reduce((sum, a) => sum + a.percentage, 0);
@@ -628,10 +634,14 @@ export class AdherenceCalculator {
   // ========================================================================
 
   private validateSectorConcentration(): void {
-    // Calcular altcoins (excluindo majors e major stablecoins)
+    // Outras stablecoins (alto risco)
+    const OTHER_STABLECOINS = ['USDE', 'FRAX', 'LUSD', 'MIM', 'USDD', 'TUSD', 'FDUSD', 'BUSD'];
+    
+    // Calcular altcoins (excluindo majors, major stablecoins e outras stablecoins)
     const altcoins = this.allocation.filter(a => 
       !MAJOR_COINS.includes(a.token) && 
-      !MAJOR_STABLECOINS.includes(a.token)
+      !MAJOR_STABLECOINS.includes(a.token) &&
+      !OTHER_STABLECOINS.includes(a.token.toUpperCase())
     );
     const totalAltcoins = altcoins.reduce((sum, a) => sum + a.percentage, 0);
 

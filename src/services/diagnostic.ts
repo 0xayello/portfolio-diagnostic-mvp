@@ -20,7 +20,8 @@ export class DiagnosticService {
   private static readonly MAJOR_TIER_1 = ['BTC']; // Major tier 1
   private static readonly MAJOR_TIER_2 = ['ETH', 'SOL']; // Major tier 2
   private static readonly MAJOR_COINS = [...DiagnosticService.MAJOR_TIER_1, ...DiagnosticService.MAJOR_TIER_2]; // Todos os majors
-  private static readonly MAJOR_STABLECOINS = ['USDC', 'USDT', 'DAI']; // Apenas major stablecoins
+  private static readonly MAJOR_STABLECOINS = ['USDC', 'USDT', 'DAI', 'PYUSD']; // Major stablecoins (incluindo PYUSD)
+  // Outras stablecoins (alto risco): USDE, FRAX, LUSD, MIM, USDD, etc.
 
   constructor() {
     this.coinGeckoService = new CoinGeckoService();
@@ -201,11 +202,17 @@ export class DiagnosticService {
       
       // Análise específica por tipo de setor - MEMECOINS TOTAL (CONSOLIDADO)
       if (sector === 'Meme') {
-        const maxByProfile = {
+        // Limites por perfil - considerar também horizonte
+        let maxByProfile: { [key: string]: number } = {
           low: 0,      // Conservador: 0%
           medium: 5,   // Moderado: 5%
-          high: 10     // Arrojado: 10% (alterado de 20% para 10%)
+          high: 10     // Arrojado: 10% (padrão)
         };
+        
+        // Ajuste especial: Arrojado + Curto Prazo = 15%
+        if (profile.riskTolerance === 'high' && profile.horizon === 'short') {
+          maxByProfile.high = 15;
+        }
         
         const maxAllowed = maxByProfile[profile.riskTolerance as keyof typeof maxByProfile] || 5;
         
@@ -224,7 +231,7 @@ export class DiagnosticService {
             type: isCritical || isHighPercentage ? 'red' : 'yellow',
             category: 'sector',
             message: `🎲 Exposição em Memecoins: ${Math.round(percentage)}%${memecoinsList ? ` - ${memecoinsList}` : ''}`,
-            actionable: `Memecoins são extremamente voláteis e especulativos. Recomendado máximo 10% em perfil arrojado, 5% em moderado, 0% em conservador. Você está ${Math.round(percentage - maxAllowed)}% acima do recomendado. Distribua para BTC/ETH/SOL/stables e mantenha no máximo ${maxAllowed}% em Memecoins.`,
+            actionable: `Memecoins são extremamente voláteis e especulativos. Recomendado máximo ${maxAllowed}% para seu perfil. Você está ${Math.round(percentage - maxAllowed)}% acima do recomendado. Distribua para BTC/ETH/SOL/stables e mantenha no máximo ${maxAllowed}% em Memecoins.`,
             severity: isCritical || isHighPercentage ? 5 : 3
           });
         } else if (percentage > 0 && percentage <= maxAllowed) {
@@ -261,12 +268,12 @@ export class DiagnosticService {
     });
     
     // Flags por perfil - Major Stablecoins (CRÍTICO) - Faixa 10-50%
-    const STABLECOINS_LIST = DiagnosticService.MAJOR_STABLECOINS; // Apenas USDC, USDT, DAI
+    const STABLECOINS_LIST = DiagnosticService.MAJOR_STABLECOINS; // USDC, USDT, DAI, PYUSD
     const stablecoinPercentage = allocation
       .filter(item => STABLECOINS_LIST.includes(item.token))
       .reduce((sum, item) => sum + item.percentage, 0);
     
-    const expectedStablecoinRange = this.getExpectedStablecoinRange(profile.riskTolerance, profile.horizon);
+    const expectedStablecoinRange = this.getExpectedStablecoinRange(profile.riskTolerance, profile.horizon, profile.objective);
     
     // Análise de Stablecoins: verificar se está dentro da faixa ideal
     if (stablecoinPercentage === 0 && profile.riskTolerance === 'low') {
@@ -274,8 +281,17 @@ export class DiagnosticService {
         type: 'red',
         category: 'profile',
         message: `🚨 Zero Major Stablecoins: Carteira sem proteção de capital`,
-        actionable: `CRÍTICO para perfil conservador: Aloque ${expectedStablecoinRange.min}-${expectedStablecoinRange.max}% em USDC/USDT/DAI para gerenciar volatilidade e ter liquidez.`,
+        actionable: `CRÍTICO para perfil conservador: Aloque ${expectedStablecoinRange.min}-${expectedStablecoinRange.max}% em major stablecoins para gerenciar volatilidade e ter liquidez.`,
         severity: 4
+      });
+    } else if (stablecoinPercentage === 0 && profile.riskTolerance === 'high') {
+      // Arrojado com zero stablecoins - Yellow flag (recomendação, não erro)
+      flags.push({
+        type: 'yellow',
+        category: 'profile',
+        message: `💡 Zero Major Stablecoins: Sem liquidez para oportunidades`,
+        actionable: `Mesmo em perfil arrojado, recomenda-se manter pelo menos 5% em major stablecoins para ter liquidez e aproveitar oportunidades de mercado. Considere alocar 5-10% em major stablecoins.`,
+        severity: 1
       });
     } else if (stablecoinPercentage < expectedStablecoinRange.min) {
       const severityType = profile.riskTolerance === 'low' ? 'red' : 'yellow';
@@ -379,14 +395,14 @@ export class DiagnosticService {
       
       let distributionWarning = false;
       if (isConservativeLongTerm) {
-        // BTC deve ter pelo menos 50% dos majors
+        // BTC deve ter pelo menos 60% dos majors (aumentado de 50% para 60%)
         const btcRatioOfMajors = majorCoinsTotal > 0 ? (btcPercentage / majorCoinsTotal) * 100 : 0;
-        if (btcRatioOfMajors < 50) {
+        if (btcRatioOfMajors < 60) {
           flags.push({
             type: 'yellow',
             category: 'asset',
             message: `⚠️ Distribuição de Majors: BTC (${btcPercentage.toFixed(1)}%) vs ETH/SOL (${ethSolPercentage.toFixed(1)}%)`,
-            actionable: `Para perfil conservador e longo prazo, BTC deve ter peso maior (≥50% dos majors). Considere aumentar exposição em BTC.`,
+            actionable: `Para perfil conservador e longo prazo, BTC deve ter peso maior (≥60% dos majors). Considere aumentar exposição em BTC.`,
             severity: 2
           });
           distributionWarning = true;
@@ -426,10 +442,44 @@ export class DiagnosticService {
       });
     }
     
-    // Análise de altcoins (excluindo majors e major stablecoins)
-    // Outras stablecoins (BUSD, TUSD, FDUSD) agora são consideradas altcoins
+    // Identificar outras stablecoins (alto risco) - não são major stablecoins
+    // Exemplos: USDE (Ethena - sintética, depende de funding rates), FRAX, LUSD, MIM, USDD, TUSD, FDUSD, BUSD
+    const OTHER_STABLECOINS = ['USDE', 'FRAX', 'LUSD', 'MIM', 'USDD', 'TUSD', 'FDUSD', 'BUSD'];
+    const otherStablecoinsAllocation = allocation.filter(
+      item => OTHER_STABLECOINS.includes(item.token.toUpperCase())
+    );
+    const otherStablecoinsPercentage = otherStablecoinsAllocation.reduce((sum, item) => sum + item.percentage, 0);
+    
+    // Validação de Outras Stablecoins (alto risco)
+    if (otherStablecoinsPercentage > 0) {
+      const maxAllowed = profile.riskTolerance === 'low' ? 0 : profile.riskTolerance === 'medium' ? 5 : 10;
+      
+      if (otherStablecoinsPercentage > maxAllowed) {
+        const otherStablecoinsList = otherStablecoinsAllocation.map(s => `${s.token} (${Math.round(s.percentage)}%)`).join(', ');
+        flags.push({
+          type: profile.riskTolerance === 'low' ? 'red' : 'yellow',
+          category: 'other_stablecoins',
+          message: `⚠️ Exposição em Outras Stablecoins: ${otherStablecoinsPercentage.toFixed(1)}%${otherStablecoinsList ? ` - ${otherStablecoinsList}` : ''}`,
+          actionable: `Você tem ${otherStablecoinsPercentage.toFixed(1)}% em stablecoins não-majors. Essas têm maior risco de depeg e menor liquidez que major stablecoins. Para maior segurança, considere migrar para major stablecoins. Se mantiver, limite a ${maxAllowed}% máximo e monitore de perto.`,
+          severity: profile.riskTolerance === 'low' ? 4 : 2
+        });
+      } else if (otherStablecoinsPercentage > 0) {
+        // Mesmo dentro do limite, alertar sobre o risco
+        flags.push({
+          type: 'yellow',
+          category: 'other_stablecoins',
+          message: `💡 Exposição em Outras Stablecoins: ${otherStablecoinsPercentage.toFixed(1)}%`,
+          actionable: `Stablecoins não-majors têm maior risco de depeg e menor liquidez. Para maior segurança, considere migrar para major stablecoins.`,
+          severity: 1
+        });
+      }
+    }
+    
+    // Análise de altcoins (excluindo majors, major stablecoins E outras stablecoins)
     const altcoinsAllocation = allocation.filter(
-      item => !MAJOR_COINS.includes(item.token) && !DiagnosticService.MAJOR_STABLECOINS.includes(item.token)
+      item => !MAJOR_COINS.includes(item.token) && 
+              !DiagnosticService.MAJOR_STABLECOINS.includes(item.token) &&
+              !OTHER_STABLECOINS.includes(item.token.toUpperCase())
     );
     
     const altcoinsTotal = altcoinsAllocation.reduce((sum, item) => sum + item.percentage, 0);
@@ -471,7 +521,7 @@ export class DiagnosticService {
             type: 'yellow',
             category: 'sector',
             message: `🎯 Concentração Setorial em Altcoins: ${percentage.toFixed(0)}% em ${sector} (excluindo BTC, ETH, SOL e stables)`,
-            actionable: `${percentage.toFixed(0)}% das suas altcoins estão em ${sector}. Diversifique em outros setores para reduzir correlação.`,
+            actionable: `⚠️ RISCO DE CORRELAÇÃO: Quando ${percentage.toFixed(0)}% ou mais das suas altcoins estão no mesmo setor, você está exposto a riscos sistêmicos específicos desse setor. Em momentos de stress de mercado, ativos correlacionados tendem a cair juntos, amplificando perdas. Diversifique em 2-3 setores descorrelacionados.`,
             severity: 2
           });
         }
@@ -497,9 +547,20 @@ export class DiagnosticService {
     return flags.sort((a, b) => b.severity - a.severity);
   }
 
-  private getExpectedStablecoinRange(riskTolerance: string, horizon?: string): { min: number; max: number } {
-    // Faixas baseadas APENAS em tolerância ao risco (não horizonte)
+  private getExpectedStablecoinRange(riskTolerance: string, horizon?: string, objectives?: string[]): { min: number; max: number } {
+    // Ajustar para objetivo "renda passiva" - permite mais stablecoins
+    if (objectives && objectives.includes('passive_income')) {
+      if (riskTolerance === 'low') {
+        return { min: 20, max: 50 }; // Aumentado de 40% para 50%
+      }
+      if (riskTolerance === 'medium') {
+        return { min: 15, max: 40 }; // Aumentado de 20% para 40%
+      }
+      // Arrojado com renda passiva
+      return { min: 10, max: 30 }; // Aumentado de 10% para 30%
+    }
     
+    // Faixas padrão baseadas em tolerância ao risco
     if (riskTolerance === 'low') {
       // Conservador: 20-40%
       return { min: 20, max: 40 };
@@ -830,14 +891,14 @@ export class DiagnosticService {
     }
     
     if (profile.objective.includes('passive_income')) {
-      return `Para renda passiva, mantenha ${expected.min}-${expected.max}% em stables gerando yield em protocolos seguros (AAVE, Compound).`;
+      return `Para renda passiva, mantenha ${expected.min}-${expected.max}% em major stablecoins gerando yield em protocolos estabelecidos.`;
     }
     
     if (profile.riskTolerance === 'high') {
       return `Mesmo em perfil arrojado, mantenha ${expected.min}-${expected.max}% em major stablecoins para gestão de risco e aproveitar oportunidades.`;
     }
     
-    return `Aloque ${diff.toFixed(0)}% adicional em USDC/USDT/DAI para gestão de risco e liquidez.`;
+    return `Aloque ${diff.toFixed(0)}% adicional em major stablecoins para gestão de risco e liquidez.`;
   }
   
   private getSuggestedAllocationByProfile(profile: InvestorProfile): string {
@@ -893,26 +954,86 @@ export class DiagnosticService {
       });
     }
     
-    // Análise de objetivo vs alocação
-    if (profile.objective.includes('preserve') && majorPercentage < 50) {
-      flags.push({
-        type: 'yellow',
-        category: 'profile',
-        message: `🛡️ Objetivo Preservação: Apenas ${majorPercentage.toFixed(0)}% em majors`,
-        actionable: `Para preservar capital, aloque 50-70% em BTC/ETH/SOL, 20-30% em stables, e máximo 20% em altcoins selecionadas.`,
-        severity: 2
-      });
+    // Análise de objetivo vs alocação - PRESERVAR CAPITAL
+    if (profile.objective.includes('preserve')) {
+      if (majorPercentage < 50) {
+        flags.push({
+          type: 'yellow',
+          category: 'profile',
+          message: `🛡️ Objetivo Preservação: Apenas ${majorPercentage.toFixed(0)}% em majors`,
+          actionable: `Para preservar capital, priorize segurança sobre crescimento. Aloque 50-70% em BTC/ETH/SOL (com foco em BTC para menor volatilidade), 20-30% em major stablecoins (USDC/USDT/DAI/PYUSD) para liquidez e proteção, e máximo 20% em altcoins estabelecidos. Evite memecoins e projetos experimentais.`,
+          severity: 2
+        });
+      }
+      
+      // Verificar altcoins acima de 20%
+      const altcoinsTotal = allocation
+        .filter(item => !DiagnosticService.MAJOR_COINS.includes(item.token) && 
+                        !DiagnosticService.MAJOR_STABLECOINS.includes(item.token))
+        .reduce((sum, item) => sum + item.percentage, 0);
+      
+      if (altcoinsTotal > 20) {
+        flags.push({
+          type: 'yellow',
+          category: 'profile',
+          message: `⚠️ Exposição em Altcoins acima do ideal para preservação`,
+          actionable: `Com objetivo de preservar capital, limite altcoins a 20% máximo. Priorize projetos estabelecidos com alta liquidez e evite projetos novos ou de alto risco. Considere reduzir ${(altcoinsTotal - 20).toFixed(1)}% para majors/stables.`,
+          severity: 2
+        });
+      }
+      
+      // Verificar memecoins (deve ser 0%)
+      const memecoinsTotal = allocation
+        .filter(item => {
+          const sector = this.getTokenSector(item.token);
+          return sector === 'Meme';
+        })
+        .reduce((sum, item) => sum + item.percentage, 0);
+      
+      if (memecoinsTotal > 0) {
+        flags.push({
+          type: 'red',
+          category: 'profile',
+          message: `🚨 Memecoins incompatíveis com preservação de capital`,
+          actionable: `Memecoins são extremamente voláteis e especulativos. Para preservar capital, elimine 100% da exposição em memecoins e realoque em BTC/ETH/SOL ou major stablecoins.`,
+          severity: 4
+        });
+      }
     }
     
-    // Objetivo multiplicar capital mas muito conservador
-    if (profile.objective.includes('multiply') && majorPercentage > 80 && profile.riskTolerance !== 'low') {
-      flags.push({
-        type: 'yellow',
-        category: 'profile',
-        message: `📈 Objetivo Multiplicação: ${majorPercentage.toFixed(0)}% em majors pode limitar upside`,
-        actionable: `Para multiplicar capital, considere alocar 20-40% em altcoins de mid-cap com fundamentos sólidos.`,
-        severity: 1
-      });
+    // Objetivo multiplicar capital - validação de distribuição
+    if (profile.objective.includes('multiply')) {
+      if (majorPercentage > 80 && profile.riskTolerance !== 'low') {
+        flags.push({
+          type: 'yellow',
+          category: 'profile',
+          message: `📈 Objetivo Multiplicação: ${majorPercentage.toFixed(0)}% em majors pode limitar upside`,
+          actionable: `Para multiplicar capital, considere alocar 20-40% em altcoins de mid-cap com fundamentos sólidos.`,
+          severity: 1
+        });
+      }
+      
+      // Validação de distribuição BTC vs ETH/SOL para multiplicar
+      if (majorPercentage >= 40 && profile.riskTolerance === 'high') {
+        const btcAlloc = allocation.find(item => item.token === 'BTC');
+        const ethSolAlloc = allocation.filter(item => DiagnosticService.MAJOR_TIER_2.includes(item.token));
+        const btcPct = btcAlloc?.percentage || 0;
+        const ethSolPct = ethSolAlloc.reduce((sum, item) => sum + item.percentage, 0);
+        
+        // Para multiplicar em perfil arrojado, ETH/SOL devem ter mais peso
+        if (majorPercentage > 0) {
+          const ethSolRatio = (ethSolPct / majorPercentage) * 100;
+          if (ethSolRatio < 40) {
+            flags.push({
+              type: 'yellow',
+              category: 'profile',
+              message: `📈 Distribuição para Multiplicação: BTC (${btcPct.toFixed(1)}%) vs ETH/SOL (${ethSolPct.toFixed(1)}%)`,
+              actionable: `Para multiplicar capital com perfil arrojado, ETH/SOL devem ter peso maior (≥40% dos majors) devido ao maior potencial de crescimento. Considere aumentar exposição em ETH/SOL.`,
+              severity: 2
+            });
+          }
+        }
+      }
     }
   }
 }
