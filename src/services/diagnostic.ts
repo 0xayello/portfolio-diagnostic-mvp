@@ -16,6 +16,12 @@ export class DiagnosticService {
   private coinGeckoService: CoinGeckoService;
   private coinMarketCapService: CoinMarketCapService;
 
+  // Constantes de classificação de ativos
+  private static readonly MAJOR_TIER_1 = ['BTC']; // Major tier 1
+  private static readonly MAJOR_TIER_2 = ['ETH', 'SOL']; // Major tier 2
+  private static readonly MAJOR_COINS = [...DiagnosticService.MAJOR_TIER_1, ...DiagnosticService.MAJOR_TIER_2]; // Todos os majors
+  private static readonly MAJOR_STABLECOINS = ['USDC', 'USDT', 'DAI']; // Apenas major stablecoins
+
   constructor() {
     this.coinGeckoService = new CoinGeckoService();
     this.coinMarketCapService = new CoinMarketCapService();
@@ -92,8 +98,12 @@ export class DiagnosticService {
   ): DiagnosticFlag[] {
     const flags: DiagnosticFlag[] = [];
     
-    const MAJOR_COINS = ['BTC', 'ETH', 'SOL'];
-    const STABLECOINS = ['USDC', 'USDT', 'DAI', 'BUSD'];
+    // Usar constantes da classe
+    const MAJOR_TIER_1 = DiagnosticService.MAJOR_TIER_1;
+    const MAJOR_TIER_2 = DiagnosticService.MAJOR_TIER_2;
+    const MAJOR_COINS = DiagnosticService.MAJOR_COINS;
+    const MAJOR_STABLECOINS = DiagnosticService.MAJOR_STABLECOINS;
+    const STABLECOINS = MAJOR_STABLECOINS; // Alias para compatibilidade
     
     // Flags por ativo com análise contextualizada
     allocation.forEach(item => {
@@ -251,7 +261,7 @@ export class DiagnosticService {
     });
     
     // Flags por perfil - Major Stablecoins (CRÍTICO) - Faixa 10-50%
-    const STABLECOINS_LIST = MAJOR_STABLECOINS; // Apenas USDC, USDT, DAI
+    const STABLECOINS_LIST = DiagnosticService.MAJOR_STABLECOINS; // Apenas USDC, USDT, DAI
     const stablecoinPercentage = allocation
       .filter(item => STABLECOINS_LIST.includes(item.token))
       .reduce((sum, item) => sum + item.percentage, 0);
@@ -356,7 +366,7 @@ export class DiagnosticService {
     
     // Análise de BTC+ETH+SOL juntos (40-100% ideal)
     const btcAllocation = allocation.find(item => item.token === 'BTC');
-    const ethSolAllocation = allocation.filter(item => MAJOR_TIER_2.includes(item.token));
+    const ethSolAllocation = allocation.filter(item => DiagnosticService.MAJOR_TIER_2.includes(item.token));
     const btcPercentage = btcAllocation?.percentage || 0;
     const ethSolPercentage = ethSolAllocation.reduce((sum, item) => sum + item.percentage, 0);
     const majorCoinsTotal = btcPercentage + ethSolPercentage;
@@ -419,7 +429,7 @@ export class DiagnosticService {
     // Análise de altcoins (excluindo majors e major stablecoins)
     // Outras stablecoins (BUSD, TUSD, FDUSD) agora são consideradas altcoins
     const altcoinsAllocation = allocation.filter(
-      item => !MAJOR_COINS.includes(item.token) && !MAJOR_STABLECOINS.includes(item.token)
+      item => !MAJOR_COINS.includes(item.token) && !DiagnosticService.MAJOR_STABLECOINS.includes(item.token)
     );
     
     const altcoinsTotal = altcoinsAllocation.reduce((sum, item) => sum + item.percentage, 0);
@@ -539,7 +549,7 @@ export class DiagnosticService {
     const suggestions: RebalanceSuggestion[] = [];
     const expectedStablecoinRange = this.getExpectedStablecoinRange(profile.riskTolerance);
     const currentStablecoinPercentage = allocation
-      .filter(item => MAJOR_STABLECOINS.includes(item.token))
+      .filter(item => DiagnosticService.MAJOR_STABLECOINS.includes(item.token))
       .reduce((sum, item) => sum + item.percentage, 0);
     
     // Ajustar stablecoins
@@ -712,7 +722,7 @@ export class DiagnosticService {
     sectorBreakdown: { [sector: string]: number }
   ) {
     const stablecoinPercentage = allocation
-      .filter(item => MAJOR_STABLECOINS.includes(item.token))
+      .filter(item => DiagnosticService.MAJOR_STABLECOINS.includes(item.token))
       .reduce((sum, item) => sum + item.percentage, 0);
     
     const liquidity = allocation.reduce((avg, item) => {
@@ -859,8 +869,8 @@ export class DiagnosticService {
     profile: InvestorProfile,
     flags: DiagnosticFlag[]
   ): void {
-    const MAJOR_COINS = ['BTC', 'ETH', 'SOL'];
-    const STABLECOINS = MAJOR_STABLECOINS; // Apenas USDC, USDT, DAI
+    const MAJOR_COINS = DiagnosticService.MAJOR_COINS;
+    const STABLECOINS = DiagnosticService.MAJOR_STABLECOINS; // Apenas USDC, USDT, DAI
     
     const majorPercentage = allocation
       .filter(item => MAJOR_COINS.includes(item.token))
