@@ -93,6 +93,9 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     DYDX: 'https://assets.coingecko.com/coins/images/17500/small/hjnIm9bV.jpg',
     ENA: 'https://assets.coingecko.com/coins/images/36514/small/ethena.png',
     SUSHI: 'https://assets.coingecko.com/coins/images/12271/small/sushiswap-512x512.png',
+    
+    // Tokens específicos que estavam sem logo
+    DOG: 'https://assets.coingecko.com/coins/images/5/small/dogecoin.png', // Dogecoin
     '1INCH': 'https://assets.coingecko.com/coins/images/13469/small/1inch.png',
     YFI: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
     
@@ -409,8 +412,20 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
                       alt={`${item.token} logo`}
                       className="relative w-12 h-12 rounded-full object-contain bg-white p-1.5 shadow-lg ring-2 ring-gray-200 group-hover:ring-violet-400 transition-all duration-300"
                       onError={(e) => {
-                        // Fallback final: placeholder com letra do token
-                        (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${item.token}&background=6366f1&color=fff&size=64&bold=true`;
+                        const target = e.currentTarget as HTMLImageElement;
+                        // Se já tentou o fallback, usar UI Avatars
+                        if (target.src.includes('ui-avatars.com')) {
+                          return; // Evitar loop infinito
+                        }
+                        // Tentar buscar via API do CoinGecko se não estiver no fallback
+                        const tokenUpper = item.token.toUpperCase();
+                        if (!FALLBACK_LOGOS[tokenUpper] && !tokenImages[tokenUpper]) {
+                          // Fallback final: placeholder com letra do token
+                          target.src = `https://ui-avatars.com/api/?name=${item.token}&background=6366f1&color=fff&size=64&bold=true`;
+                        } else {
+                          // Se estava no fallback mas falhou, tentar UI Avatars
+                          target.src = `https://ui-avatars.com/api/?name=${item.token}&background=6366f1&color=fff&size=64&bold=true`;
+                        }
                       }}
                     />
                   </div>
