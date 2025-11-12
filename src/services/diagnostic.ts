@@ -312,11 +312,22 @@ export class DiagnosticService {
       });
     } else {
       // ✅ PONTO POSITIVO: Alocação de stablecoins está correta!
+      // Verificar se a faixa é específica para renda passiva
+      const isPassiveIncomeRange = profile.objective.includes('passive_income') && 
+        expectedStablecoinRange.min >= 15 && expectedStablecoinRange.max >= 30;
+      
+      let actionableMessage: string;
+      if (isPassiveIncomeRange) {
+        actionableMessage = `Sua alocação em major stablecoins (${stablecoinPercentage.toFixed(1)}%) está dentro da faixa recomendada de ${expectedStablecoinRange.min}-${expectedStablecoinRange.max}% para quem busca renda passiva. Isso garante boa gestão de risco, liquidez e permite gerar yield em protocolos estabelecidos.`;
+      } else {
+        actionableMessage = `Sua alocação em major stablecoins (${stablecoinPercentage.toFixed(1)}%) está dentro da faixa recomendada de ${expectedStablecoinRange.min}-${expectedStablecoinRange.max}% para perfil ${profile.riskTolerance === 'high' ? 'arrojado' : profile.riskTolerance === 'medium' ? 'moderado' : 'conservador'}. Isso garante boa gestão de risco e liquidez.`;
+      }
+      
       flags.push({
         type: 'green',
         category: 'profile',
         message: `✅ Alocação Ideal de Major Stablecoins: ${stablecoinPercentage.toFixed(1)}%`,
-        actionable: `Sua alocação em major stablecoins (${stablecoinPercentage.toFixed(1)}%) está dentro da faixa recomendada de ${expectedStablecoinRange.min}-${expectedStablecoinRange.max}% para perfil ${profile.riskTolerance === 'high' ? 'arrojado' : profile.riskTolerance === 'medium' ? 'moderado' : 'conservador'}. Isso garante boa gestão de risco e liquidez.`,
+        actionable: actionableMessage,
         severity: 0
       });
     }
