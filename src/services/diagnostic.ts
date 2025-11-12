@@ -619,7 +619,7 @@ export class DiagnosticService {
     profile: InvestorProfile
   ): RebalanceSuggestion[] {
     const suggestions: RebalanceSuggestion[] = [];
-    const expectedStablecoinRange = this.getExpectedStablecoinRange(profile.riskTolerance);
+    const expectedStablecoinRange = this.getExpectedStablecoinRange(profile.riskTolerance, profile.horizon, profile.objective);
     const currentStablecoinPercentage = allocation
       .filter(item => DiagnosticService.MAJOR_STABLECOINS.includes(item.token))
       .reduce((sum, item) => sum + item.percentage, 0);

@@ -22,20 +22,25 @@ export default function DisclaimerCTA() {
           <div className="text-sm">
             <div className="font-semibold text-purple-900 mb-1">💎 Quer uma análise personalizada?</div>
             <div className="text-gray-700">
-              Entre para o <span className="font-bold text-purple-700">Paradigma PRO</span> e tenha acesso 24/7 aos nossos analistas especializados.
+              Entre para o <span className="font-bold text-purple-700">Paradigma PRO</span> e tenha acesso 24/7 aos nossos analistas.
             </div>
           </div>
-          <a
-            href="https://paradigma.education/pro" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg whitespace-nowrap"
-          >
-            <span>Conheça o Paradigma PRO</span>
+          <div className="flex flex-col items-end gap-2">
+            <div className="text-xs text-purple-600 font-medium">
+              🎁 Cupom <span className="font-bold">PORTFOLIO</span>: 6% OFF
+            </div>
+            <a
+              href="https://paradigma.education/pro/?coupon=PORTFOLIO" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-md hover:shadow-lg whitespace-nowrap"
+            >
+              <span>Conheça o Paradigma PRO</span>
             <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </a>
+          </div>
         </div>
       </div>
     </div>
