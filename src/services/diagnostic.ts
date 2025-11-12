@@ -58,6 +58,9 @@ export class DiagnosticService {
     const backtest = await this.calculateBacktest(enrichedAllocation);
     const backtestSeries = await this.calculateBacktestSeries(enrichedAllocation);
     
+    // Buscar unlocks (integração com CoinMarketCap)
+    const unlockAlerts = await this.getUnlockAlerts(symbols);
+    
     // Calcular métricas
     const metrics = this.calculateMetrics(enrichedAllocation, sectorBreakdown);
 
@@ -69,7 +72,7 @@ export class DiagnosticService {
       flags,
       backtest,
       backtestSeries,
-      unlockAlerts: [],
+      unlockAlerts,
       rebalanceSuggestions,
       sectorBreakdown,
       metrics
@@ -92,6 +95,51 @@ export class DiagnosticService {
     return tokenData?.sector || 'Outros';
   }
 
+  // Blue-chips estabelecidos (alta liquidez, histórico longo, market cap >$1B)
+  private isBlueChip(token: string): boolean {
+    const blueChips = ['LINK', 'UNI', 'AAVE', 'CRV', 'MKR', 'COMP', 'SNX', 'LDO', 'RPL', 'PYTH', 'GRT', 'ARB', 'OP', 'AVAX', 'DOT', 'ATOM', 'NEAR', 'FIL', 'AR', 'ONDO', 'JTO', 'JUP'];
+    return blueChips.includes(token.toUpperCase());
+  }
+
+  // Mid-caps estabelecidos (market cap $200M-$1B, histórico >1 ano)
+  private isMidCapEstablished(token: string): boolean {
+    const midCaps = ['RUNE', 'GMX', 'DYDX', 'IMX', 'MNT', 'STX', 'INJ', 'SEI', 'SUI', 'APT', 'TIA', 'BLUR', 'PENDLE'];
+    return midCaps.includes(token.toUpperCase());
+  }
+
+  // Verifica se token é novo/experimental (<1 ano desde novembro 2025 = lançado após novembro 2024)
+  private isNewToken(token: string): boolean {
+    const tokenData = sectorsData[token as keyof typeof sectorsData] as any;
+    if (!tokenData || !tokenData.launchDate) return false;
+    
+    const launchDate = new Date(tokenData.launchDate);
+    const cutoffDate = new Date('2024-11-01'); // 1 ano antes de novembro 2025
+    return launchDate > cutoffDate;
+  }
+
+  // Verifica se token é muito novo (<6 meses = lançado após maio 2025)
+  private isVeryNewToken(token: string): boolean {
+    const tokenData = sectorsData[token as keyof typeof sectorsData] as any;
+    if (!tokenData || !tokenData.launchDate) return false;
+    
+    const launchDate = new Date(tokenData.launchDate);
+    const cutoffDate = new Date('2025-05-01'); // 6 meses antes de novembro 2025
+    return launchDate > cutoffDate;
+  }
+
+  // Obtém ecossistema do token
+  private getTokenEcosystem(token: string): string {
+    const tokenData = sectorsData[token as keyof typeof sectorsData];
+    return tokenData?.ecosystem || 'Unknown';
+  }
+
+  // Verifica liquidez baseado em volume24h vs marketCap
+  private hasLowLiquidity(tokenData?: TokenData): boolean {
+    if (!tokenData || !tokenData.volume24h || !tokenData.marketCap) return false;
+    const liquidityRatio = (tokenData.volume24h / tokenData.marketCap) * 100;
+    return liquidityRatio < 5; // <5% de volume/market cap = baixa liquidez
+  }
+
   private generateFlags(
     allocation: (PortfolioAllocation & { tokenData?: TokenData })[],
     profile: InvestorProfile,
@@ -111,9 +159,79 @@ export class DiagnosticService {
       const sector = this.getTokenSector(item.token);
       const isMajor = MAJOR_COINS.includes(item.token);
       const isStable = STABLECOINS.includes(item.token);
+      const isBlueChip = this.isBlueChip(item.token);
+      const isMidCap = this.isMidCapEstablished(item.token);
+      const isNew = this.isNewToken(item.token);
+      const isVeryNew = this.isVeryNewToken(item.token);
+      const hasLowLiq = this.hasLowLiquidity(item.tokenData);
       
-      // ≥20% em ativo que não seja BTC/ETH/SOL/USDC/USDT/DAI → Yellow
-      if (item.percentage >= 20 && !isMajor && !isStable) {
+      // Limites por tipo de ativo
+      let maxAllowed: number;
+      if (isBlueChip) {
+        maxAllowed = profile.riskTolerance === 'low' ? 5 : 10; // 5% conservador, 10% moderado/arrojado
+      } else if (isMidCap) {
+        maxAllowed = profile.riskTolerance === 'low' ? 5 : 8; // 5% conservador, 8% moderado/arrojado
+      } else if (isVeryNew) {
+        maxAllowed = 5; // Máximo 5% mesmo em perfil arrojado para tokens muito novos
+      } else if (isNew) {
+        maxAllowed = profile.riskTolerance === 'low' ? 3 : 5; // 3% conservador, 5% moderado/arrojado
+      } else {
+        maxAllowed = 15; // Limite padrão para outros altcoins
+      }
+      
+      // Validação de concentração individual
+      if (item.percentage > maxAllowed && !isMajor && !isStable) {
+        let message = `⚠️ Concentração Alta: ${item.token} (${sector}) representa ${item.percentage.toFixed(1)}% da carteira`;
+        let actionable = `Reduza para no máximo ${maxAllowed}% e diversifique em ativos menos correlacionados.`;
+        
+        if (isVeryNew) {
+          message = `🚨 Token Muito Novo: ${item.token} (${sector}) com ${item.percentage.toFixed(1)}%`;
+          actionable = `Token lançado há menos de 6 meses. Limite a 5% máximo devido a histórico limitado e alta volatilidade.`;
+        } else if (isNew) {
+          message = `⚠️ Token Novo: ${item.token} (${sector}) com ${item.percentage.toFixed(1)}%`;
+          actionable = `Token lançado há menos de 1 ano. Histórico limitado. Reduza para no máximo ${maxAllowed}% e monitore de perto.`;
+        } else {
+          const sectorContext = this.getSectorRiskContext(sector);
+          actionable = `${sectorContext} ${actionable}`;
+        }
+        
+        if (hasLowLiq) {
+          actionable += ` ATENÇÃO: Este token apresenta baixa liquidez, o que pode dificultar saídas rápidas.`;
+        }
+        
+        flags.push({
+          type: isVeryNew || item.percentage > maxAllowed * 1.5 ? 'red' : 'yellow',
+          category: 'asset',
+          message,
+          actionable,
+          severity: isVeryNew || item.percentage > maxAllowed * 1.5 ? 4 : 2
+        });
+      }
+      
+      // Validação específica para tokens muito novos com concentração >10%
+      if (isVeryNew && item.percentage > 10 && !isMajor && !isStable) {
+        flags.push({
+          type: 'red',
+          category: 'asset',
+          message: `🚨 Risco Crítico: ${item.token} (token muito novo) com ${item.percentage.toFixed(1)}%`,
+          actionable: `Token lançado há menos de 6 meses. Concentração acima de 10% é extremamente arriscada. Reduza para no máximo 5% devido a histórico limitado, alta volatilidade e possível baixa liquidez.`,
+          severity: 5
+        });
+      }
+      
+      // Validação de liquidez baixa
+      if (hasLowLiq && item.percentage > 10 && !isMajor && !isStable) {
+        flags.push({
+          type: 'yellow',
+          category: 'liquidity',
+          message: `💧 Baixa Liquidez: ${item.token} com ${item.percentage.toFixed(1)}%`,
+          actionable: `Este token apresenta baixa liquidez (volume <5% do market cap). Concentração acima de 10% pode dificultar saídas rápidas em momentos de stress. Considere reduzir para no máximo 10% ou migrar para ativos com maior liquidez.`,
+          severity: 2
+        });
+      }
+      
+      // Validação antiga mantida para compatibilidade (≥20% e ≥40%)
+      if (item.percentage >= 20 && !isMajor && !isStable && !isBlueChip && !isMidCap && !isNew) {
         const sectorContext = this.getSectorRiskContext(sector);
         flags.push({
           type: 'yellow',
@@ -455,6 +573,7 @@ export class DiagnosticService {
     
     // Identificar outras stablecoins (alto risco) - não são major stablecoins
     // Exemplos: USDE (Ethena - sintética, depende de funding rates), FRAX, LUSD, MIM, USDD, TUSD, FDUSD, BUSD
+    // NOTA: ENA é o token de governança do protocolo Ethena (DeFi volátil), não é stablecoin
     const OTHER_STABLECOINS = ['USDE', 'FRAX', 'LUSD', 'MIM', 'USDD', 'TUSD', 'FDUSD', 'BUSD'];
     const otherStablecoinsAllocation = allocation.filter(
       item => OTHER_STABLECOINS.includes(item.token.toUpperCase())
@@ -547,6 +666,39 @@ export class DiagnosticService {
             message: `⛓️ Concentração em Chain: ${percentage.toFixed(0)}% das altcoins em ${chain}`,
             actionable: `Alta exposição à ${chain}. Considere diversificar em outras chains para reduzir risco de ecosistema.`,
             severity: 2
+          });
+        }
+      });
+      
+      // Análise de concentração por ECOSSISTEMA (além de chain)
+      const altcoinsByEcosystem: { [ecosystem: string]: number } = {};
+      altcoinsAllocation.forEach(item => {
+        const ecosystem = this.getTokenEcosystem(item.token);
+        const percentOfAltcoins = altcoinsTotal > 0 ? (item.percentage / altcoinsTotal) * 100 : 0;
+        altcoinsByEcosystem[ecosystem] = (altcoinsByEcosystem[ecosystem] || 0) + percentOfAltcoins;
+      });
+      
+      // Alertar se >30% das altcoins em mesmo ecossistema (mais restritivo que chain)
+      Object.entries(altcoinsByEcosystem).forEach(([ecosystem, percentage]) => {
+        if (percentage > 30 && !['Unknown', 'Bitcoin', 'Ethereum', 'Solana'].includes(ecosystem)) {
+          // Verificar se é ecossistema novo/experimental
+          const ecosystemTokens = altcoinsAllocation.filter(item => this.getTokenEcosystem(item.token) === ecosystem);
+          const hasNewTokens = ecosystemTokens.some(item => this.isNewToken(item.token));
+          
+          let message = `🌐 Concentração em Ecossistema: ${percentage.toFixed(0)}% das altcoins em ${ecosystem}`;
+          let actionable = `Alta exposição ao ecossistema ${ecosystem}. Considere diversificar em outros ecossistemas para reduzir risco sistêmico.`;
+          
+          if (hasNewTokens) {
+            message = `⚠️ Concentração em Ecossistema Novo: ${percentage.toFixed(0)}% das altcoins em ${ecosystem}`;
+            actionable = `Ecossistema ${ecosystem} contém tokens novos com histórico limitado. Alta concentração aumenta risco sistêmico. Diversifique em ecossistemas estabelecidos.`;
+          }
+          
+          flags.push({
+            type: hasNewTokens ? 'red' : 'yellow',
+            category: 'sector',
+            message,
+            actionable,
+            severity: hasNewTokens ? 3 : 2
           });
         }
       });
@@ -1045,6 +1197,30 @@ export class DiagnosticService {
           }
         }
       }
+    }
+  }
+
+  // Integração com CoinMarketCap para unlocks
+  private async getUnlockAlerts(symbols: string[]): Promise<UnlockAlert[]> {
+    try {
+      const unlocks = await this.coinMarketCapService.getUpcomingUnlocks(symbols, 180);
+      
+      return unlocks.map(unlock => {
+        // Determinar severidade baseado na porcentagem do unlock
+        const severity: 'yellow' | 'red' = unlock.percentage > 5 ? 'red' : 'yellow';
+        
+        return {
+          token: unlock.token,
+          unlockDate: unlock.unlockDate,
+          percentage: unlock.percentage,
+          amount: unlock.amount,
+          type: 'token_unlock' as const,
+          severity
+        };
+      });
+    } catch (error) {
+      console.error('Erro ao buscar unlocks:', error);
+      return []; // Retorna array vazio em caso de erro
     }
   }
 }

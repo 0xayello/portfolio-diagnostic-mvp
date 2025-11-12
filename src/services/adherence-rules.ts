@@ -689,7 +689,7 @@ export class AdherenceCalculator {
   }
 
   private isMeme(token: string): boolean {
-    const memecoins = ['DOGE', 'SHIB', 'PEPE', 'FLOKI', 'BONK', 'WIF', 'BOME'];
+    const memecoins = ['DOGE', 'SHIB', 'PEPE', 'FLOKI', 'BONK', 'WIF', 'BOME', 'MYRO', 'POPCAT', 'MEW', 'GME'];
     return memecoins.includes(token.toUpperCase());
   }
 

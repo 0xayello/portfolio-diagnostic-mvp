@@ -376,5 +376,35 @@
     "category": "Data Marketplace",
     "chain": "Ethereum",
     "ecosystem": "Ocean Protocol"
+  },
+  "ENA": {
+    "sector": "DeFi Tokens",
+    "category": "Synthetic Assets Protocol",
+    "chain": "Ethereum",
+    "ecosystem": "Ethena",
+    "launchDate": "2024-04-02"
+  },
+  "USDE": {
+    "sector": "Stablecoin",
+    "category": "Synthetic Stablecoin",
+    "chain": "Ethereum",
+    "ecosystem": "Ethena",
+    "riskLevel": "high"
+  },
+  "HYPE": {
+    "sector": "Derivatives",
+    "category": "Perpetuals DEX",
+    "chain": "Hyperliquid",
+    "ecosystem": "Hyperliquid",
+    "launchDate": "2024-01-01",
+    "riskLevel": "high"
+  },
+  "PUMP": {
+    "sector": "Infrastructure",
+    "category": "Token Launchpad",
+    "chain": "Solana",
+    "ecosystem": "Pump Fun",
+    "launchDate": "2024-06-01",
+    "riskLevel": "high"
   }
 }
