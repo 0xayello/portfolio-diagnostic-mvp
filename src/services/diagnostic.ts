@@ -449,11 +449,16 @@ export class DiagnosticService {
         const majorExcess = majorPercentage > 40 ? majorPercentage - 40 : 0;
         
         if (majorPercentage > 40 && altcoinsPercentage === 0) {
-          actionableMessage = `Para perfil arrojado e curto prazo, reduza majors de ${majorPercentage.toFixed(0)}% para no máximo 40% e aumente altcoins de qualidade. Reduza também stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}%. Alocação ideal: majors (40%), altcoins (40-60%), stables (10-20%).`;
+          const majorReduction = majorPercentage - 40;
+          const stableReduction = stablecoinPercentage - expectedStablecoinRange.max;
+          actionableMessage = `Para perfil arrojado e curto prazo, sua alocação atual não está otimizada. Reduza majors de ${majorPercentage.toFixed(0)}% para 40% (reduzir ${majorReduction.toFixed(0)}%) e stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% (reduzir ${stableReduction.toFixed(0)}%). Aumente altcoins de qualidade com esses ${(majorReduction + stableReduction).toFixed(0)}%. Alocação ideal: majors (40%), altcoins (40-60%), stables (10-20%).`;
         } else if (majorPercentage > 40) {
-          actionableMessage = `Reduza majors de ${majorPercentage.toFixed(0)}% para no máximo 40% e stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}%. Aumente altcoins de qualidade. Alocação ideal: majors (40%), altcoins (40-60%), stables (10-20%).`;
+          const majorReduction = majorPercentage - 40;
+          const stableReduction = stablecoinPercentage - expectedStablecoinRange.max;
+          actionableMessage = `Reduza majors de ${majorPercentage.toFixed(0)}% para 40% (reduzir ${majorReduction.toFixed(0)}%) e stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% (reduzir ${stableReduction.toFixed(0)}%). Aumente altcoins de qualidade com esses ${(majorReduction + stableReduction).toFixed(0)}%. Alocação ideal: majors (40%), altcoins (40-60%), stables (10-20%).`;
         } else {
-          actionableMessage = `Reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% e aumente altcoins de qualidade. Alocação ideal: majors (máx 40%), altcoins (40-60%), stables (10-20%).`;
+          const stableReduction = stablecoinPercentage - expectedStablecoinRange.max;
+          actionableMessage = `Reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% (reduzir ${stableReduction.toFixed(0)}%) e aumente altcoins de qualidade com esses ${stableReduction.toFixed(0)}%. Alocação ideal: majors (máx 40%), altcoins (40-60%), stables (10-20%).`;
         }
       } else {
         // Outros perfis
