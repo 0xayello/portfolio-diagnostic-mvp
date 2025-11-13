@@ -95,7 +95,7 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     SUSHI: 'https://assets.coingecko.com/coins/images/12271/small/sushiswap-512x512.png',
     
     // Tokens específicos que estavam sem logo
-    DOG: 'https://assets.coingecko.com/coins/images/5/small/dogecoin.png', // Dogecoin
+    DOG: 'https://assets.coingecko.com/coins/images/36515/small/dog-bitcoin.png', // Dog Bitcoin (Runes)
     '1INCH': 'https://assets.coingecko.com/coins/images/13469/small/1inch.png',
     YFI: 'https://assets.coingecko.com/coins/images/11849/small/yfi-192x192.png',
     
