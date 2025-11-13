@@ -550,10 +550,10 @@ export class DiagnosticService {
     
     if (isAggressiveShortTerm && hasPreserveObjective) {
       hasContradiction = true;
-      contradictionMessage = '⚠️ Contradição detectada: Você selecionou perfil arrojado e curto prazo, mas também escolheu "preservar capital" como objetivo. Horizonte e tolerância ao risco têm prioridade. Para curto prazo e arrojado, a alocação ideal é: majors (máx 40%), altcoins (40-60%), stables (10-20%).';
+      contradictionMessage = '⚠️ Contradição detectada: Você selecionou perfil arrojado e curto prazo, mas também escolheu "preservar capital" como objetivo. Para esse diagnóstico, desconsideramos o último ponto.';
     } else if (isConservativeLongTerm && hasMultiplyObjective) {
       hasContradiction = true;
-      contradictionMessage = '⚠️ Contradição detectada: Você selecionou perfil conservador e longo prazo, mas também escolheu "multiplicar patrimônio" como objetivo. Horizonte e tolerância ao risco têm prioridade. Para conservador e longo prazo, priorize segurança: majors (60-80%), stables (20-30%), altcoins (máx 20%).';
+      contradictionMessage = '⚠️ Contradição detectada: Você selecionou perfil conservador e longo prazo, mas também escolheu "multiplicar patrimônio" como objetivo. Para esse diagnóstico, desconsideramos o último ponto.';
     }
     
     if (hasContradiction) {
@@ -561,7 +561,7 @@ export class DiagnosticService {
         type: 'yellow',
         category: 'profile',
         message: contradictionMessage,
-        actionable: 'Revise seus objetivos para alinhá-los com seu perfil de risco e horizonte de investimento, ou ajuste sua alocação conforme o perfil selecionado.',
+        actionable: 'Revise seus objetivos para alinhá-los com seu perfil de risco e horizonte de investimento, ou vice-versa.',
         severity: 2
       });
     }
