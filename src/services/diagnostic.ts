@@ -428,40 +428,15 @@ export class DiagnosticService {
         severity: severityType === 'red' ? 3 : 2
       });
     } else if (stablecoinPercentage > expectedStablecoinRange.max) {
-      // Calcular distribuição atual para recomendações mais precisas
-      const majorPercentage = allocation
-        .filter(item => DiagnosticService.MAJOR_COINS.includes(item.token))
-        .reduce((sum, item) => sum + item.percentage, 0);
-      
-      const altcoinsPercentage = allocation
-        .filter(item => 
-          !DiagnosticService.MAJOR_COINS.includes(item.token) &&
-          !DiagnosticService.MAJOR_STABLECOINS.includes(item.token) &&
-          !['USDE', 'FRAX', 'LUSD', 'MIM', 'USDD', 'TUSD', 'FDUSD', 'BUSD'].includes(item.token.toUpperCase())
-        )
-        .reduce((sum, item) => sum + item.percentage, 0);
-      
+      // ALERTA SEPARADO: Excesso de Major Stablecoins
       const excessStables = stablecoinPercentage - expectedStablecoinRange.max;
+      const stableReduction = excessStables;
       
-      // Para perfil arrojado + curto prazo: majors máx 40%, altcoins máx 60%
+      // Mensagem focada apenas em stablecoins (sem misturar com majors)
       let actionableMessage: string;
       if (profile.riskTolerance === 'high' && profile.horizon === 'short') {
-        const majorExcess = majorPercentage > 40 ? majorPercentage - 40 : 0;
-        
-        if (majorPercentage > 40 && altcoinsPercentage === 0) {
-          const majorReduction = majorPercentage - 40;
-          const stableReduction = stablecoinPercentage - expectedStablecoinRange.max;
-          actionableMessage = `Para perfil arrojado e curto prazo, sua alocação atual não está otimizada. Reduza majors de ${majorPercentage.toFixed(0)}% para 40% (reduzir ${majorReduction.toFixed(0)}%) e stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% (reduzir ${stableReduction.toFixed(0)}%). Aumente altcoins de qualidade com esses ${(majorReduction + stableReduction).toFixed(0)}%. Alocação ideal: majors (40%), altcoins (40-60%), stables (10-20%).`;
-        } else if (majorPercentage > 40) {
-          const majorReduction = majorPercentage - 40;
-          const stableReduction = stablecoinPercentage - expectedStablecoinRange.max;
-          actionableMessage = `Reduza majors de ${majorPercentage.toFixed(0)}% para 40% (reduzir ${majorReduction.toFixed(0)}%) e stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% (reduzir ${stableReduction.toFixed(0)}%). Aumente altcoins de qualidade com esses ${(majorReduction + stableReduction).toFixed(0)}%. Alocação ideal: majors (40%), altcoins (40-60%), stables (10-20%).`;
-        } else {
-          const stableReduction = stablecoinPercentage - expectedStablecoinRange.max;
-          actionableMessage = `Reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% (reduzir ${stableReduction.toFixed(0)}%) e aumente altcoins de qualidade com esses ${stableReduction.toFixed(0)}%. Alocação ideal: majors (máx 40%), altcoins (40-60%), stables (10-20%).`;
-        }
+        actionableMessage = `Para perfil arrojado e curto prazo, reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% (reduzir ${stableReduction.toFixed(0)}%). Aumente altcoins de qualidade com esses ${stableReduction.toFixed(0)}%.`;
       } else {
-        // Outros perfis
         actionableMessage = `Você está perdendo potencial de valorização. Reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% e realoque ${excessStables.toFixed(1)}% em ${this.getSuggestedAllocationByProfile(profile)}.`;
       }
       
@@ -560,15 +535,79 @@ export class DiagnosticService {
     const ethSolPercentage = ethSolAllocation.reduce((sum, item) => sum + item.percentage, 0);
     const majorCoinsTotal = btcPercentage + ethSolPercentage;
     
-    if (majorCoinsTotal >= 40 && majorCoinsTotal <= 100) {
-      // ✅ PONTO POSITIVO: Majors na faixa ideal
+    // PRIORIDADE: Horizonte + Tolerância ao Risco têm prioridade sobre Objetivos
+    // Detectar contradições entre perfil e objetivos
+    const isConservativeLongTerm = profile.riskTolerance === 'low' && profile.horizon === 'long';
+    const isAggressiveShortTerm = profile.riskTolerance === 'high' && profile.horizon === 'short';
+    const isModerateMedium = profile.riskTolerance === 'medium' && profile.horizon === 'medium';
+    
+    // Verificar contradições
+    const hasPreserveObjective = profile.objective.includes('preserve');
+    const hasMultiplyObjective = profile.objective.includes('multiply');
+    
+    let hasContradiction = false;
+    let contradictionMessage = '';
+    
+    if (isAggressiveShortTerm && hasPreserveObjective) {
+      hasContradiction = true;
+      contradictionMessage = '⚠️ Contradição detectada: Você selecionou perfil arrojado e curto prazo, mas também escolheu "preservar capital" como objetivo. Horizonte e tolerância ao risco têm prioridade. Para curto prazo e arrojado, a alocação ideal é: majors (máx 40%), altcoins (40-60%), stables (10-20%).';
+    } else if (isConservativeLongTerm && hasMultiplyObjective) {
+      hasContradiction = true;
+      contradictionMessage = '⚠️ Contradição detectada: Você selecionou perfil conservador e longo prazo, mas também escolheu "multiplicar patrimônio" como objetivo. Horizonte e tolerância ao risco têm prioridade. Para conservador e longo prazo, priorize segurança: majors (60-80%), stables (20-30%), altcoins (máx 20%).';
+    }
+    
+    if (hasContradiction) {
+      flags.push({
+        type: 'yellow',
+        category: 'profile',
+        message: contradictionMessage,
+        actionable: 'Revise seus objetivos para alinhá-los com seu perfil de risco e horizonte de investimento, ou ajuste sua alocação conforme o perfil selecionado.',
+        severity: 2
+      });
+    }
+    
+    // Determinar limites de majors baseado em HORIZONTE + RISCO (prioridade sobre objetivos)
+    let maxMajorsByProfile: number;
+    let minMajorsByProfile: number;
+    
+    if (isAggressiveShortTerm) {
+      // Arrojado + Curto Prazo: majors máx 40%
+      maxMajorsByProfile = 40;
+      minMajorsByProfile = 20;
+    } else if (isConservativeLongTerm) {
+      // Conservador + Longo Prazo: majors 60-80%
+      maxMajorsByProfile = 80;
+      minMajorsByProfile = 60;
+    } else if (profile.riskTolerance === 'low') {
+      // Conservador (qualquer horizonte): majors 50-70%
+      maxMajorsByProfile = 70;
+      minMajorsByProfile = 50;
+    } else if (profile.horizon === 'short') {
+      // Curto Prazo (moderado/arrojado): majors máx 50%
+      maxMajorsByProfile = 50;
+      minMajorsByProfile = 30;
+    } else {
+      // Padrão: majors 40-70%
+      maxMajorsByProfile = 70;
+      minMajorsByProfile = 40;
+    }
+    
+    // Verificar excesso de majors (baseado em horizonte + risco, não objetivos)
+    if (majorCoinsTotal > maxMajorsByProfile) {
+      const excess = majorCoinsTotal - maxMajorsByProfile;
+      flags.push({
+        type: 'yellow',
+        category: 'asset',
+        message: `💰 Excesso de Majors (BTC, ETH e SOL): ${majorCoinsTotal.toFixed(0)}% (recomendado: máx ${maxMajorsByProfile}%)`,
+        actionable: `Para perfil ${profile.riskTolerance === 'high' ? 'arrojado' : profile.riskTolerance === 'medium' ? 'moderado' : 'conservador'} e ${profile.horizon === 'short' ? 'curto' : profile.horizon === 'medium' ? 'médio' : 'longo'} prazo, reduza majors de ${majorCoinsTotal.toFixed(0)}% para no máximo ${maxMajorsByProfile}% (reduzir ${excess.toFixed(0)}%). Aumente altcoins de qualidade com esses ${excess.toFixed(0)}%.`,
+        severity: 2
+      });
+    } else if (majorCoinsTotal >= minMajorsByProfile && majorCoinsTotal <= maxMajorsByProfile) {
+      // ✅ PONTO POSITIVO: Majors na faixa ideal (baseado em horizonte + risco)
       // Verificar distribuição entre tier 1 (BTC) e tier 2 (ETH/SOL)
-      const isConservativeLongTerm = profile.riskTolerance === 'low' && profile.horizon === 'long';
-      const isAggressiveShortTerm = profile.riskTolerance === 'high' && profile.horizon === 'short';
-      
       let distributionWarning = false;
       if (isConservativeLongTerm) {
-        // BTC deve ter pelo menos 60% dos majors (aumentado de 50% para 60%)
+        // BTC deve ter pelo menos 60% dos majors
         const btcRatioOfMajors = majorCoinsTotal > 0 ? (btcPercentage / majorCoinsTotal) * 100 : 0;
         if (btcRatioOfMajors < 60) {
           flags.push({
@@ -595,8 +634,8 @@ export class DiagnosticService {
         }
       }
       
-      // Só mostrar flag verde se não houver warning de distribuição
-      if (!distributionWarning) {
+      // Só mostrar flag verde se não houver warning de distribuição e não houver contradição
+      if (!distributionWarning && !hasContradiction) {
         flags.push({
           type: 'green',
           category: 'asset',
@@ -605,12 +644,12 @@ export class DiagnosticService {
           severity: 0
         });
       }
-    } else if (majorCoinsTotal < 40 && profile.riskTolerance !== 'high') {
+    } else if (majorCoinsTotal < minMajorsByProfile && profile.riskTolerance !== 'high') {
       flags.push({
         type: profile.riskTolerance === 'low' ? 'red' : 'yellow',
         category: 'asset',
         message: `⚠️ Baixa Exposição em Majors: BTC+ETH+SOL = ${majorCoinsTotal.toFixed(1)}%`,
-        actionable: `Ideal: 40-100% em majors (BTC, ETH, SOL). Aumente em ${(40 - majorCoinsTotal).toFixed(0)}% para reduzir risco.`,
+        actionable: `Ideal: ${minMajorsByProfile}-${maxMajorsByProfile}% em majors (BTC, ETH, SOL). Aumente em ${(minMajorsByProfile - majorCoinsTotal).toFixed(0)}% para reduzir risco.`,
         severity: profile.riskTolerance === 'low' ? 3 : 2
       });
     }
