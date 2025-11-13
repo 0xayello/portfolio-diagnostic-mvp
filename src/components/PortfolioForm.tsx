@@ -91,7 +91,7 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     RUNE: 'https://assets.coingecko.com/coins/images/6595/small/thor.png',
     GMX: 'https://assets.coingecko.com/coins/images/18323/small/arbit.png',
     DYDX: 'https://assets.coingecko.com/coins/images/17500/small/hjnIm9bV.jpg',
-    ENA: 'https://assets.coingecko.com/coins/images/36514/small/ethena.png',
+    ENA: 'https://assets.coingecko.com/coins/images/36530/small/ethena.png',
     SUSHI: 'https://assets.coingecko.com/coins/images/12271/small/sushiswap-512x512.png',
     
     // Tokens específicos que estavam sem logo
@@ -129,10 +129,10 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
     ETHFI: 'https://assets.coingecko.com/coins/images/35958/small/etherfi.jpeg',
     
     // Exchanges & Derivatives
-    HYPE: 'https://assets.coingecko.com/coins/images/43164/small/hype_logo.jpg',
+    HYPE: 'https://assets.coingecko.com/coins/images/50882/small/hyperliquid.jpg',
     
     // Infrastructure & Launchpads
-    PUMP: 'https://assets.coingecko.com/coins/images/36090/small/pump-fun.png',
+    PUMP: 'https://assets.coingecko.com/coins/images/67164/small/pump.jpg',
     
     // Others
     STX: 'https://assets.coingecko.com/coins/images/2069/small/Stacks_logo_full.png',
