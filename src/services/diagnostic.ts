@@ -428,11 +428,43 @@ export class DiagnosticService {
         severity: severityType === 'red' ? 3 : 2
       });
     } else if (stablecoinPercentage > expectedStablecoinRange.max) {
+      // Calcular distribuição atual para recomendações mais precisas
+      const majorPercentage = allocation
+        .filter(item => DiagnosticService.MAJOR_COINS.includes(item.token))
+        .reduce((sum, item) => sum + item.percentage, 0);
+      
+      const altcoinsPercentage = allocation
+        .filter(item => 
+          !DiagnosticService.MAJOR_COINS.includes(item.token) &&
+          !DiagnosticService.MAJOR_STABLECOINS.includes(item.token) &&
+          !['USDE', 'FRAX', 'LUSD', 'MIM', 'USDD', 'TUSD', 'FDUSD', 'BUSD'].includes(item.token.toUpperCase())
+        )
+        .reduce((sum, item) => sum + item.percentage, 0);
+      
+      const excessStables = stablecoinPercentage - expectedStablecoinRange.max;
+      
+      // Para perfil arrojado + curto prazo: majors máx 40%, altcoins máx 60%
+      let actionableMessage: string;
+      if (profile.riskTolerance === 'high' && profile.horizon === 'short') {
+        const majorExcess = majorPercentage > 40 ? majorPercentage - 40 : 0;
+        
+        if (majorPercentage > 40 && altcoinsPercentage === 0) {
+          actionableMessage = `Para perfil arrojado e curto prazo, reduza majors de ${majorPercentage.toFixed(0)}% para no máximo 40% e aumente altcoins de qualidade. Reduza também stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}%. Alocação ideal: majors (40%), altcoins (40-60%), stables (10-20%).`;
+        } else if (majorPercentage > 40) {
+          actionableMessage = `Reduza majors de ${majorPercentage.toFixed(0)}% para no máximo 40% e stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}%. Aumente altcoins de qualidade. Alocação ideal: majors (40%), altcoins (40-60%), stables (10-20%).`;
+        } else {
+          actionableMessage = `Reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% e aumente altcoins de qualidade. Alocação ideal: majors (máx 40%), altcoins (40-60%), stables (10-20%).`;
+        }
+      } else {
+        // Outros perfis
+        actionableMessage = `Você está perdendo potencial de valorização. Reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% e realoque ${excessStables.toFixed(1)}% em ${this.getSuggestedAllocationByProfile(profile)}.`;
+      }
+      
       flags.push({
         type: 'yellow',
         category: 'profile',
         message: `💰 Excesso de Major Stablecoins: ${stablecoinPercentage.toFixed(1)}% (recomendado: ${expectedStablecoinRange.min}-${expectedStablecoinRange.max}%)`,
-        actionable: `Você está perdendo potencial de valorização. Para perfil ${profile.riskTolerance === 'high' ? 'arrojado' : profile.riskTolerance === 'medium' ? 'moderado' : 'conservador'}, realoque ${(stablecoinPercentage - expectedStablecoinRange.max).toFixed(1)}% em ${this.getSuggestedAllocationByProfile(profile)}.`,
+        actionable: actionableMessage,
         severity: 1
       });
     } else {
