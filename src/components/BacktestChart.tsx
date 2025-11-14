@@ -34,10 +34,10 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
   const [selectedPeriod, setSelectedPeriod] = useState<number>(180); // Default: 6 meses
 
   const periods = [
-    { label: '1 mês', days: 30 },
-    { label: '3 meses', days: 90 },
-    { label: '6 meses', days: 180 },
-    { label: '12 meses', days: 365 },
+    { label: '1M', days: 30 },
+    { label: '3M', days: 90 },
+    { label: '6M', days: 180 },
+    { label: '12M', days: 365 },
   ];
 
   const handlePeriodChange = (days: number) => {
@@ -344,7 +344,7 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
       </div>
 
       {/* Chart */}
-      <div className={theme === 'dark' ? 'bg-gray-900 p-6 rounded-lg border border-gray-800' : 'bg-gray-50 p-6 rounded-lg'}>
+      <div className="bg-white p-6 rounded-lg border border-gray-200">
         <div className={compact ? 'relative h-72' : 'relative h-96'}>
           <Line data={chartData} options={options} />
         </div>
