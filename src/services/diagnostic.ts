@@ -711,8 +711,9 @@ export class DiagnosticService {
       });
     }
     
-    // Análise de concentração setorial em ALTCOINS (>40% em mesmo setor = yellow)
+    // Análise de concentração setorial em ALTCOINS
     // IMPORTANTE: Excluir MEMECOINS desta análise (memecoins têm alerta próprio)
+    // Só emitir alertas se houver pelo menos 2 altcoins OU se altcoins representam >20% do portfólio
     if (altcoinsAllocation.length > 0) {
       const altcoinsBySector: { [sector: string]: number } = {};
       const altcoinsByChain: { [chain: string]: number } = {};
@@ -725,83 +726,70 @@ export class DiagnosticService {
       
       const genuineAltcoinsTotal = genuineAltcoins.reduce((sum, item) => sum + item.percentage, 0);
       
-      genuineAltcoins.forEach(item => {
-        const sector = this.getTokenSector(item.token);
-        const tokenData = sectorsData[item.token as keyof typeof sectorsData];
-        const chain = tokenData?.chain || 'Unknown';
-        
-        // Percentual dentro das altcoins genuínas, não do portfólio total
-        const percentOfAltcoins = genuineAltcoinsTotal > 0 ? (item.percentage / genuineAltcoinsTotal) * 100 : 0;
-        
-        altcoinsBySector[sector] = (altcoinsBySector[sector] || 0) + percentOfAltcoins;
-        altcoinsByChain[chain] = (altcoinsByChain[chain] || 0) + percentOfAltcoins;
-      });
+      // CRITÉRIO IMPORTANTE: Só alertar se houver pelo menos 2 altcoins OU se representam >20% do portfólio
+      const shouldAlertConcentration = genuineAltcoins.length >= 2 || genuineAltcoinsTotal > 20;
       
-      // Alertar se >70% das altcoins genuínas em mesmo setor (threshold aumentado para 70%)
-      Object.entries(altcoinsBySector).forEach(([sector, percentage]) => {
-        if (percentage > 70 && sector !== 'Stablecoin') {
-          flags.push({
-            type: 'yellow',
-            category: 'sector',
-            message: `🎯 Concentração Setorial em Altcoins: ${percentage.toFixed(0)}% em ${sector} (excluindo BTC, ETH, SOL e stables)`,
-            actionable: `⚠️ RISCO DE CORRELAÇÃO: Quando ${percentage.toFixed(0)}% ou mais das suas altcoins estão no mesmo setor, você está exposto a riscos sistêmicos específicos desse setor. Em momentos de stress de mercado, ativos correlacionados tendem a cair juntos, amplificando perdas. Diversifique em 2-3 setores descorrelacionados.`,
-            severity: 2
-          });
-        }
-      });
-      
-      // Alertar se >50% das altcoins em mesma chain (exceto chains estabelecidas como Solana, Ethereum)
-      // Chains estabelecidas têm threshold maior (>60%) pois são mais seguras
-      Object.entries(altcoinsByChain).forEach(([chain, percentage]) => {
-        const establishedChains = ['Solana', 'Ethereum', 'Arbitrum', 'Polygon', 'Multi-chain', 'Unknown'];
-        const isEstablished = establishedChains.includes(chain);
-        const threshold = isEstablished ? 60 : 50; // Chains estabelecidas: 60%, outras: 50%
-        
-        if (percentage > threshold && !['Multi-chain', 'Unknown'].includes(chain)) {
-          flags.push({
-            type: 'yellow',
-            category: 'sector',
-            message: `⛓️ Concentração em Chain: ${percentage.toFixed(0)}% das altcoins em ${chain}`,
-            actionable: `Alta exposição à ${chain}. Considere diversificar em outras chains para reduzir risco de ecossistema.`,
-            severity: 2
-          });
-        }
-      });
-      
-      // Análise de concentração por ECOSSISTEMA (além de chain)
-      // IMPORTANTE: Excluir MEMECOINS desta análise - memecoins individuais não são "ecossistemas"
-      const altcoinsByEcosystem: { [ecosystem: string]: number } = {};
-      
-      genuineAltcoins.forEach(item => {
-        const ecosystem = this.getTokenEcosystem(item.token);
-        const percentOfAltcoins = genuineAltcoinsTotal > 0 ? (item.percentage / genuineAltcoinsTotal) * 100 : 0;
-        altcoinsByEcosystem[ecosystem] = (altcoinsByEcosystem[ecosystem] || 0) + percentOfAltcoins;
-      });
-      
-      // Alertar se >30% das altcoins genuínas em mesmo ecossistema (mais restritivo que chain)
-      Object.entries(altcoinsByEcosystem).forEach(([ecosystem, percentage]) => {
-        if (percentage > 30 && !['Unknown', 'Bitcoin', 'Ethereum', 'Solana'].includes(ecosystem)) {
-          // Verificar se é ecossistema novo/experimental
-          const ecosystemTokens = genuineAltcoins.filter(item => this.getTokenEcosystem(item.token) === ecosystem);
-          const hasNewTokens = ecosystemTokens.some(item => this.isNewToken(item.token));
+      if (shouldAlertConcentration) {
+        genuineAltcoins.forEach(item => {
+          const sector = this.getTokenSector(item.token);
+          const tokenData = sectorsData[item.token as keyof typeof sectorsData];
+          const chain = tokenData?.chain || 'Unknown';
           
-          let message = `🌐 Concentração em Ecossistema: ${percentage.toFixed(0)}% das altcoins em ${ecosystem}`;
-          let actionable = `Alta exposição ao ecossistema ${ecosystem}. Considere diversificar em outros ecossistemas para reduzir risco sistêmico.`;
+          // Percentual dentro das altcoins genuínas, não do portfólio total
+          const percentOfAltcoins = genuineAltcoinsTotal > 0 ? (item.percentage / genuineAltcoinsTotal) * 100 : 0;
           
-          if (hasNewTokens) {
-            message = `⚠️ Concentração em Ecossistema Novo: ${percentage.toFixed(0)}% das altcoins em ${ecosystem}`;
-            actionable = `Ecossistema ${ecosystem} contém tokens novos com histórico limitado. Alta concentração aumenta risco sistêmico. Diversifique em ecossistemas estabelecidos.`;
+          altcoinsBySector[sector] = (altcoinsBySector[sector] || 0) + percentOfAltcoins;
+          altcoinsByChain[chain] = (altcoinsByChain[chain] || 0) + percentOfAltcoins;
+        });
+        
+        // Alertar se >70% das altcoins genuínas em mesmo setor (threshold aumentado para 70%)
+        Object.entries(altcoinsBySector).forEach(([sector, percentage]) => {
+          if (percentage > 70 && sector !== 'Stablecoin') {
+            flags.push({
+              type: 'yellow',
+              category: 'sector',
+              message: `🎯 Concentração Setorial em Altcoins: ${percentage.toFixed(0)}% em ${sector} (excluindo BTC, ETH, SOL e stables)`,
+              actionable: `⚠️ RISCO DE CORRELAÇÃO: Quando ${percentage.toFixed(0)}% ou mais das suas altcoins estão no mesmo setor, você está exposto a riscos sistêmicos específicos desse setor. Em momentos de stress de mercado, ativos correlacionados tendem a cair juntos, amplificando perdas. Diversifique em 2-3 setores descorrelacionados.`,
+              severity: 2
+            });
+          }
+        });
+        
+        // Análise de concentração por CHAIN (apenas para L1s/chains principais)
+        // Agrupar por chain L1 (Ethereum, Solana, etc) - não por projetos individuais
+        const altcoinsByL1Chain: { [chain: string]: number } = {};
+        
+        genuineAltcoins.forEach(item => {
+          const tokenData = sectorsData[item.token as keyof typeof sectorsData];
+          let l1Chain = tokenData?.chain || 'Unknown';
+          
+          // Mapear L2s para suas L1s correspondentes
+          if (['Ethereum L2', 'Arbitrum', 'Optimism', 'Polygon', 'Mantle', 'Starknet'].includes(l1Chain)) {
+            l1Chain = 'Ethereum'; // L2s são parte do ecossistema Ethereum
           }
           
-          flags.push({
-            type: hasNewTokens ? 'red' : 'yellow',
-            category: 'sector',
-            message,
-            actionable,
-            severity: hasNewTokens ? 3 : 2
-          });
-        }
-      });
+          const percentOfAltcoins = genuineAltcoinsTotal > 0 ? (item.percentage / genuineAltcoinsTotal) * 100 : 0;
+          altcoinsByL1Chain[l1Chain] = (altcoinsByL1Chain[l1Chain] || 0) + percentOfAltcoins;
+        });
+        
+        // Alertar se >60% das altcoins em mesma L1 (exceto chains estabelecidas: Ethereum, Solana)
+        // Chains estabelecidas têm threshold maior (>70%) pois são mais seguras
+        Object.entries(altcoinsByL1Chain).forEach(([chain, percentage]) => {
+          const establishedChains = ['Ethereum', 'Solana', 'Bitcoin', 'Multi-chain', 'Unknown'];
+          const isEstablished = establishedChains.includes(chain);
+          const threshold = isEstablished ? 70 : 60; // Chains estabelecidas: 70%, outras: 60%
+          
+          if (percentage > threshold && !['Multi-chain', 'Unknown'].includes(chain)) {
+            flags.push({
+              type: 'yellow',
+              category: 'sector',
+              message: `⛓️ Concentração em Chain: ${percentage.toFixed(0)}% das altcoins em ${chain}`,
+              actionable: `Alta exposição à ${chain}. Considere diversificar em outras chains para reduzir risco de ecossistema.`,
+              severity: 2
+            });
+          }
+        });
+      }
     }
     
     // Análise de horizonte temporal vs alocação
