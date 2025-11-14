@@ -23,8 +23,10 @@ export default function DiagnosticResults({
   const [diagView, setDiagView] = useState<'performance' | 'allocation'>('performance');
   const [currentDiagnostic, setCurrentDiagnostic] = useState(diagnostic);
   const [loadingPeriod, setLoadingPeriod] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState<number>(180); // Estado para controlar o período selecionado
 
   const handlePeriodChange = async (days: number) => {
+    setSelectedPeriod(days); // Atualiza o estado imediatamente
     setLoadingPeriod(true);
     try {
       const response = await fetch('/api/diagnostic', {
@@ -215,6 +217,7 @@ export default function DiagnosticResults({
                     series={currentDiagnostic.backtestSeries} 
                     theme="light"
                     onPeriodChange={handlePeriodChange}
+                    selectedPeriod={selectedPeriod}
                   />
                 )}
               </div>

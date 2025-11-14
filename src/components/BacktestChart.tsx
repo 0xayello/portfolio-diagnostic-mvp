@@ -28,11 +28,10 @@ interface BacktestChartProps {
   theme?: 'light' | 'dark';
   compact?: boolean;
   onPeriodChange?: (days: number) => void;
+  selectedPeriod?: number; // Recebe o período selecionado do componente pai
 }
 
-export default function BacktestChart({ backtest, series, theme = 'light', compact = false, onPeriodChange }: BacktestChartProps) {
-  const [selectedPeriod, setSelectedPeriod] = useState<number>(180); // Default: 6 meses
-
+export default function BacktestChart({ backtest, series, theme = 'light', compact = false, onPeriodChange, selectedPeriod = 180 }: BacktestChartProps) {
   const periods = [
     { label: '1M', days: 30 },
     { label: '3M', days: 90 },
@@ -41,7 +40,6 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
   ];
 
   const handlePeriodChange = (days: number) => {
-    setSelectedPeriod(days);
     if (onPeriodChange) {
       onPeriodChange(days);
     }
@@ -354,27 +352,27 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
 
   return (
     <div className="space-y-6">
-      {/* Period Selection Buttons */}
-      <div className="flex justify-center gap-2 mb-4">
-        {periods.map((period) => (
-          <button
-            key={period.days}
-            onClick={() => handlePeriodChange(period.days)}
-            className={`
-              px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-200
-              ${selectedPeriod === period.days
-                ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-md'
-                : 'bg-white text-gray-600 border border-gray-200 hover:border-violet-300 hover:text-violet-600 hover:bg-gray-50'
-              }
-            `}
-          >
-            {period.label}
-          </button>
-        ))}
-      </div>
-
       {/* Chart */}
       <div className="bg-white p-6 rounded-lg border border-gray-200">
+        {/* Period Selection Buttons - Moved inside chart card */}
+        <div className="flex justify-end gap-2 mb-4">
+          {periods.map((period) => (
+            <button
+              key={period.days}
+              onClick={() => handlePeriodChange(period.days)}
+              className={`
+                px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-200
+                ${selectedPeriod === period.days
+                  ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-md'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:border-violet-300 hover:text-violet-600 hover:bg-gray-50'
+                }
+              `}
+            >
+              {period.label}
+            </button>
+          ))}
+        </div>
+        
         <div className={compact ? 'relative h-72' : 'relative h-96'}>
           <Line data={chartData} options={options} />
         </div>
