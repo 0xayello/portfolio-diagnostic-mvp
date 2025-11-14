@@ -345,12 +345,12 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
     <div className="space-y-6">
       {/* Chart */}
       <div className="bg-white p-6 rounded-lg border border-gray-200">
-        {/* Header: Title and Period Buttons in same line */}
-        <div className="flex items-center justify-between mb-6">
+        {/* Header: Title centered, Buttons on the right */}
+        <div className="relative flex items-center justify-center mb-6">
           <h3 className="text-base font-bold text-gray-900">Performance Histórica da Carteira</h3>
           
-          {/* Period Selection Buttons - Same line as title */}
-          <div className="flex gap-2">
+          {/* Period Selection Buttons - Absolute positioned on right */}
+          <div className="absolute right-0 flex gap-2">
             {periods.map((period) => (
               <button
                 key={period.days}
