@@ -353,11 +353,21 @@ export class DiagnosticService {
           const isHighPercentage = percentage > 60;
           const isCritical = maxAllowed === 0; // Conservador com qualquer memecoin é crítico
           
+          // Ao reduzir memecoins, sugerir distribuição inteligente baseada no perfil
+          let redistributionSuggestion = '';
+          if (profile.riskTolerance === 'low') {
+            redistributionSuggestion = 'BTC/ETH e stables';
+          } else if (profile.riskTolerance === 'high') {
+            redistributionSuggestion = 'majors ou altcoins de qualidade';
+          } else {
+            redistributionSuggestion = 'majors, altcoins ou stables';
+          }
+          
           flags.push({
             type: isCritical || isHighPercentage ? 'red' : 'yellow',
             category: 'sector',
             message: `🎲 Exposição em Memecoins: ${Math.round(percentage)}%${memecoinsList ? ` - ${memecoinsList}` : ''}`,
-            actionable: `Memecoins são extremamente voláteis e especulativos. Recomendado máximo ${maxAllowed}% para seu perfil. Você está ${Math.round(percentage - maxAllowed)}% acima do recomendado. Distribua para BTC/ETH/SOL/altcoins/stables e mantenha no máximo ${maxAllowed}% em Memecoins.`,
+            actionable: `Memecoins são extremamente voláteis e especulativos. Recomendado máximo ${maxAllowed}% para seu perfil. Você está ${Math.round(percentage - maxAllowed)}% acima do recomendado. Distribua para ${redistributionSuggestion} e mantenha no máximo ${maxAllowed}% em memecoins.`,
             severity: isCritical || isHighPercentage ? 5 : 3
           });
         } else if (percentage > 0 && percentage <= maxAllowed) {
@@ -434,11 +444,12 @@ export class DiagnosticService {
       const stableReduction = excessStables;
       
       // Mensagem focada apenas em stablecoins (sem misturar com majors)
+      // IMPORTANTE: Ao reduzir stables, sugerir apenas majors e altcoins (NÃO stables)
       let actionableMessage: string;
       if (profile.riskTolerance === 'high' && profile.horizon === 'short') {
         actionableMessage = `Para perfil arrojado e curto prazo, reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% (reduzir ${stableReduction.toFixed(0)}%). Aumente altcoins de qualidade com esses ${stableReduction.toFixed(0)}%.`;
       } else {
-        actionableMessage = `Você está perdendo potencial de valorização. Reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% e realoque ${excessStables.toFixed(1)}% em ${this.getSuggestedAllocationByProfile(profile)}.`;
+        actionableMessage = `Você está perdendo potencial de valorização. Reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% e realoque ${excessStables.toFixed(1)}% em majors ou altcoins.`;
       }
       
       flags.push({
@@ -596,6 +607,7 @@ export class DiagnosticService {
     // Verificar excesso de majors (baseado em horizonte + risco, não objetivos)
     if (majorCoinsTotal > maxMajorsByProfile) {
       const excess = majorCoinsTotal - maxMajorsByProfile;
+      // Ao reduzir majors, sugerir apenas altcoins (NÃO sugerir majors novamente)
       flags.push({
         type: 'yellow',
         category: 'asset',
@@ -1244,11 +1256,12 @@ export class DiagnosticService {
         .reduce((sum, item) => sum + item.percentage, 0);
       
       if (memecoinsTotal > 0) {
+        // Ao eliminar memecoins em perfil conservador, sugerir apenas majors e stables
         flags.push({
           type: 'red',
           category: 'profile',
           message: `🚨 Memecoins incompatíveis com preservação de capital`,
-          actionable: `Memecoins são extremamente voláteis e especulativos. Para preservar capital, elimine 100% da exposição em memecoins e realoque em BTC/ETH/SOL ou major stablecoins.`,
+          actionable: `Memecoins são extremamente voláteis e especulativos. Para preservar capital, elimine 100% da exposição em memecoins e realoque em majors (BTC/ETH/SOL) ou stables.`,
           severity: 4
         });
       }
