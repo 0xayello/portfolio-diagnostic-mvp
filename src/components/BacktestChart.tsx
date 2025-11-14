@@ -252,16 +252,7 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
         },
       },
       title: {
-        display: true,
-        text: 'Performance Histórica da Carteira',
-        font: {
-          size: 16,
-          weight: 'bold' as const,
-        },
-        color: '#111827',
-        padding: {
-          bottom: 20,
-        },
+        display: false, // Título será renderizado customizado fora do canvas
       },
       tooltip: {
         mode: 'index' as const,
@@ -354,23 +345,28 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
     <div className="space-y-6">
       {/* Chart */}
       <div className="bg-white p-6 rounded-lg border border-gray-200">
-        {/* Period Selection Buttons - Moved inside chart card */}
-        <div className="flex justify-end gap-2 mb-4">
-          {periods.map((period) => (
-            <button
-              key={period.days}
-              onClick={() => handlePeriodChange(period.days)}
-              className={`
-                px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-200
-                ${selectedPeriod === period.days
-                  ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-md'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:border-violet-300 hover:text-violet-600 hover:bg-gray-50'
-                }
-              `}
-            >
-              {period.label}
-            </button>
-          ))}
+        {/* Header: Title and Period Buttons in same line */}
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-base font-bold text-gray-900">Performance Histórica da Carteira</h3>
+          
+          {/* Period Selection Buttons - Same line as title */}
+          <div className="flex gap-2">
+            {periods.map((period) => (
+              <button
+                key={period.days}
+                onClick={() => handlePeriodChange(period.days)}
+                className={`
+                  px-3 py-1.5 rounded-lg font-semibold text-xs transition-all duration-200
+                  ${selectedPeriod === period.days
+                    ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-md'
+                    : 'bg-white text-gray-600 border border-gray-200 hover:border-violet-300 hover:text-violet-600 hover:bg-gray-50'
+                  }
+                `}
+              >
+                {period.label}
+              </button>
+            ))}
+          </div>
         </div>
         
         <div className={compact ? 'relative h-72' : 'relative h-96'}>
