@@ -21,6 +21,37 @@ export default function DiagnosticResults({
 }: DiagnosticResultsProps) {
   const [activeTab, setActiveTab] = useState<'flags' | 'unlocks' | 'backtest'>('unlocks');
   const [diagView, setDiagView] = useState<'performance' | 'allocation'>('performance');
+  const [currentDiagnostic, setCurrentDiagnostic] = useState(diagnostic);
+  const [loadingPeriod, setLoadingPeriod] = useState(false);
+
+  const handlePeriodChange = async (days: number) => {
+    setLoadingPeriod(true);
+    try {
+      const response = await fetch('/api/diagnostic', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          allocation: diagnostic.allocation.map(a => ({ token: a.token, percentage: a.percentage })),
+          profile: diagnostic.profile,
+          backtestPeriod: days
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update backtest data');
+      }
+
+      const result = await response.json();
+      setCurrentDiagnostic(result);
+    } catch (error) {
+      console.error('Error updating backtest period:', error);
+      // Manter dados atuais em caso de erro
+    } finally {
+      setLoadingPeriod(false);
+    }
+  };
 
   const getAdherenceColor = (level: string) => {
     switch (level) {
@@ -171,7 +202,21 @@ export default function DiagnosticResults({
               </div>
             ) : (
               <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border-2 border-gray-200">
-                <BacktestChart backtest={diagnostic.backtest} series={diagnostic.backtestSeries} theme="light" />
+                {loadingPeriod ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="text-center">
+                      <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-violet-200 border-t-violet-600 mb-4"></div>
+                      <p className="text-gray-600 font-medium">Atualizando performance...</p>
+                    </div>
+                  </div>
+                ) : (
+                  <BacktestChart 
+                    backtest={currentDiagnostic.backtest} 
+                    series={currentDiagnostic.backtestSeries} 
+                    theme="light"
+                    onPeriodChange={handlePeriodChange}
+                  />
+                )}
               </div>
             )}
           </div>

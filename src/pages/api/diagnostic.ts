@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { allocation, profile } = req.body;
+    const { allocation, profile, backtestPeriod } = req.body;
 
     // Validate input
     if (!allocation || !Array.isArray(allocation)) {
@@ -18,6 +18,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!profile || typeof profile !== 'object') {
       return res.status(400).json({ error: 'Invalid profile data' });
     }
+
+    // Validate backtestPeriod if provided
+    const allowedPeriods = [30, 90, 180, 365];
+    const period = backtestPeriod && allowedPeriods.includes(backtestPeriod) ? backtestPeriod : 180;
 
     // Validate allocation percentages sum to 100
     const totalPercentage = allocation.reduce((sum: number, item: PortfolioAllocation) => 
@@ -43,7 +47,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const diagnosticService = new DiagnosticService();
     const diagnostic = await diagnosticService.generateDiagnostic(
       allocation as PortfolioAllocation[],
-      profile as InvestorProfile
+      profile as InvestorProfile,
+      period
     );
 
     res.status(200).json(diagnostic);

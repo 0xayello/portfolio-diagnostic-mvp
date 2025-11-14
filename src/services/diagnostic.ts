@@ -30,7 +30,8 @@ export class DiagnosticService {
 
   async generateDiagnostic(
     allocation: PortfolioAllocation[], 
-    profile: InvestorProfile
+    profile: InvestorProfile,
+    backtestPeriod: number = 180
   ): Promise<PortfolioDiagnostic> {
     // Buscar dados dos tokens
     const symbols = allocation.map(a => a.token);
@@ -54,9 +55,9 @@ export class DiagnosticService {
     // Gerar sugestões de rebalanceamento
     const rebalanceSuggestions = this.generateRebalanceSuggestions(enrichedAllocation, profile);
     
-    // Calcular backtest (agregado) e série normalizada (180d)
-    const backtest = await this.calculateBacktest(enrichedAllocation);
-    const backtestSeries = await this.calculateBacktestSeries(enrichedAllocation);
+    // Calcular backtest (agregado) e série normalizada com período customizado
+    const backtest = await this.calculateBacktest(enrichedAllocation, backtestPeriod);
+    const backtestSeries = await this.calculateBacktestSeries(enrichedAllocation, backtestPeriod);
     
     // Buscar unlocks (integração com CoinMarketCap)
     const unlockAlerts = await this.getUnlockAlerts(symbols);
@@ -910,10 +911,12 @@ export class DiagnosticService {
 
 
   private async calculateBacktest(
-    allocation: (PortfolioAllocation & { tokenData?: TokenData })[]
+    allocation: (PortfolioAllocation & { tokenData?: TokenData })[],
+    maxDays: number = 180
   ): Promise<any[]> {
     const symbols = Array.from(new Set(allocation.map(a => a.token).map(s => s.toUpperCase())));
-    const periods = [30, 90, 180];
+    // Períodos dinâmicos baseados no maxDays
+    const periods = [30, 90, 180, 365].filter(p => p <= maxDays);
     const results = [];
     
     for (const days of periods) {
@@ -956,10 +959,10 @@ export class DiagnosticService {
   }
 
   private async calculateBacktestSeries(
-    allocation: (PortfolioAllocation & { tokenData?: TokenData })[]
+    allocation: (PortfolioAllocation & { tokenData?: TokenData })[],
+    days: number = 180
   ) {
     const symbols = Array.from(new Set(allocation.map(a => a.token.toUpperCase())));
-    const days = 180;
     const seriesMap = await this.coinGeckoService.getHistoricalSeries(Array.from(new Set([...symbols, 'BTC'])), days);
 
     const btcSeries = seriesMap['BTC'] || [];

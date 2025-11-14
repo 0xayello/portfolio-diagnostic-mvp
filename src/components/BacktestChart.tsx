@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -27,9 +27,26 @@ interface BacktestChartProps {
   series?: BacktestPoint[];
   theme?: 'light' | 'dark';
   compact?: boolean;
+  onPeriodChange?: (days: number) => void;
 }
 
-export default function BacktestChart({ backtest, series, theme = 'light', compact = false }: BacktestChartProps) {
+export default function BacktestChart({ backtest, series, theme = 'light', compact = false, onPeriodChange }: BacktestChartProps) {
+  const [selectedPeriod, setSelectedPeriod] = useState<number>(180); // Default: 6 meses
+
+  const periods = [
+    { label: '1 mês', days: 30 },
+    { label: '3 meses', days: 90 },
+    { label: '6 meses', days: 180 },
+    { label: '12 meses', days: 365 },
+  ];
+
+  const handlePeriodChange = (days: number) => {
+    setSelectedPeriod(days);
+    if (onPeriodChange) {
+      onPeriodChange(days);
+    }
+  };
+
   if (!backtest || backtest.length === 0) {
     return (
       <div className="text-center py-8">
@@ -307,6 +324,25 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
 
   return (
     <div className="space-y-6">
+      {/* Period Selection Buttons */}
+      <div className="flex justify-center gap-2 flex-wrap">
+        {periods.map((period) => (
+          <button
+            key={period.days}
+            onClick={() => handlePeriodChange(period.days)}
+            className={`
+              px-6 py-2.5 rounded-lg font-medium text-sm transition-all duration-200
+              ${selectedPeriod === period.days
+                ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg transform scale-105'
+                : 'bg-white text-gray-700 border border-gray-300 hover:border-violet-400 hover:text-violet-600 hover:shadow-md'
+              }
+            `}
+          >
+            {period.label}
+          </button>
+        ))}
+      </div>
+
       {/* Chart */}
       <div className={theme === 'dark' ? 'bg-gray-900 p-6 rounded-lg border border-gray-800' : 'bg-gray-50 p-6 rounded-lg'}>
         <div className={compact ? 'relative h-72' : 'relative h-96'}>
