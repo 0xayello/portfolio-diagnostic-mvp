@@ -245,7 +245,12 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
       legend: {
         position: 'top' as const,
         labels: {
-          color: theme === 'dark' ? '#E5E7EB' : '#111827',
+          color: '#111827',
+          font: {
+            size: 12,
+          },
+          padding: 12,
+          usePointStyle: true,
         },
       },
       title: {
@@ -255,11 +260,20 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
           size: 16,
           weight: 'bold' as const,
         },
-        color: theme === 'dark' ? '#F9FAFB' : '#111827',
+        color: '#111827',
+        padding: {
+          bottom: 20,
+        },
       },
       tooltip: {
         mode: 'index' as const,
         intersect: false,
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        titleColor: '#111827',
+        bodyColor: '#374151',
+        borderColor: '#E5E7EB',
+        borderWidth: 1,
+        padding: 12,
         callbacks: {
           title: (items: any[]) => {
             if (!items || !items.length || !series) return '';
@@ -285,18 +299,31 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
         title: {
           display: true,
           text: 'Retorno (%)',
-          color: theme === 'dark' ? '#D1D5DB' : '#374151',
+          color: '#374151',
+          font: {
+            size: 12,
+            weight: 500,
+          },
         },
         ticks: {
           callback: (value: any) => `${value}%`,
-          color: theme === 'dark' ? '#9CA3AF' : '#4B5563',
+          color: '#6B7280',
+          font: {
+            size: 11,
+          },
         },
-        grid: { color: theme === 'dark' ? 'rgba(75,85,99,0.4)' : undefined },
+        grid: { 
+          color: 'rgba(229, 231, 235, 0.5)',
+          drawBorder: false,
+        },
       },
       x: {
         display: true,
         ticks: {
-          color: theme === 'dark' ? '#9CA3AF' : '#4B5563',
+          color: '#6B7280',
+          font: {
+            size: 11,
+          },
           callback: (val: any, index: number) => {
             if (!series || !series.length) return '';
             const step = Math.max(1, Math.floor(series.length / 6)); // ~6 rótulos visíveis
@@ -307,7 +334,10 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
           maxRotation: 0,
           autoSkip: false,
         },
-        grid: { color: theme === 'dark' ? 'rgba(75,85,99,0.2)' : undefined },
+        grid: { 
+          color: 'rgba(229, 231, 235, 0.3)',
+          drawBorder: false,
+        },
       },
     },
   };
@@ -325,16 +355,16 @@ export default function BacktestChart({ backtest, series, theme = 'light', compa
   return (
     <div className="space-y-6">
       {/* Period Selection Buttons */}
-      <div className="flex justify-center gap-2 flex-wrap">
+      <div className="flex justify-center gap-2 mb-4">
         {periods.map((period) => (
           <button
             key={period.days}
             onClick={() => handlePeriodChange(period.days)}
             className={`
-              px-6 py-2.5 rounded-lg font-medium text-sm transition-all duration-200
+              px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-200
               ${selectedPeriod === period.days
-                ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-lg transform scale-105'
-                : 'bg-white text-gray-700 border border-gray-300 hover:border-violet-400 hover:text-violet-600 hover:shadow-md'
+                ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-md'
+                : 'bg-white text-gray-600 border border-gray-200 hover:border-violet-300 hover:text-violet-600 hover:bg-gray-50'
               }
             `}
           >
