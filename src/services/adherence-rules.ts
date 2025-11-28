@@ -603,7 +603,51 @@ export class AdherenceCalculator {
     this.allocation.forEach(asset => {
       const isMajor = MAJOR_COINS.includes(asset.token);
       const isStable = MAJOR_STABLECOINS.includes(asset.token);
+      const isBTC = asset.token === 'BTC';
 
+      // TRATAMENTO ESPECIAL PARA BITCOIN
+      if (isBTC) {
+        const isConservativeLongTerm = this.profile.riskTolerance === 'low' && this.profile.horizon === 'long';
+        const isConservativeMediumTerm = this.profile.riskTolerance === 'low' && this.profile.horizon === 'medium';
+        const isModerateOrAggressive = this.profile.riskTolerance === 'medium' || this.profile.riskTolerance === 'high';
+        
+        // Só alertar se >90% em BTC
+        if (asset.percentage > 90) {
+          if (isConservativeLongTerm) {
+            this.addViolation({
+              type: 'yellow',
+              category: 'concentration',
+              message: `💎 Portfólio Focado em Bitcoin: ${asset.percentage.toFixed(1)}% em BTC`,
+              actionable: `Bitcoin é o ativo mais estabelecido. Para seu perfil, isso é aceitável, mas considere manter 5-10% em stablecoins para liquidez de emergência.`,
+              severity: 1,
+              penaltyPoints: PENALTY_WEIGHTS.YELLOW
+            });
+          } else if (isConservativeMediumTerm) {
+            this.addViolation({
+              type: 'yellow',
+              category: 'concentration',
+              message: `💎 Alta Concentração em Bitcoin: ${asset.percentage.toFixed(1)}% em BTC`,
+              actionable: `Para médio prazo, considere manter 10-15% em stablecoins para aproveitar oportunidades.`,
+              severity: 1,
+              penaltyPoints: PENALTY_WEIGHTS.YELLOW
+            });
+          } else if (isModerateOrAggressive) {
+            const profileText = this.profile.riskTolerance === 'medium' ? 'moderado' : 'arrojado';
+            this.addViolation({
+              type: 'yellow',
+              category: 'concentration',
+              message: `💎 Portfólio Concentrado em Bitcoin: ${asset.percentage.toFixed(1)}% em BTC`,
+              actionable: `Para seu perfil ${profileText}, considere diversificar em Stables/ETH/SOL/altcoins para capturar outras oportunidades.`,
+              severity: 2,
+              penaltyPoints: PENALTY_WEIGHTS.YELLOW_HIGH
+            });
+          }
+        }
+        // Não aplicar regras gerais de concentração para BTC
+        return;
+      }
+
+      // REGRAS GERAIS PARA OUTROS ATIVOS (ETH, SOL, altcoins)
       if (!isMajor && !isStable) {
         // Ativos não-majors
         if (asset.percentage >= 30) {

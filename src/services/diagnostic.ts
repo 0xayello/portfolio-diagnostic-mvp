@@ -250,26 +250,70 @@ export class DiagnosticService {
         });
       }
       
-      // ≥40% em ativo que não seja BTC/ETH/SOL → Red
-      if (item.percentage >= 40 && !isMajor) {
-        flags.push({
-          type: 'red',
-          category: 'asset',
-          message: `🚨 Risco Crítico: ${item.token} representa ${item.percentage.toFixed(1)}% - Exposição excessiva a um único ativo`,
-          actionable: `AÇÃO URGENTE: Reduza para no máximo 20%. ${this.getConcentrationAdvice(item.token, sector, profile)}`,
-          severity: 4
-        });
-      }
-      
-      // >60% em qualquer único ativo → Red Crítico
-      if (item.percentage > 60) {
-        flags.push({
-          type: 'red',
-          category: 'asset',
-          message: `🚨 Portfólio Extremamente Concentrado: ${item.token} representa ${item.percentage.toFixed(1)}%`,
-          actionable: `RISCO SISTÊMICO: Distribua imediatamente para múltiplos ativos. ${isMajor ? 'Mesmo em majors, mantenha no máximo 40%.' : 'Para altcoins, máximo recomendado é 15%.'}`,
-          severity: 5
-        });
+      // TRATAMENTO ESPECIAL PARA BITCOIN (antes das regras gerais de concentração)
+      if (item.token === 'BTC') {
+        const isConservativeLongTerm = profile.riskTolerance === 'low' && profile.horizon === 'long';
+        const isConservativeMediumTerm = profile.riskTolerance === 'low' && profile.horizon === 'medium';
+        const isModerateOrAggressive = profile.riskTolerance === 'medium' || profile.riskTolerance === 'high';
+        
+        // Conservador + Longo Prazo: permite até 90% sem alertas, >90% = yellow leve
+        if (isConservativeLongTerm && item.percentage > 90) {
+          flags.push({
+            type: 'yellow',
+            category: 'asset',
+            message: `💎 Portfólio Focado em Bitcoin: ${item.percentage.toFixed(1)}% em BTC`,
+            actionable: `Bitcoin é o ativo mais estabelecido em cripto. Para seu perfil conservador de longo prazo, alta concentração em BTC é aceitável, mas considere manter 5-10% em stablecoins (USDC/USDT) para emergências.`,
+            severity: 1
+          });
+        } 
+        // Conservador + Médio Prazo: permite até 90% sem alertas
+        else if (isConservativeMediumTerm && item.percentage > 90) {
+          flags.push({
+            type: 'yellow',
+            category: 'asset',
+            message: `💎 Alta Concentração em Bitcoin: ${item.percentage.toFixed(1)}% em BTC`,
+            actionable: `Para médio prazo, considere manter 10-15% em stablecoins para aproveitar oportunidades e gerenciar volatilidade.`,
+            severity: 1
+          });
+        } 
+        // Moderado/Arrojado: permite até 90% sem alertas
+        else if (isModerateOrAggressive && item.percentage > 90) {
+          const profileText = profile.riskTolerance === 'medium' ? 'moderado' : 'arrojado';
+          flags.push({
+            type: 'yellow',
+            category: 'asset',
+            message: `💎 Portfólio Concentrado em Bitcoin: ${item.percentage.toFixed(1)}% em BTC`,
+            actionable: `Para seu perfil ${profileText}, considere diversificar em Stables/ETH/SOL/altcoins para capturar outras oportunidades sem abandonar a segurança de BTC.`,
+            severity: 2
+          });
+        }
+        
+        // NÃO aplicar as regras gerais de concentração para BTC
+        // Continuar para o próximo item (pular as validações seguintes)
+      } else {
+        // REGRAS GERAIS PARA OUTROS ATIVOS (ETH, SOL, altcoins)
+        
+        // ≥40% em ativo que não seja BTC/ETH/SOL → Red
+        if (item.percentage >= 40 && !isMajor) {
+          flags.push({
+            type: 'red',
+            category: 'asset',
+            message: `🚨 Risco Crítico: ${item.token} representa ${item.percentage.toFixed(1)}% - Exposição excessiva a um único ativo`,
+            actionable: `AÇÃO URGENTE: Reduza para no máximo 20%. ${this.getConcentrationAdvice(item.token, sector, profile)}`,
+            severity: 4
+          });
+        }
+        
+        // >60% em qualquer único ativo (exceto BTC) → Red Crítico
+        if (item.percentage > 60) {
+          flags.push({
+            type: 'red',
+            category: 'asset',
+            message: `🚨 Portfólio Extremamente Concentrado: ${item.token} representa ${item.percentage.toFixed(1)}%`,
+            actionable: `RISCO SISTÊMICO: Distribua imediatamente para múltiplos ativos. ${isMajor ? 'Mesmo em majors (ETH/SOL), mantenha no máximo 40%.' : 'Para altcoins, máximo recomendado é 15%.'}`,
+            severity: 5
+          });
+        }
       }
       
       // Análise de memecoins por token individual será consolidada no alerta geral de memecoins mais abaixo
