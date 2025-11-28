@@ -640,11 +640,7 @@ export class DiagnosticService {
         });
       } else {
         // ✅ PONTO POSITIVO: Poucos ativos mas concentrados em majors
-        // Desmembrar BTC de ETH/SOL na mensagem
-        const btcAllocation = allocation.find(a => a.token === 'BTC');
-        const ethSolAllocation = allocation.filter(a => a.token === 'ETH' || a.token === 'SOL');
-        const btcPercentage = btcAllocation?.percentage || 0;
-        const ethSolPercentage = ethSolAllocation.reduce((sum, a) => sum + a.percentage, 0);
+        // Desmembrar BTC de ETH/SOL na mensagem (usa variáveis já calculadas no início)
         
         let majorsDescription = '';
         if (btcPercentage > 0 && ethSolPercentage > 0) {
@@ -691,10 +687,7 @@ export class DiagnosticService {
     }
     
     // Análise de BTC+ETH+SOL juntos (40-100% ideal)
-    const btcAllocation = allocation.find(item => item.token === 'BTC');
-    const ethSolAllocation = allocation.filter(item => DiagnosticService.MAJOR_TIER_2.includes(item.token));
-    const btcPercentage = btcAllocation?.percentage || 0;
-    const ethSolPercentage = ethSolAllocation.reduce((sum, item) => sum + item.percentage, 0);
+    // Usa variáveis já calculadas no início (btcPercentage, ethSolPercentage)
     const majorCoinsTotal = btcPercentage + ethSolPercentage;
     
     // PRIORIDADE: Horizonte + Tolerância ao Risco têm prioridade sobre Objetivos

@@ -102,7 +102,7 @@ export const DIAGNOSTIC_MESSAGES = {
       message: (percentage: number, ecosystem: string) =>
         `${percentage.toFixed(1)}% no ecossistema ${ecosystem}`,
       actionable: (percentage: number, ecosystem: string, mainAsset: string) =>
-        `RISCO DE CORRELAÇÃO: Você tem ${percentage.toFixed(1)}% em ativos do ecossistema ${ecosystem}. Se ${mainAsset} cair, todo seu portfólio cai junto. Diversifique em outros ecossistemas (Solana, Bitcoin, Polkadot).`
+        `RISCO DE CORRELAÇÃO: Você tem ${percentage.toFixed(1)}% em ativos do ecossistema ${ecosystem}. Se ${mainAsset} cair, todo seu portfólio cai junto. Diversifique em outros ecossistemas e setores descorrelacionados.`
     },
     strategic_majors: {
       title: '✅ Concentração Estratégica em Majors',
