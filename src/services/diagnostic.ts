@@ -339,7 +339,7 @@ export class DiagnosticService {
         // (Validação de stables cuidará da liquidez se necessário)
         
         // Conservador + Médio Prazo: permite até 90% sem alertas
-        else if (isConservativeMediumTerm && item.percentage > 90) {
+        if (isConservativeMediumTerm && item.percentage > 90) {
           flags.push({
             type: 'yellow',
             category: 'asset',
