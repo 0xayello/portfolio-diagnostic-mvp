@@ -354,15 +354,16 @@ export class DiagnosticService {
             severity: 1
           });
         } 
-        // Moderado/Arrojado: permite até 90% sem alertas
+        // Moderado/Arrojado: permite até 90% sem alertas, >90% = sugestão leve (SEM penalizar score)
         else if (isModerateOrAggressive && item.percentage > 90) {
           const profileText = profile.riskTolerance === 'medium' ? 'moderado' : 'arrojado';
+          const msg = DIAGNOSTIC_MESSAGES.btc_concentrated.moderate_aggressive;
           flags.push({
             type: 'yellow',
             category: 'asset',
-            message: `💎 Portfólio Concentrado em Bitcoin: ${item.percentage.toFixed(1)}% em BTC`,
-            actionable: `Para seu perfil ${profileText}, considere diversificar em Stables/ETH/SOL para capturar outras oportunidades sem abandonar uma alocação majoritária em BTC.`,
-            severity: 2
+            message: `${msg.title}: ${msg.message(item.percentage)}`,
+            actionable: msg.actionable(profileText),
+            severity: 0  // SEM PENALIDADE - apenas sugestão informativa
           });
         }
         
@@ -627,15 +628,24 @@ export class DiagnosticService {
       .filter(item => MAJOR_COINS.includes(item.token))
       .reduce((sum, item) => sum + item.percentage, 0);
     
-    const isOnlyMajors = allocation.every(item => MAJOR_COINS.includes(item.token) || STABLECOINS.includes(item.token));
+    // Verifica se portfólio é apenas majors + stablecoins (estratégia válida)
+    const isOnlyMajorsAndStables = allocation.every(item => 
+      MAJOR_COINS.includes(item.token) || STABLECOINS.includes(item.token)
+    );
+    
+    // Calcular core assets (majors + stables)
+    const corePercentage = majorPercentage + allocation
+      .filter(item => STABLECOINS.includes(item.token))
+      .reduce((sum, item) => sum + item.percentage, 0);
     
     if (numAssets <= 3) {
-      if (!isOnlyMajors || majorPercentage < 70) {
+      // OK se tem majors+stables >= 70% (estratégia conservadora válida, especialmente com BTC)
+      if (!isOnlyMajorsAndStables || corePercentage < 70) {
         flags.push({
           type: 'red',
           category: 'asset',
-          message: `📉 Portfólio Concentrado: ${numAssets} ${numAssets === 1 ? 'ativo' : 'ativos'} (${majorPercentage.toFixed(0)}% em majors)`,
-          actionable: 'Com poucos ativos, concentre em BTC+ETH+SOL (70%+) ou diversifique para 5-8 ativos de qualidade.',
+          message: `📉 Portfólio Concentrado: ${numAssets} ${numAssets === 1 ? 'ativo' : 'ativos'} (${corePercentage.toFixed(0)}% em majors+stables)`,
+          actionable: 'Com poucos ativos, concentre em BTC+ETH+SOL+stables (70%+) ou diversifique para 5-8 ativos de qualidade.',
           severity: 4
         });
       } else {
@@ -991,6 +1001,12 @@ export class DiagnosticService {
     });
     
     Object.entries(ecosystemMap).forEach(([ecosystem, percentage]) => {
+      // EXCEÇÃO: Bitcoin é ecossistema único - NÃO alertar sobre correlação
+      // Alta concentração em Bitcoin é estratégia válida (já tratada em outro lugar)
+      if (ecosystem === 'Bitcoin') {
+        return; // Pular validação de correlação para Bitcoin
+      }
+      
       if (percentage > DiagnosticService.THRESHOLDS.ECOSYSTEM_CORRELATION_CRITICAL) {
         const mainAsset = ecosystem === 'Ethereum' ? 'ETH' : 
                          ecosystem === 'Solana' ? 'SOL' : 

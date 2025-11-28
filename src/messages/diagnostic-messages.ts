@@ -27,7 +27,7 @@ export const DIAGNOSTIC_MESSAGES = {
       title: '💎 Portfólio Concentrado em Bitcoin',
       message: (percentage: number) => `${percentage.toFixed(1)}% em BTC`,
       actionable: (profile: string) =>
-        `Para seu perfil ${profile}, considere diversificar em Stables/ETH/SOL para capturar outras oportunidades sem abandonar uma alocação majoritária em BTC.`
+        `Para seu perfil ${profile}, considere diversificar para capturar outras oportunidades sem abandonar uma alocação majoritária em BTC.`
     }
   },
 

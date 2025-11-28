@@ -128,11 +128,13 @@ export default function DiagnosticResults({
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                           <div className="text-sm text-gray-700">
-                            {diagnostic.adherenceScore >= 80 
-                              ? <>Identificamos pontos que estão desalinhados com seu perfil e objetivos.<br />Revise os alertas abaixo para entender como otimizar sua carteira.</>
-                              : diagnostic.adherenceScore >= 60
-                              ? 'Seu portfólio tem uma base boa, mas alguns ajustes importantes nos alertas abaixo podem melhorar significativamente sua aderência ao perfil ideal.'
-                              : <>Identificamos pontos que estão desalinhados com seu perfil e objetivos.<br />Revise os alertas abaixo para entender como otimizar sua carteira.</>}
+                            {diagnostic.adherenceScore >= 85 
+                              ? 'Seu portfólio está bem alinhado com seu perfil. Os pontos abaixo são sugestões para otimização, não problemas críticos.'
+                              : diagnostic.adherenceScore >= 70
+                              ? 'Seu portfólio tem uma base sólida. Os ajustes sugeridos abaixo podem melhorar sua aderência ao perfil ideal.'
+                              : diagnostic.adherenceScore >= 50
+                              ? 'Seu portfólio tem alguns desalinhamentos com seu perfil. Revise os alertas críticos abaixo para reduzir riscos.'
+                              : 'Seu portfólio apresenta desalinhamentos importantes com seu perfil. Recomendamos rebalanceamento urgente conforme os alertas críticos.'}
                           </div>
                         </div>
                       </div>
