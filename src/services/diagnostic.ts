@@ -10,7 +10,7 @@ import {
 import { CoinGeckoService } from './coingecko';
 import sectorsData from '../data/sectors.json';
 import { CoinMarketCapService } from './coinmarketcap';
-import { AdherenceCalculator } from './adherence-rules';
+import { DIAGNOSTIC_MESSAGES } from '../messages/diagnostic-messages';
 
 export class DiagnosticService {
   private coinGeckoService: CoinGeckoService;
@@ -22,6 +22,37 @@ export class DiagnosticService {
   private static readonly MAJOR_COINS = [...DiagnosticService.MAJOR_TIER_1, ...DiagnosticService.MAJOR_TIER_2]; // Todos os majors
   private static readonly MAJOR_STABLECOINS = ['USDC', 'USDT', 'DAI', 'PYUSD']; // Major stablecoins (incluindo PYUSD)
   // Outras stablecoins (alto risco): USDE, FRAX, LUSD, MIM, USDD, etc.
+  private static readonly STAKEABLE_ASSETS = ['ETH', 'SOL', 'DOT', 'ATOM', 'AVAX', 'NEAR', 'MATIC', 'ADA', 'ALGO', 'FTM']; // Ativos que geram yield via staking
+
+  // Constantes de thresholds - Valores centralizados para fácil manutenção
+  private static readonly THRESHOLDS = {
+    // Concentração setorial
+    SECTOR_CONCENTRATION_WARNING: 50,
+    
+    // Bitcoin específico  
+    EXCLUSIVELY_BTC_RATIO: 95,
+    BTC_RATIO_CONSERVATIVE_MIN: 60,
+    
+    // Concentração individual
+    NON_MAJOR_CONCENTRATION_CRITICAL: 40,
+    NON_MAJOR_CONCENTRATION_WARNING: 20,
+    MAJOR_ETH_SOL_CONCENTRATION_WARNING: 60, // Apenas ETH/SOL, BTC excluído
+    
+    // Diversificação
+    FEW_ASSETS_MAJOR_MIN: 70,
+    IDEAL_ASSETS_MIN: 4,
+    IDEAL_ASSETS_MAX: 8,
+    OVER_DIVERSIFICATION: 15,
+    
+    // Correlação de ecossistemas
+    ECOSYSTEM_CORRELATION_CRITICAL: 60,
+    ECOSYSTEM_CORRELATION_WARNING: 45,
+    
+    // Renda passiva
+    PASSIVE_INCOME_MIN_YIELD: 50,
+    PASSIVE_INCOME_EXCELLENT_YIELD: 70,
+    PASSIVE_INCOME_BTC_WARNING: 40,
+  } as const;
 
   constructor() {
     this.coinGeckoService = new CoinGeckoService();
@@ -33,6 +64,29 @@ export class DiagnosticService {
     profile: InvestorProfile,
     backtestPeriod: number = 180
   ): Promise<PortfolioDiagnostic> {
+    // ========================================================================
+    // VALIDAÇÃO DE INPUT (defesa em profundidade)
+    // ========================================================================
+    
+    if (!allocation || allocation.length === 0) {
+      throw new Error('Portfolio cannot be empty');
+    }
+    
+    const totalPercentage = allocation.reduce((sum, a) => sum + a.percentage, 0);
+    if (Math.abs(totalPercentage - 100) > 0.1) { // Tolerância 0.1% por arredondamento
+      throw new Error(`Percentages must sum to 100%, got ${totalPercentage.toFixed(2)}%`);
+    }
+    
+    // Validar percentages individuais
+    allocation.forEach(a => {
+      if (a.percentage < 0) {
+        throw new Error(`Negative percentage not allowed: ${a.token} = ${a.percentage}%`);
+      }
+      if (a.percentage > 100) {
+        throw new Error(`Percentage cannot exceed 100%: ${a.token} = ${a.percentage}%`);
+      }
+    });
+    
     // Buscar dados dos tokens
     const symbols = allocation.map(a => a.token);
     const tokenDataMap = await this.coinGeckoService.getTokenData(symbols);
@@ -97,34 +151,42 @@ export class DiagnosticService {
   }
 
   // Blue-chips estabelecidos (alta liquidez, histórico longo, market cap >$1B)
+  // Agora usa sectors.json ao invés de array hardcoded
   private isBlueChip(token: string): boolean {
-    const blueChips = ['LINK', 'UNI', 'AAVE', 'CRV', 'MKR', 'COMP', 'SNX', 'LDO', 'RPL', 'PYTH', 'GRT', 'ARB', 'OP', 'AVAX', 'DOT', 'ATOM', 'NEAR', 'FIL', 'AR', 'ONDO', 'JTO', 'JUP'];
-    return blueChips.includes(token.toUpperCase());
+    const tokenData = sectorsData[token as keyof typeof sectorsData];
+    return tokenData?.tier === 'blue-chip';
   }
 
   // Mid-caps estabelecidos (market cap $200M-$1B, histórico >1 ano)
+  // Agora usa sectors.json ao invés de array hardcoded
   private isMidCapEstablished(token: string): boolean {
-    const midCaps = ['RUNE', 'GMX', 'DYDX', 'IMX', 'MNT', 'STX', 'INJ', 'SEI', 'SUI', 'APT', 'TIA', 'BLUR', 'PENDLE'];
-    return midCaps.includes(token.toUpperCase());
+    const tokenData = sectorsData[token as keyof typeof sectorsData];
+    return tokenData?.tier === 'mid-cap';
   }
 
-  // Verifica se token é novo/experimental (<1 ano desde novembro 2025 = lançado após novembro 2024)
+  // Verifica se token é novo/experimental (<1 ano)
+  // Dinâmico: sempre calcula 12 meses antes da data atual
   private isNewToken(token: string): boolean {
     const tokenData = sectorsData[token as keyof typeof sectorsData] as any;
     if (!tokenData || !tokenData.launchDate) return false;
     
     const launchDate = new Date(tokenData.launchDate);
-    const cutoffDate = new Date('2024-11-01'); // 1 ano antes de novembro 2025
+    const now = new Date();
+    const cutoffDate = new Date(now.getFullYear(), now.getMonth() - 12, now.getDate());
+    
     return launchDate > cutoffDate;
   }
 
-  // Verifica se token é muito novo (<6 meses = lançado após maio 2025)
+  // Verifica se token é muito novo (<6 meses)
+  // Dinâmico: sempre calcula 6 meses antes da data atual
   private isVeryNewToken(token: string): boolean {
     const tokenData = sectorsData[token as keyof typeof sectorsData] as any;
     if (!tokenData || !tokenData.launchDate) return false;
     
     const launchDate = new Date(tokenData.launchDate);
-    const cutoffDate = new Date('2025-05-01'); // 6 meses antes de novembro 2025
+    const now = new Date();
+    const cutoffDate = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+    
     return launchDate > cutoffDate;
   }
 
@@ -147,6 +209,22 @@ export class DiagnosticService {
     sectorBreakdown: { [sector: string]: number }
   ): DiagnosticFlag[] {
     const flags: DiagnosticFlag[] = [];
+    
+    // ========================================================================
+    // OTIMIZAÇÃO: Calcular percentages uma única vez usando Map
+    // ========================================================================
+    
+    const allocMap = new Map(allocation.map(a => [a.token, a]));
+    
+    // Percentages individuais (calculados UMA VEZ)
+    const btcAllocation = allocMap.get('BTC');
+    const ethAllocation = allocMap.get('ETH');
+    const solAllocation = allocMap.get('SOL');
+    
+    const btcPercentage = btcAllocation?.percentage || 0;
+    const ethPercentage = ethAllocation?.percentage || 0;
+    const solPercentage = solAllocation?.percentage || 0;
+    const ethSolPercentage = ethPercentage + solPercentage;
     
     // Usar constantes da classe
     const MAJOR_TIER_1 = DiagnosticService.MAJOR_TIER_1;
@@ -382,17 +460,12 @@ export class DiagnosticService {
       
       // Análise específica por tipo de setor - MEMECOINS TOTAL (CONSOLIDADO)
       if (sector === 'Meme') {
-        // Limites por perfil - considerar também horizonte
-        let maxByProfile: { [key: string]: number } = {
+        // Limites por perfil - UNIFICADO: Arrojado sempre 15%
+        const maxByProfile: { [key: string]: number } = {
           low: 0,      // Conservador: 0%
           medium: 5,   // Moderado: 5%
-          high: 10     // Arrojado: 10% (padrão)
+          high: 15     // Arrojado: 15% (unificado)
         };
-        
-        // Ajuste especial: Arrojado + Curto Prazo = 15%
-        if (profile.riskTolerance === 'high' && profile.horizon === 'short') {
-          maxByProfile.high = 15;
-        }
         
         const maxAllowed = maxByProfile[profile.riskTolerance as keyof typeof maxByProfile] || 5;
         
@@ -888,7 +961,125 @@ export class DiagnosticService {
     // Análise de horizonte temporal vs alocação
     this.analyzeHorizonAlignment(allocation, profile, flags);
     
+    // ========================================================================
+    // NOVA VALIDAÇÃO: CORRELAÇÃO DE ECOSSISTEMAS
+    // ========================================================================
+    
+    this.validateEcosystemConcentration(allocation, profile, flags);
+    
+    // ========================================================================
+    // NOVA VALIDAÇÃO: RENDA PASSIVA (se objetivo for passive_income)
+    // ========================================================================
+    
+    if (profile.objective.includes('passive_income')) {
+      this.validatePassiveIncomeStrategy(allocation, btcPercentage, profile, flags);
+    }
+    
     return flags.sort((a, b) => b.severity - a.severity);
+  }
+
+  // ============================================================================
+  // VALIDAÇÃO: CORRELAÇÃO DE ECOSSISTEMAS
+  // ============================================================================
+  
+  private validateEcosystemConcentration(
+    allocation: (PortfolioAllocation & { tokenData?: TokenData })[],
+    profile: InvestorProfile,
+    flags: DiagnosticFlag[]
+  ): void {
+    // Agrupar por ecosystem
+    const ecosystemMap: { [ecosystem: string]: number } = {};
+    
+    allocation.forEach(item => {
+      const ecosystem = this.getTokenEcosystem(item.token);
+      if (ecosystem && ecosystem !== 'Unknown') {
+        ecosystemMap[ecosystem] = (ecosystemMap[ecosystem] || 0) + item.percentage;
+      }
+    });
+    
+    Object.entries(ecosystemMap).forEach(([ecosystem, percentage]) => {
+      if (percentage > DiagnosticService.THRESHOLDS.ECOSYSTEM_CORRELATION_CRITICAL) {
+        const mainAsset = ecosystem === 'Ethereum' ? 'ETH' : 
+                         ecosystem === 'Solana' ? 'SOL' : 
+                         ecosystem === 'Arbitrum' ? 'ETH' :
+                         ecosystem === 'Optimism' ? 'ETH' :
+                         ecosystem;
+        
+        const msg = DIAGNOSTIC_MESSAGES.concentration.ecosystem;
+        flags.push({
+          type: 'red',
+          category: 'correlation',
+          message: `${msg.title}: ${msg.message(percentage, ecosystem)}`,
+          actionable: msg.actionable(percentage, ecosystem, mainAsset),
+          severity: 4
+        });
+      } else if (percentage > DiagnosticService.THRESHOLDS.ECOSYSTEM_CORRELATION_WARNING) {
+        flags.push({
+          type: 'yellow',
+          category: 'correlation',
+          message: `⚠️ Concentração em Ecossistema: ${percentage.toFixed(1)}% em ${ecosystem}`,
+          actionable: `Ativos do mesmo ecossistema tendem a se mover juntos. Considere diversificar em outros ecossistemas para reduzir correlação.`,
+          severity: 2
+        });
+      }
+    });
+  }
+
+  // ============================================================================
+  // VALIDAÇÃO: RENDA PASSIVA
+  // ============================================================================
+  
+  private validatePassiveIncomeStrategy(
+    allocation: (PortfolioAllocation & { tokenData?: TokenData })[],
+    btcPercentage: number,
+    profile: InvestorProfile,
+    flags: DiagnosticFlag[]
+  ): void {
+    const STAKEABLE = DiagnosticService.STAKEABLE_ASSETS;
+    const YIELD_STABLECOINS = DiagnosticService.MAJOR_STABLECOINS;
+    
+    const stakeablePercentage = allocation
+      .filter(a => STAKEABLE.includes(a.token))
+      .reduce((sum, a) => sum + a.percentage, 0);
+    
+    const yieldStablesPercentage = allocation
+      .filter(a => YIELD_STABLECOINS.includes(a.token))
+      .reduce((sum, a) => sum + a.percentage, 0);
+    
+    const totalYieldGenerating = stakeablePercentage + yieldStablesPercentage;
+    
+    // BTC não gera yield - alertar se >40% em BTC para objetivo de renda passiva
+    if (btcPercentage > DiagnosticService.THRESHOLDS.PASSIVE_INCOME_BTC_WARNING) {
+      const msg = DIAGNOSTIC_MESSAGES.passive_income.btc_not_yielding;
+      flags.push({
+        type: 'yellow',
+        category: 'objective',
+        message: `${msg.title}: ${msg.message(btcPercentage)}`,
+        actionable: msg.actionable(btcPercentage),
+        severity: 2
+      });
+    }
+    
+    // Validar se tem ativos suficientes geradores de yield
+    if (totalYieldGenerating < DiagnosticService.THRESHOLDS.PASSIVE_INCOME_MIN_YIELD) {
+      const msg = DIAGNOSTIC_MESSAGES.passive_income.insufficient_yield;
+      flags.push({
+        type: 'yellow',
+        category: 'objective',
+        message: `${msg.title}: ${msg.message(totalYieldGenerating)}`,
+        actionable: msg.actionable(totalYieldGenerating, stakeablePercentage, yieldStablesPercentage),
+        severity: 2
+      });
+    } else if (totalYieldGenerating >= DiagnosticService.THRESHOLDS.PASSIVE_INCOME_EXCELLENT_YIELD) {
+      const msg = DIAGNOSTIC_MESSAGES.passive_income.excellent_yield;
+      flags.push({
+        type: 'green',
+        category: 'objective',
+        message: `${msg.title}: ${msg.message(totalYieldGenerating)}`,
+        actionable: msg.actionable(stakeablePercentage, yieldStablesPercentage),
+        severity: 0
+      });
+    }
   }
 
   private getExpectedStablecoinRange(riskTolerance: string, horizon?: string, objectives?: string[]): { min: number; max: number } {

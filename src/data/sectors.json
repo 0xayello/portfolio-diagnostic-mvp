@@ -2,384 +2,476 @@
   "BTC": {
     "sector": "Store of Value",
     "category": "Bitcoin",
+    "tier": "major",
     "chain": "Bitcoin",
     "ecosystem": "Bitcoin"
   },
   "ETH": {
     "sector": "Smart Contract Platform",
     "category": "Ethereum",
+    "tier": "major",
     "chain": "Ethereum",
     "ecosystem": "Ethereum"
   },
   "SOL": {
     "sector": "Smart Contract Platform",
     "category": "Solana",
+    "tier": "major",
     "chain": "Solana",
     "ecosystem": "Solana"
   },
   "USDC": {
     "sector": "Stablecoin",
     "category": "USD Stablecoin",
+    "tier": "stablecoin",
     "chain": "Multi-chain",
     "ecosystem": "Center"
   },
   "USDT": {
     "sector": "Stablecoin",
     "category": "USD Stablecoin",
+    "tier": "stablecoin",
     "chain": "Multi-chain",
     "ecosystem": "Tether"
+  },
+  "DAI": {
+    "sector": "Stablecoin",
+    "category": "USD Stablecoin",
+    "tier": "stablecoin",
+    "chain": "Ethereum",
+    "ecosystem": "MakerDAO"
+  },
+  "PYUSD": {
+    "sector": "Stablecoin",
+    "category": "USD Stablecoin",
+    "tier": "stablecoin",
+    "chain": "Ethereum",
+    "ecosystem": "PayPal"
   },
   "AVAX": {
     "sector": "Smart Contract Platform",
     "category": "Avalanche",
+    "tier": "blue-chip",
     "chain": "Avalanche",
     "ecosystem": "Avalanche"
   },
   "MATIC": {
     "sector": "Layer 2",
     "category": "Polygon",
+    "tier": "blue-chip",
     "chain": "Polygon",
     "ecosystem": "Polygon"
   },
   "DOT": {
     "sector": "Smart Contract Platform",
     "category": "Polkadot",
+    "tier": "blue-chip",
     "chain": "Polkadot",
     "ecosystem": "Polkadot"
   },
   "LINK": {
     "sector": "Oracle",
     "category": "Oracle",
+    "tier": "blue-chip",
     "chain": "Ethereum",
     "ecosystem": "Chainlink"
   },
   "UNI": {
     "sector": "DEX",
     "category": "DEX",
+    "tier": "blue-chip",
     "chain": "Ethereum",
     "ecosystem": "Uniswap"
   },
   "AAVE": {
     "sector": "Lending",
     "category": "Lending",
+    "tier": "blue-chip",
     "chain": "Ethereum",
     "ecosystem": "Aave"
   },
   "CRV": {
     "sector": "DEX",
     "category": "DEX",
+    "tier": "blue-chip",
     "chain": "Ethereum",
     "ecosystem": "Curve"
   },
   "SUSHI": {
     "sector": "DEX",
     "category": "DEX",
+    "tier": "mid-cap",
     "chain": "Multi-chain",
     "ecosystem": "SushiSwap"
   },
   "1INCH": {
     "sector": "DEX",
     "category": "DEX Aggregator",
+    "tier": "mid-cap",
     "chain": "Ethereum",
     "ecosystem": "1inch"
   },
   "COMP": {
     "sector": "Lending",
     "category": "Lending",
+    "tier": "blue-chip",
     "chain": "Ethereum",
     "ecosystem": "Compound"
   },
   "MKR": {
     "sector": "Lending",
     "category": "Lending",
+    "tier": "blue-chip",
     "chain": "Ethereum",
     "ecosystem": "MakerDAO"
   },
   "SNX": {
     "sector": "Derivatives",
     "category": "Synthetic Assets",
+    "tier": "blue-chip",
     "chain": "Ethereum",
     "ecosystem": "Synthetix"
   },
   "YFI": {
     "sector": "DeFi Tokens",
     "category": "Yield Aggregator",
+    "tier": "mid-cap",
     "chain": "Ethereum",
     "ecosystem": "Yearn Finance"
   },
   "SAND": {
     "sector": "Gaming",
     "category": "Metaverse",
+    "tier": "mid-cap",
     "chain": "Ethereum",
     "ecosystem": "The Sandbox"
   },
   "MANA": {
     "sector": "Gaming",
     "category": "Metaverse",
+    "tier": "mid-cap",
     "chain": "Ethereum",
     "ecosystem": "Decentraland"
   },
   "AXS": {
     "sector": "Gaming",
     "category": "Play-to-Earn",
+    "tier": "mid-cap",
     "chain": "Ethereum",
     "ecosystem": "Axie Infinity"
   },
   "FLOW": {
     "sector": "Smart Contract Platform",
     "category": "Flow",
+    "tier": "mid-cap",
     "chain": "Flow",
     "ecosystem": "Flow"
   },
   "NEAR": {
     "sector": "Smart Contract Platform",
     "category": "NEAR",
+    "tier": "blue-chip",
     "chain": "NEAR",
     "ecosystem": "NEAR"
   },
   "FTM": {
     "sector": "Smart Contract Platform",
     "category": "Fantom",
+    "tier": "mid-cap",
     "chain": "Fantom",
     "ecosystem": "Fantom"
   },
   "ALGO": {
     "sector": "Smart Contract Platform",
     "category": "Algorand",
+    "tier": "mid-cap",
     "chain": "Algorand",
     "ecosystem": "Algorand"
   },
   "ATOM": {
     "sector": "Smart Contract Platform",
     "category": "Cosmos",
+    "tier": "blue-chip",
     "chain": "Cosmos",
     "ecosystem": "Cosmos"
   },
   "ADA": {
     "sector": "Smart Contract Platform",
     "category": "Cardano",
+    "tier": "blue-chip",
     "chain": "Cardano",
     "ecosystem": "Cardano"
   },
   "XRP": {
     "sector": "Payment",
     "category": "Payment",
+    "tier": "blue-chip",
     "chain": "XRP Ledger",
     "ecosystem": "Ripple"
   },
   "LTC": {
     "sector": "Store of Value",
     "category": "Bitcoin Fork",
+    "tier": "mid-cap",
     "chain": "Litecoin",
     "ecosystem": "Litecoin"
   },
   "BCH": {
     "sector": "Store of Value",
     "category": "Bitcoin Fork",
+    "tier": "mid-cap",
     "chain": "Bitcoin Cash",
     "ecosystem": "Bitcoin Cash"
   },
   "DOGE": {
     "sector": "Meme",
     "category": "Meme Coin",
+    "tier": "meme",
     "chain": "Dogecoin",
     "ecosystem": "Dogecoin"
   },
   "SHIB": {
     "sector": "Meme",
     "category": "Meme Coin",
+    "tier": "meme",
     "chain": "Ethereum",
     "ecosystem": "Shiba Inu"
   },
   "PEPE": {
     "sector": "Meme",
     "category": "Meme Coin",
+    "tier": "meme",
     "chain": "Ethereum",
     "ecosystem": "Pepe"
   },
   "ARB": {
     "sector": "Layer 2",
     "category": "Optimistic Rollup",
-    "chain": "Ethereum L2",
+    "tier": "blue-chip",
+    "chain": "Ethereum",
     "ecosystem": "Arbitrum"
   },
   "OP": {
     "sector": "Layer 2",
     "category": "Optimistic Rollup",
-    "chain": "Ethereum L2",
+    "tier": "blue-chip",
+    "chain": "Ethereum",
     "ecosystem": "Optimism"
   },
   "IMX": {
     "sector": "Layer 2",
     "category": "ZK Rollup",
-    "chain": "Ethereum L2",
+    "tier": "mid-cap",
+    "chain": "Ethereum",
     "ecosystem": "Immutable X"
   },
   "LDO": {
     "sector": "Liquid Staking",
     "category": "Staking Derivative",
+    "tier": "blue-chip",
     "chain": "Ethereum",
     "ecosystem": "Lido"
   },
   "RPL": {
     "sector": "Liquid Staking",
     "category": "Staking Derivative",
+    "tier": "blue-chip",
     "chain": "Ethereum",
     "ecosystem": "Rocket Pool"
   },
   "GMX": {
     "sector": "Derivatives",
     "category": "Perpetuals DEX",
+    "tier": "mid-cap",
     "chain": "Arbitrum",
     "ecosystem": "GMX"
   },
   "GRT": {
     "sector": "Infrastructure",
     "category": "Indexing Protocol",
+    "tier": "blue-chip",
     "chain": "Ethereum",
     "ecosystem": "The Graph"
   },
   "RNDR": {
     "sector": "Infrastructure",
     "category": "GPU Rendering",
+    "tier": "blue-chip",
     "chain": "Ethereum",
     "ecosystem": "Render"
   },
   "FIL": {
     "sector": "Storage",
     "category": "Decentralized Storage",
+    "tier": "blue-chip",
     "chain": "Filecoin",
     "ecosystem": "Filecoin"
   },
   "AR": {
     "sector": "Storage",
     "category": "Permanent Storage",
+    "tier": "blue-chip",
     "chain": "Arweave",
     "ecosystem": "Arweave"
   },
   "INJ": {
     "sector": "Derivatives",
     "category": "DEX",
+    "tier": "mid-cap",
     "chain": "Cosmos",
     "ecosystem": "Injective"
   },
   "SEI": {
     "sector": "Smart Contract Platform",
     "category": "Trading-Optimized L1",
+    "tier": "mid-cap",
     "chain": "Cosmos",
     "ecosystem": "Sei"
   },
   "SUI": {
     "sector": "Smart Contract Platform",
     "category": "Move-based L1",
+    "tier": "mid-cap",
     "chain": "Sui",
     "ecosystem": "Sui"
   },
   "APT": {
     "sector": "Smart Contract Platform",
     "category": "Move-based L1",
+    "tier": "mid-cap",
     "chain": "Aptos",
     "ecosystem": "Aptos"
   },
   "TIA": {
     "sector": "Infrastructure",
     "category": "Modular Blockchain",
+    "tier": "mid-cap",
     "chain": "Celestia",
     "ecosystem": "Celestia"
   },
   "BLUR": {
     "sector": "NFT",
     "category": "NFT Marketplace",
+    "tier": "mid-cap",
     "chain": "Ethereum",
     "ecosystem": "Blur"
   },
   "PENDLE": {
     "sector": "DeFi Tokens",
     "category": "Yield Trading",
+    "tier": "mid-cap",
     "chain": "Ethereum",
     "ecosystem": "Pendle"
   },
   "JTO": {
     "sector": "Liquid Staking",
     "category": "Staking Derivative",
+    "tier": "blue-chip",
     "chain": "Solana",
     "ecosystem": "Jito"
   },
   "WLD": {
     "sector": "AI",
     "category": "Identity",
+    "tier": "mid-cap",
     "chain": "Ethereum",
     "ecosystem": "Worldcoin"
   },
   "FET": {
     "sector": "AI",
     "category": "AI Agent",
+    "tier": "mid-cap",
     "chain": "Ethereum",
     "ecosystem": "Fetch.ai"
   },
   "AGIX": {
     "sector": "AI",
     "category": "AI Marketplace",
+    "tier": "mid-cap",
     "chain": "Cardano",
     "ecosystem": "SingularityNET"
   },
   "JUP": {
     "sector": "DEX",
     "category": "DEX Aggregator",
+    "tier": "blue-chip",
     "chain": "Solana",
     "ecosystem": "Jupiter"
   },
   "PYTH": {
     "sector": "Oracle",
     "category": "Price Oracle",
+    "tier": "blue-chip",
     "chain": "Solana",
     "ecosystem": "Pyth"
   },
   "WIF": {
     "sector": "Meme",
     "category": "Meme Coin",
+    "tier": "meme",
     "chain": "Solana",
     "ecosystem": "Dogwifhat"
   },
   "BONK": {
     "sector": "Meme",
     "category": "Meme Coin",
+    "tier": "meme",
     "chain": "Solana",
     "ecosystem": "Bonk"
+  },
+  "FLOKI": {
+    "sector": "Meme",
+    "category": "Meme Coin",
+    "tier": "meme",
+    "chain": "Multi-chain",
+    "ecosystem": "Floki"
   },
   "ONDO": {
     "sector": "RWA",
     "category": "Tokenized Assets",
+    "tier": "blue-chip",
     "chain": "Ethereum",
     "ecosystem": "Ondo Finance"
   },
   "MNT": {
     "sector": "Layer 2",
     "category": "Optimistic Rollup",
-    "chain": "Ethereum L2",
+    "tier": "mid-cap",
+    "chain": "Ethereum",
     "ecosystem": "Mantle"
   },
   "STX": {
     "sector": "Smart Contract Platform",
     "category": "Bitcoin L2",
+    "tier": "mid-cap",
     "chain": "Bitcoin",
     "ecosystem": "Stacks"
   },
   "RUNE": {
     "sector": "DEX",
     "category": "Cross-chain DEX",
+    "tier": "mid-cap",
     "chain": "Multi-chain",
     "ecosystem": "THORChain"
   },
   "OCEAN": {
     "sector": "AI",
     "category": "Data Marketplace",
+    "tier": "mid-cap",
     "chain": "Ethereum",
     "ecosystem": "Ocean Protocol"
+  },
+  "DYDX": {
+    "sector": "Derivatives",
+    "category": "Perpetuals DEX",
+    "tier": "mid-cap",
+    "chain": "dYdX Chain",
+    "ecosystem": "dYdX"
   },
   "ENA": {
     "sector": "DeFi Tokens",
     "category": "Synthetic Assets Protocol",
+    "tier": "new",
     "chain": "Ethereum",
     "ecosystem": "Ethena",
     "launchDate": "2024-04-02"
@@ -387,6 +479,7 @@
   "USDE": {
     "sector": "Stablecoin",
     "category": "Synthetic Stablecoin",
+    "tier": "risky-stablecoin",
     "chain": "Ethereum",
     "ecosystem": "Ethena",
     "riskLevel": "high"
@@ -394,6 +487,7 @@
   "HYPE": {
     "sector": "Derivatives",
     "category": "Perpetuals DEX",
+    "tier": "new",
     "chain": "Hyperliquid",
     "ecosystem": "Hyperliquid",
     "launchDate": "2024-01-01",
@@ -402,9 +496,45 @@
   "PUMP": {
     "sector": "Infrastructure",
     "category": "Token Launchpad",
+    "tier": "new",
     "chain": "Solana",
     "ecosystem": "Pump Fun",
     "launchDate": "2024-06-01",
     "riskLevel": "high"
+  },
+  "BOME": {
+    "sector": "Meme",
+    "category": "Meme Coin",
+    "tier": "meme",
+    "chain": "Solana",
+    "ecosystem": "Book of Meme"
+  },
+  "MYRO": {
+    "sector": "Meme",
+    "category": "Meme Coin",
+    "tier": "meme",
+    "chain": "Solana",
+    "ecosystem": "Myro"
+  },
+  "POPCAT": {
+    "sector": "Meme",
+    "category": "Meme Coin",
+    "tier": "meme",
+    "chain": "Solana",
+    "ecosystem": "Popcat"
+  },
+  "MEW": {
+    "sector": "Meme",
+    "category": "Meme Coin",
+    "tier": "meme",
+    "chain": "Solana",
+    "ecosystem": "Cat in a Dogs World"
+  },
+  "GME": {
+    "sector": "Meme",
+    "category": "Meme Coin",
+    "tier": "meme",
+    "chain": "Solana",
+    "ecosystem": "GameStop"
   }
 }
