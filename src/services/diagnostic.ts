@@ -334,25 +334,10 @@ export class DiagnosticService {
         const isConservativeMediumTerm = profile.riskTolerance === 'low' && profile.horizon === 'medium';
         const isModerateOrAggressive = profile.riskTolerance === 'medium' || profile.riskTolerance === 'high';
         
-        // Conservador + Longo Prazo: permite até 90% sem alertas
-        // >90% = sugestão APENAS se stablecoins < 5% (senão já está OK)
-        if (isConservativeLongTerm && item.percentage > 90) {
-          const stablecoinPercentage = allocation
-            .filter(a => DiagnosticService.MAJOR_STABLECOINS.includes(a.token))
-            .reduce((sum, a) => sum + a.percentage, 0);
-          
-          // Só alertar se stables < 5% (se já tem ≥5%, não precisa sugestão)
-          if (stablecoinPercentage < 5) {
-            flags.push({
-              type: 'yellow',
-              category: 'asset',
-              message: `💎 Portfólio Focado em Bitcoin: ${item.percentage.toFixed(1)}% em BTC`,
-              actionable: `Bitcoin é o ativo mais estabelecido em cripto. Para seu perfil conservador de longo prazo, alta concentração em BTC é aceitável, mas considere manter pelo menos 5% em stablecoins (USDC/USDT) para emergências.`,
-              severity: 0  // SEM PENALIDADE - apenas sugestão
-            });
-          }
-          // Se já tem ≥5% stables, não precisa alerta (estratégia válida)
-        } 
+        // Conservador + Longo Prazo: NÃO gera alertas para BTC alto
+        // Bitcoin é defensivo, perfil conservador + longo prazo = estratégia válida
+        // (Validação de stables cuidará da liquidez se necessário)
+        
         // Conservador + Médio Prazo: permite até 90% sem alertas
         else if (isConservativeMediumTerm && item.percentage > 90) {
           flags.push({
@@ -546,7 +531,7 @@ export class DiagnosticService {
       .filter(item => STABLECOINS_LIST.includes(item.token))
       .reduce((sum, item) => sum + item.percentage, 0);
     
-    const expectedStablecoinRange = this.getExpectedStablecoinRange(profile.riskTolerance, profile.horizon, profile.objective, btcPercentage);
+    const expectedStablecoinRange = this.getExpectedStablecoinRange(profile.riskTolerance, profile.horizon, profile.objective);
     
     // Análise de Stablecoins: verificar se está dentro da faixa ideal
     if (stablecoinPercentage === 0 && profile.riskTolerance === 'low') {
@@ -1100,34 +1085,28 @@ export class DiagnosticService {
     }
   }
 
-  private getExpectedStablecoinRange(riskTolerance: string, horizon?: string, objectives?: string[], btcPercentage?: number): { min: number; max: number } {
-    // EXCEÇÃO: Se tem alta concentração em BTC (≥80%), reduzir mínimo de stables
-    // Bitcoin já é defensivo, não precisa tanto em stables
-    const hasHighBTC = (btcPercentage || 0) >= 80;
-    
+  private getExpectedStablecoinRange(riskTolerance: string, horizon?: string, objectives?: string[]): { min: number; max: number } {
     // Ajustar para objetivo "renda passiva" - permite mais stablecoins
     if (objectives && objectives.includes('passive_income')) {
       if (riskTolerance === 'low') {
-        return hasHighBTC ? { min: 5, max: 50 } : { min: 20, max: 50 };
+        return { min: 20, max: 50 }; // Aumentado de 40% para 50%
       }
       if (riskTolerance === 'medium') {
-        return hasHighBTC ? { min: 5, max: 40 } : { min: 15, max: 40 };
+        return { min: 15, max: 40 }; // Aumentado de 20% para 40%
       }
       // Arrojado com renda passiva
-      return { min: 10, max: 30 };
+      return { min: 10, max: 30 }; // Aumentado de 10% para 30%
     }
     
     // Faixas padrão baseadas em tolerância ao risco
     if (riskTolerance === 'low') {
-      // Conservador: se tem BTC alto (≥80%), min reduzido para 5%
-      // Senão, padrão 20-40%
-      return hasHighBTC ? { min: 5, max: 40 } : { min: 20, max: 40 };
+      // Conservador: 20-40%
+      return { min: 20, max: 40 };
     }
     
     if (riskTolerance === 'medium') {
-      // Moderado: se tem BTC alto (≥80%), min reduzido para 5%
-      // Senão, padrão 10-20%
-      return hasHighBTC ? { min: 5, max: 20 } : { min: 10, max: 20 };
+      // Moderado: 10-20%
+      return { min: 10, max: 20 };
     }
     
     // Arrojado: 0-10%
@@ -1167,9 +1146,7 @@ export class DiagnosticService {
     profile: InvestorProfile
   ): RebalanceSuggestion[] {
     const suggestions: RebalanceSuggestion[] = [];
-    
-    const btcPercentage = allocation.find(a => a.token === 'BTC')?.percentage || 0;
-    const expectedStablecoinRange = this.getExpectedStablecoinRange(profile.riskTolerance, profile.horizon, profile.objective, btcPercentage);
+    const expectedStablecoinRange = this.getExpectedStablecoinRange(profile.riskTolerance, profile.horizon, profile.objective);
     const currentStablecoinPercentage = allocation
       .filter(item => DiagnosticService.MAJOR_STABLECOINS.includes(item.token))
       .reduce((sum, item) => sum + item.percentage, 0);
