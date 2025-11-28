@@ -283,7 +283,7 @@ export class DiagnosticService {
             type: 'yellow',
             category: 'asset',
             message: `💎 Portfólio Concentrado em Bitcoin: ${item.percentage.toFixed(1)}% em BTC`,
-            actionable: `Para seu perfil ${profileText}, considere diversificar em Stables/ETH/SOL/altcoins para capturar outras oportunidades sem abandonar a segurança de BTC.`,
+            actionable: `Para seu perfil ${profileText}, considere diversificar em Stables/ETH/SOL para capturar outras oportunidades sem abandonar uma alocação majoritária em BTC.`,
             severity: 2
           });
         }

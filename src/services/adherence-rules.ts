@@ -637,7 +637,7 @@ export class AdherenceCalculator {
               type: 'yellow',
               category: 'concentration',
               message: `💎 Portfólio Concentrado em Bitcoin: ${asset.percentage.toFixed(1)}% em BTC`,
-              actionable: `Para seu perfil ${profileText}, considere diversificar em Stables/ETH/SOL/altcoins para capturar outras oportunidades.`,
+              actionable: `Para seu perfil ${profileText}, considere diversificar em Stables/ETH/SOL para capturar outras oportunidades sem abandonar uma alocação majoritária em BTC.`,
               severity: 2,
               penaltyPoints: PENALTY_WEIGHTS.YELLOW_HIGH
             });
