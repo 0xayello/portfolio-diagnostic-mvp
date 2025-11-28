@@ -29,7 +29,7 @@ export interface InvestorProfile {
 
 export interface DiagnosticFlag {
   type: 'red' | 'yellow' | 'green';
-  category: 'asset' | 'sector' | 'liquidity' | 'fdv_mcap' | 'unlocks' | 'profile' | 'other_stablecoins';
+  category: 'asset' | 'sector' | 'liquidity' | 'fdv_mcap' | 'unlocks' | 'profile' | 'other_stablecoins' | 'correlation' | 'objective';
   message: string;
   actionable?: string;
   severity: number;
