@@ -357,14 +357,24 @@ export class DiagnosticService {
     
     // Flags por setor - Análise Profissional
     Object.entries(sectorBreakdown).forEach(([sector, percentage]) => {
-      // Concentração setorial crítica (exceto Meme que tem alerta próprio abaixo)
-      if (percentage > 50 && sector !== 'Meme') {
+      // EXCEÇÃO: Bitcoin (Store of Value) não gera alerta de concentração setorial
+      // Bitcoin é tratado como categoria única, não como "setor comum"
+      const isBitcoinSector = sector === 'Store of Value' || sector === 'Bitcoin';
+      const btcPercentage = allocation.find(a => a.token === 'BTC')?.percentage || 0;
+      const isMainlyBitcoin = isBitcoinSector && btcPercentage > 80;
+      
+      // Concentração setorial crítica (exceto Meme e Bitcoin)
+      if (percentage > 50 && sector !== 'Meme' && !isMainlyBitcoin) {
         const severity = profile.riskTolerance === 'low' ? 'red' : 'yellow';
         const sectorAnalysis = this.getSectorDiversificationAdvice(sector, percentage, profile);
+        
+        // Mudar "Store of Value" para "Bitcoin" quando for majoritariamente BTC
+        const sectorName = isBitcoinSector && btcPercentage > 50 ? 'Bitcoin' : sector;
+        
         flags.push({
           type: severity,
           category: 'sector',
-          message: `📊 Concentração Setorial: ${percentage.toFixed(1)}% em ${sector}`,
+          message: `📊 Concentração Setorial: ${percentage.toFixed(1)}% em ${sectorName}`,
           actionable: sectorAnalysis,
           severity: severity === 'red' ? 4 : 3
         });
@@ -474,13 +484,21 @@ export class DiagnosticService {
         severity: 1
       });
     } else if (stablecoinPercentage < expectedStablecoinRange.min) {
-      const severityType = profile.riskTolerance === 'low' ? 'red' : 'yellow';
+      // EXCEÇÃO: Se a insuficiência de stables é causada por alta concentração em BTC (>80%), é Yellow (não Red)
+      const btcPercentage = allocation.find(a => a.token === 'BTC')?.percentage || 0;
+      const isHighBTCConcentration = btcPercentage >= 80;
+      
+      // Se tem >80% BTC, stablecoins baixos são aceitáveis (yellow leve)
+      // Caso contrário, usar severidade padrão (red para conservador, yellow para outros)
+      const severityType = isHighBTCConcentration ? 'yellow' : (profile.riskTolerance === 'low' ? 'red' : 'yellow');
+      const severityLevel = isHighBTCConcentration ? 1 : (severityType === 'red' ? 3 : 2);
+      
       flags.push({
         type: severityType,
         category: 'profile',
         message: `💵 Major Stablecoins Insuficientes: ${stablecoinPercentage.toFixed(1)}% (recomendado: ${expectedStablecoinRange.min}-${expectedStablecoinRange.max}%)`,
-        actionable: `${this.getStablecoinAdvice(stablecoinPercentage, expectedStablecoinRange, profile)}`,
-        severity: severityType === 'red' ? 3 : 2
+        actionable: `${this.getStablecoinAdvice(stablecoinPercentage, expectedStablecoinRange, profile, isHighBTCConcentration)}`,
+        severity: severityLevel
       });
     } else if (stablecoinPercentage > expectedStablecoinRange.max) {
       // ALERTA SEPARADO: Excesso de Major Stablecoins
@@ -549,11 +567,26 @@ export class DiagnosticService {
         });
       } else {
         // ✅ PONTO POSITIVO: Poucos ativos mas concentrados em majors
+        // Desmembrar BTC de ETH/SOL na mensagem
+        const btcAllocation = allocation.find(a => a.token === 'BTC');
+        const ethSolAllocation = allocation.filter(a => a.token === 'ETH' || a.token === 'SOL');
+        const btcPercentage = btcAllocation?.percentage || 0;
+        const ethSolPercentage = ethSolAllocation.reduce((sum, a) => sum + a.percentage, 0);
+        
+        let majorsDescription = '';
+        if (btcPercentage > 0 && ethSolPercentage > 0) {
+          majorsDescription = `BTC (${btcPercentage.toFixed(0)}%) + ETH/SOL (${ethSolPercentage.toFixed(0)}%)`;
+        } else if (btcPercentage > 0) {
+          majorsDescription = `Bitcoin (${btcPercentage.toFixed(0)}%)`;
+        } else {
+          majorsDescription = `BTC/ETH/SOL`;
+        }
+        
         flags.push({
           type: 'green',
           category: 'asset',
-          message: `✅ Concentração Estratégica em Majors: ${numAssets} ativos`,
-          actionable: `Excelente! ${majorPercentage.toFixed(0)}% em BTC/ETH/SOL é uma estratégia sólida de baixo risco e boa liquidez. Abordagem "keep it simple" comprovada.`,
+          message: `✅ Concentração Estratégica em Majors: ${numAssets} ${numAssets === 1 ? 'ativo' : 'ativos'}`,
+          actionable: `Excelente! ${majorPercentage.toFixed(0)}% em ${majorsDescription} é uma estratégia sólida de baixo risco e boa liquidez. Abordagem "keep it simple" comprovada.`,
           severity: 0
         });
       }
@@ -649,7 +682,11 @@ export class DiagnosticService {
     }
     
     // Verificar excesso de majors (baseado em horizonte + risco, não objetivos)
-    if (majorCoinsTotal > maxMajorsByProfile) {
+    // EXCEÇÃO: NÃO alertar se os "majors" são exclusivamente BTC (>95% do total de majors é BTC)
+    const btcRatioOfMajors = majorCoinsTotal > 0 ? (btcPercentage / majorCoinsTotal) * 100 : 0;
+    const isExclusivelyBTC = btcRatioOfMajors > 95; // Se >95% dos majors é BTC, considerar "exclusivamente BTC"
+    
+    if (majorCoinsTotal > maxMajorsByProfile && !isExclusivelyBTC) {
       const excess = majorCoinsTotal - maxMajorsByProfile;
       // Ao reduzir majors, sugerir apenas altcoins (NÃO sugerir majors novamente)
       flags.push({
@@ -1192,8 +1229,13 @@ export class DiagnosticService {
     return `Rebalanceie para no máximo 30-40% em ${sector} e diversifique em 2-3 setores adicionais.`;
   }
   
-  private getStablecoinAdvice(current: number, expected: { min: number; max: number }, profile: InvestorProfile): string {
+  private getStablecoinAdvice(current: number, expected: { min: number; max: number }, profile: InvestorProfile, isHighBTCConcentration: boolean = false): string {
     const diff = expected.min - current;
+    
+    // EXCEÇÃO: Se tem alta concentração em BTC (>80%), dar mensagem mais suave
+    if (isHighBTCConcentration) {
+      return `Sua alocação em BTC é excelente. Considere manter ${expected.min}% em stablecoins apenas para liquidez de emergências e oportunidades.`;
+    }
     
     if (profile.riskTolerance === 'low') {
       return `Perfil conservador necessita colchão de segurança. Aumente stables para ${expected.min}% vendendo posições de maior risco.`;
