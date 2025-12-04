@@ -758,12 +758,27 @@ export class DiagnosticService {
     
     if (majorCoinsTotal > maxMajorsByProfile && !isExclusivelyBTC) {
       const excess = majorCoinsTotal - maxMajorsByProfile;
-      // Ao reduzir majors, sugerir apenas altcoins (NÃO sugerir majors novamente)
+      
+      // Sugestão varia por perfil de risco (CRÍTICO: conservador NÃO deve sugerir altcoins!)
+      let suggestion: string;
+      if (profile.riskTolerance === 'low') {
+        // CONSERVADOR: Stablecoins para proteção de capital
+        suggestion = `Para perfil conservador e ${profile.horizon === 'short' ? 'curto' : profile.horizon === 'medium' ? 'médio' : 'longo'} prazo, reduza majors de ${majorCoinsTotal.toFixed(0)}% para ${maxMajorsByProfile}% e aloque os ${excess.toFixed(0)}% em major stablecoins (USDC/USDT) para proteger capital e ter liquidez.`;
+      } else if (profile.riskTolerance === 'medium') {
+        // MODERADO: Mix balanceado entre stablecoins e blue-chips
+        const stablesSuggestion = (excess * 0.5).toFixed(0);
+        const blueChipsSuggestion = (excess * 0.5).toFixed(0);
+        suggestion = `Para perfil moderado e ${profile.horizon === 'short' ? 'curto' : profile.horizon === 'medium' ? 'médio' : 'longo'} prazo, reduza majors de ${majorCoinsTotal.toFixed(0)}% para ${maxMajorsByProfile}%. Dos ${excess.toFixed(0)}%, considere: ${stablesSuggestion}% em stablecoins e ${blueChipsSuggestion}% em blue-chips estabelecidos (LINK, AVAX, MATIC).`;
+      } else {
+        // ARROJADO: Altcoins de qualidade
+        suggestion = `Para perfil arrojado e ${profile.horizon === 'short' ? 'curto' : profile.horizon === 'medium' ? 'médio' : 'longo'} prazo, reduza majors de ${majorCoinsTotal.toFixed(0)}% para ${maxMajorsByProfile}% e aumente altcoins de qualidade com os ${excess.toFixed(0)}%.`;
+      }
+      
       flags.push({
         type: 'yellow',
         category: 'asset',
         message: `💰 Excesso de Majors (BTC, ETH e SOL): ${majorCoinsTotal.toFixed(0)}% (recomendado: máx ${maxMajorsByProfile}%)`,
-        actionable: `Para perfil ${profile.riskTolerance === 'high' ? 'arrojado' : profile.riskTolerance === 'medium' ? 'moderado' : 'conservador'} e ${profile.horizon === 'short' ? 'curto' : profile.horizon === 'medium' ? 'médio' : 'longo'} prazo, reduza majors de ${majorCoinsTotal.toFixed(0)}% para no máximo ${maxMajorsByProfile}% (reduzir ${excess.toFixed(0)}%). Aumente altcoins de qualidade com esses ${excess.toFixed(0)}%.`,
+        actionable: suggestion,
         severity: 2
       });
     } else if (majorCoinsTotal >= minMajorsByProfile && majorCoinsTotal <= maxMajorsByProfile) {
