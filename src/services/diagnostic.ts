@@ -574,12 +574,17 @@ export class DiagnosticService {
       const stableReduction = excessStables;
       
       // Mensagem focada apenas em stablecoins (sem misturar com majors)
-      // IMPORTANTE: Ao reduzir stables, sugerir apenas majors e altcoins (NÃO stables)
+      // IMPORTANTE: Ao reduzir stables, sugestão varia por perfil de risco
       let actionableMessage: string;
-      if (profile.riskTolerance === 'high' && profile.horizon === 'short') {
-        actionableMessage = `Para perfil arrojado e curto prazo, reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% (reduzir ${stableReduction.toFixed(0)}%). Aumente altcoins de qualidade com esses ${stableReduction.toFixed(0)}%.`;
+      if (profile.riskTolerance === 'low') {
+        // CONSERVADOR: Apenas majors
+        actionableMessage = `Você está perdendo potencial de valorização. Reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% e realoque ${excessStables.toFixed(1)}% em majors (BTC, ETH, SOL).`;
+      } else if (profile.riskTolerance === 'medium') {
+        // MODERADO: Majors + blue-chips
+        actionableMessage = `Você está perdendo potencial de valorização. Reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% e realoque ${excessStables.toFixed(1)}% em majors (BTC, ETH, SOL) ou blue-chips estabelecidos.`;
       } else {
-        actionableMessage = `Você está perdendo potencial de valorização. Reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% e realoque ${excessStables.toFixed(1)}% em majors ou altcoins.`;
+        // ARROJADO: Majors + blue-chips + altcoins (mantendo stables na equação)
+        actionableMessage = `Para perfil arrojado, reduza stables de ${stablecoinPercentage.toFixed(0)}% para ${expectedStablecoinRange.max}% e realoque ${excessStables.toFixed(1)}% em majors (BTC, ETH, SOL), blue-chips ou altcoins de qualidade para maximizar retorno mantendo gestão de risco adequada.`;
       }
       
       flags.push({
@@ -768,7 +773,7 @@ export class DiagnosticService {
         // MODERADO: Mix balanceado entre stablecoins e blue-chips
         const stablesSuggestion = (excess * 0.5).toFixed(0);
         const blueChipsSuggestion = (excess * 0.5).toFixed(0);
-        suggestion = `Para perfil moderado e ${profile.horizon === 'short' ? 'curto' : profile.horizon === 'medium' ? 'médio' : 'longo'} prazo, reduza majors de ${majorCoinsTotal.toFixed(0)}% para ${maxMajorsByProfile}%. Dos ${excess.toFixed(0)}%, considere: ${stablesSuggestion}% em stablecoins e ${blueChipsSuggestion}% em blue-chips estabelecidos (LINK, AVAX, MATIC).`;
+        suggestion = `Para perfil moderado e ${profile.horizon === 'short' ? 'curto' : profile.horizon === 'medium' ? 'médio' : 'longo'} prazo, reduza majors de ${majorCoinsTotal.toFixed(0)}% para ${maxMajorsByProfile}%. Dos ${excess.toFixed(0)}%, considere: ${stablesSuggestion}% em stablecoins e ${blueChipsSuggestion}% em blue-chips estabelecidos.`;
       } else {
         // ARROJADO: Altcoins de qualidade
         suggestion = `Para perfil arrojado e ${profile.horizon === 'short' ? 'curto' : profile.horizon === 'medium' ? 'médio' : 'longo'} prazo, reduza majors de ${majorCoinsTotal.toFixed(0)}% para ${maxMajorsByProfile}% e aumente altcoins de qualidade com os ${excess.toFixed(0)}%.`;
@@ -1004,7 +1009,16 @@ export class DiagnosticService {
     
     allocation.forEach(item => {
       const ecosystem = this.getTokenEcosystem(item.token);
-      if (ecosystem && ecosystem !== 'Unknown') {
+      
+      // EXCEÇÃO: Não contar a criptomoeda nativa do próprio ecossistema
+      // ETH não conta para "concentração no ecossistema Ethereum"
+      // SOL não conta para "concentração no ecossistema Solana"
+      // BTC não conta para "concentração no ecossistema Bitcoin"
+      const isNativeToken = (ecosystem === 'Ethereum' && item.token === 'ETH') ||
+                            (ecosystem === 'Solana' && item.token === 'SOL') ||
+                            (ecosystem === 'Bitcoin' && item.token === 'BTC');
+      
+      if (ecosystem && ecosystem !== 'Unknown' && !isNativeToken) {
         ecosystemMap[ecosystem] = (ecosystemMap[ecosystem] || 0) + item.percentage;
       }
     });
@@ -1467,7 +1481,7 @@ export class DiagnosticService {
     }
     
     if (profile.riskTolerance === 'high' && profile.horizon === 'short') {
-      return 'majors (40-50%), altcoins qualidade (30-40%), stables (10-20%)';
+      return 'majors (40-50%), altcoins qualidade (máximo 40%), stables (10-20%)';
     }
     
     if (profile.riskTolerance === 'high' && profile.horizon === 'long') {
@@ -1509,7 +1523,7 @@ export class DiagnosticService {
         type: 'yellow',
         category: 'profile',
         message: `🎯 Oportunidade: Horizonte longo arrojado com ${majorPercentage.toFixed(0)}% em majors`,
-        actionable: `Com 3+ anos de horizonte e perfil arrojado, considere alocar 20-40% em altcoins de qualidade para maior potencial de retorno.`,
+        actionable: `Com 3+ anos de horizonte e perfil arrojado, considere alocar até 40% em altcoins de qualidade para maior potencial de retorno.`,
         severity: 1
       });
     }
@@ -1569,7 +1583,7 @@ export class DiagnosticService {
           type: 'yellow',
           category: 'profile',
           message: `📈 Objetivo Multiplicação: ${majorPercentage.toFixed(0)}% em majors pode limitar upside`,
-          actionable: `Para multiplicar capital, considere alocar 20-40% em altcoins de mid-cap com fundamentos sólidos.`,
+          actionable: `Para multiplicar capital, considere alocar até 40% em altcoins de mid-cap com fundamentos sólidos.`,
           severity: 1
         });
       }
