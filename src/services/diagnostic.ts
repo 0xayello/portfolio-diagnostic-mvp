@@ -1085,7 +1085,12 @@ export class DiagnosticService {
     
     const totalYieldGenerating = stakeablePercentage + yieldStablesPercentage;
     
-    // BTC não gera yield - alertar se >40% em BTC para objetivo de renda passiva
+    // CONSOLIDADO: Validação de yield para renda passiva
+    // Se BTC > 60% e yield total < 50%, mostrar apenas 1 alerta (BTC não gera yield)
+    // Evita redundância: ambos dizem essencialmente a mesma coisa
+    const isHighBTCLowYield = btcPercentage > 60 && totalYieldGenerating < DiagnosticService.THRESHOLDS.PASSIVE_INCOME_MIN_YIELD;
+    
+    // Alerta 1: BTC não gera yield (se BTC > 40%)
     if (btcPercentage > DiagnosticService.THRESHOLDS.PASSIVE_INCOME_BTC_WARNING) {
       const msg = DIAGNOSTIC_MESSAGES.passive_income.btc_not_yielding;
       flags.push({
@@ -1097,8 +1102,9 @@ export class DiagnosticService {
       });
     }
     
-    // Validar se tem ativos suficientes geradores de yield
-    if (totalYieldGenerating < DiagnosticService.THRESHOLDS.PASSIVE_INCOME_MIN_YIELD) {
+    // Alerta 2: Baixo yield total (APENAS se BTC <= 60% para evitar redundância)
+    // Se BTC > 60%, o alerta de BTC já explicou tudo
+    if (totalYieldGenerating < DiagnosticService.THRESHOLDS.PASSIVE_INCOME_MIN_YIELD && !isHighBTCLowYield) {
       const msg = DIAGNOSTIC_MESSAGES.passive_income.insufficient_yield;
       flags.push({
         type: 'yellow',
