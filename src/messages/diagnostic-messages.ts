@@ -121,7 +121,7 @@ export const DIAGNOSTIC_MESSAGES = {
       title: '💰 Renda Passiva: Baixa Exposição em Ativos Geradores de Yield',
       message: (percentage: number) => `Apenas ${percentage.toFixed(1)}% em ativos geradores de yield`,
       actionable: (total: number, stakeable: number, stables: number) =>
-        `Seu objetivo é renda passiva, mas apenas ${total.toFixed(1)}% está em ativos que geram yield (${stakeable.toFixed(1)}% staking + ${stables.toFixed(1)}% stablecoins). Ativos como SOL (6-7% APY), ETH (3-5% APY), e stablecoins em lending (4-8% APY) geram renda passiva. BTC não gera yield. Considere realocar para SOL, ETH ou aumentar stablecoins em protocolos DeFi estabelecidos (Aave, Compound).`
+        `Seu objetivo é renda passiva, mas apenas ${total.toFixed(1)}% está em ativos que geram yield (${stakeable.toFixed(1)}% staking + ${stables.toFixed(1)}% stablecoins). Ativos como SOL (6-7% APY), ETH (3-5% APY), e stablecoins em lending (4-8% APY) geram renda passiva. Considere realocar para SOL, ETH ou aumentar stablecoins em protocolos DeFi estabelecidos (Aave, Compound).`
     },
     excellent_yield: {
       title: '✅ Estratégia de Renda Passiva Bem Estruturada',
@@ -133,7 +133,7 @@ export const DIAGNOSTIC_MESSAGES = {
       title: '💡 Bitcoin não Gera Yield para Renda Passiva',
       message: (btcPercentage: number) => `${btcPercentage.toFixed(1)}% em BTC`,
       actionable: (btcPercentage: number) =>
-        `Você tem ${btcPercentage.toFixed(1)}% em BTC, que não gera renda passiva. Para maximizar yield, considere realocar parte para SOL (6-7% APY via staking), ETH (3-5% APY), ou stablecoins em lending (4-8% APY). BTC é excelente para preservação, mas não para renda recorrente.`
+        `Você tem ${btcPercentage.toFixed(1)}% em BTC, que não gera renda passiva nativa. Existem possibilidades de yield com BTCs sintéticos (WBTC) ou em plataformas centralizadas, porém o risco aumenta consideravelmente (risco de smart contract, custódia). Para maximizar yield com menor risco, considere realocar parte para SOL (6-7% APY via staking), ETH (3-5% APY), ou stablecoins em lending (4-8% APY). BTC é excelente para preservação, mas não para renda recorrente.`
     }
   },
 

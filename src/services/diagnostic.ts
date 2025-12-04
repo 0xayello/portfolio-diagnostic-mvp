@@ -247,7 +247,10 @@ export class DiagnosticService {
       // Limites por tipo de ativo
       let maxAllowed: number;
       if (isBlueChip) {
-        maxAllowed = profile.riskTolerance === 'low' ? 5 : 10; // 5% conservador, 10% moderado/arrojado
+        // Blue-chips estabelecidos: limites mais flexíveis para arrojado
+        maxAllowed = profile.riskTolerance === 'low' ? 10 : 
+                     profile.riskTolerance === 'medium' ? 15 : 
+                     30; // Arrojado: 30%
       } else if (isMidCap) {
         // Mid-caps: 5% conservador, 8% moderado, 15% arrojado
         if (profile.riskTolerance === 'low') {
@@ -735,9 +738,9 @@ export class DiagnosticService {
     let minMajorsByProfile: number;
     
     if (isAggressiveShortTerm) {
-      // Arrojado + Curto Prazo: majors máx 40%
-      maxMajorsByProfile = 40;
-      minMajorsByProfile = 20;
+      // Arrojado + Curto Prazo: majors máx 60% (aumentado para permitir mais flexibilidade)
+      maxMajorsByProfile = 60;
+      minMajorsByProfile = 30;
     } else if (isConservativeLongTerm) {
       // Conservador + Longo Prazo: majors 60-80%
       maxMajorsByProfile = 80;
@@ -757,11 +760,13 @@ export class DiagnosticService {
     }
     
     // Verificar excesso de majors (baseado em horizonte + risco, não objetivos)
-    // EXCEÇÃO: NÃO alertar se os "majors" são exclusivamente BTC (>95% do total de majors é BTC)
+    // EXCEÇÃO CRÍTICA: Bitcoin NÃO tem limite máximo de alocação!
+    // Se BTC > 80% do portfolio total, considerar estratégia válida (não alertar excesso de majors)
+    const isHighBTCStrategy = btcPercentage >= 80; // Alta concentração em BTC = estratégia válida
     const btcRatioOfMajors = majorCoinsTotal > 0 ? (btcPercentage / majorCoinsTotal) * 100 : 0;
     const isExclusivelyBTC = btcRatioOfMajors > 95; // Se >95% dos majors é BTC, considerar "exclusivamente BTC"
     
-    if (majorCoinsTotal > maxMajorsByProfile && !isExclusivelyBTC) {
+    if (majorCoinsTotal > maxMajorsByProfile && !isExclusivelyBTC && !isHighBTCStrategy) {
       const excess = majorCoinsTotal - maxMajorsByProfile;
       
       // Sugestão varia por perfil de risco (CRÍTICO: conservador NÃO deve sugerir altcoins!)
@@ -1455,8 +1460,15 @@ export class DiagnosticService {
   private getStablecoinAdvice(current: number, expected: { min: number; max: number }, profile: InvestorProfile, isHighBTCConcentration: boolean = false): string {
     const diff = expected.min - current;
     
-    // EXCEÇÃO: Se tem alta concentração em BTC (>80%), dar mensagem mais suave
+    // EXCEÇÃO: Se tem alta concentração em BTC (>80%), dar mensagem positiva e suave
     if (isHighBTCConcentration) {
+      if (current >= 5 && current < expected.min) {
+        // Tem pelo menos 5% stables
+        return `Seu portfólio está bem construído com forte alocação em BTC. Você tem ${current.toFixed(1)}% em stablecoins (mínimo recomendado). Considere aumentar para ${expected.min}-${(expected.min + 5).toFixed(0)}% para maior liquidez em oportunidades e emergências.`;
+      } else if (current < 5) {
+        // Menos de 5% stables
+        return `Seu portfólio está bem construído com forte alocação em BTC. Para adicionar proteção e liquidez, considere manter ${expected.min}% em stablecoins para emergências e oportunidades de compra.`;
+      }
       return `Sua alocação em BTC é excelente. Considere manter ${expected.min}% em stablecoins apenas para liquidez de emergências e oportunidades.`;
     }
     
