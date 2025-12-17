@@ -121,19 +121,19 @@ export const DIAGNOSTIC_MESSAGES = {
       title: '💰 Renda Passiva: Baixa Exposição em Ativos Geradores de Yield',
       message: (percentage: number) => `Apenas ${percentage.toFixed(1)}% em ativos geradores de yield`,
       actionable: (total: number, stakeable: number, stables: number) =>
-        `Seu objetivo é renda passiva, mas apenas ${total.toFixed(1)}% está em ativos que geram yield (${stakeable.toFixed(1)}% staking + ${stables.toFixed(1)}% stablecoins). Ativos como SOL (6-7% APY), ETH (3-5% APY), e stablecoins em lending (4-8% APY) geram renda passiva. Considere realocar para SOL, ETH ou aumentar stablecoins em protocolos DeFi estabelecidos (Aave, Compound).`
+        `Seu objetivo é renda passiva, mas apenas ${total.toFixed(1)}% está em ativos com potencial de yield (${stakeable.toFixed(1)}% em ativos com mecanismos de yield + ${stables.toFixed(1)}% em major stablecoins). Se renda passiva for prioridade, aumente gradualmente a parcela em ativos com potencial de yield e mantenha stablecoins dentro da faixa recomendada para o seu perfil, respeitando seu apetite a risco.`
     },
     excellent_yield: {
       title: '✅ Estratégia de Renda Passiva Bem Estruturada',
       message: (percentage: number) => `${percentage.toFixed(1)}% em ativos geradores de yield`,
       actionable: (stakeable: number, stables: number) =>
-        `Excelente! ${stakeable.toFixed(1)}% em staking (SOL, ETH, DOT) + ${stables.toFixed(1)}% em stablecoins alinhado com seu objetivo de renda passiva. Esses ativos geram yield contínuo (4-7% APY) mantendo segurança.`
+        `Excelente! ${stakeable.toFixed(1)}% em ativos com potencial de yield + ${stables.toFixed(1)}% em major stablecoins está bem alinhado com seu objetivo de renda passiva. Só garanta que a estratégia usada para yield esteja coerente com seu perfil (custódia, riscos de protocolo e liquidez).`
     },
     btc_not_yielding: {
       title: '💡 Bitcoin não Gera Yield para Renda Passiva',
       message: (btcPercentage: number) => `${btcPercentage.toFixed(1)}% em BTC`,
       actionable: (btcPercentage: number) =>
-        `Você tem ${btcPercentage.toFixed(1)}% em BTC, que não gera renda passiva nativa. Existem possibilidades de yield com BTCs sintéticos (WBTC) ou em plataformas centralizadas, porém o risco aumenta consideravelmente (risco de smart contract, custódia). Para maximizar yield com menor risco, considere realocar parte para SOL (6-7% APY via staking), ETH (3-5% APY), ou stablecoins em lending (4-8% APY). BTC é excelente para preservação, mas não para renda recorrente.`
+        `Você tem ${btcPercentage.toFixed(1)}% em BTC. Importante: BTC não gera yield nativo; quando há “yield em BTC”, normalmente envolve estruturas adicionais e, portanto, risco extra (custódia e/ou risco de protocolo). Se renda passiva for prioridade, complemente sua carteira com uma parcela maior de major stablecoins dentro da faixa do seu perfil e/ou aumente a parcela em ativos com potencial de yield — sempre equilibrando retorno esperado e risco.`
     }
   },
 
