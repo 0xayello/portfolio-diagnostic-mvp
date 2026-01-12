@@ -8,6 +8,12 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        paradigma: {
+          dark: '#0a0a14',
+          navy: '#1a1a2e',
+          mint: '#22c55e',
+          orange: '#f97316',
+        },
         primary: {
           50: '#f5f3ff',
           100: '#ede9fe',

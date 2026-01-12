@@ -19,9 +19,8 @@ body {
 }
 
 body {
-  color: #1f2937;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-  background-attachment: fixed;
+  color: #ffffff;
+  background: #0a0a14;
   min-height: 100vh;
 }
 
