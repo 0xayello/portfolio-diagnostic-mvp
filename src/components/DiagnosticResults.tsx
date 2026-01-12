@@ -111,139 +111,125 @@ export default function DiagnosticResults({
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="animate-fade-in space-y-8">
       {/* Header com Score */}
-      <div className="glass-card rounded-3xl shadow-2xl p-8 card-hover overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-violet-200 to-purple-200 rounded-full filter blur-3xl opacity-20 -mr-32 -mt-32"></div>
+      <div className="glass-card-solid rounded-3xl p-8 md:p-12 relative overflow-hidden border-2 border-paradigma-navy/50">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-paradigma-mint/5 rounded-full filter blur-3xl -mr-48 -mt-48"></div>
         
         <div className="relative z-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h2 className="text-3xl font-bold text-gray-900">Diagnóstico do Portfólio</h2>
-            </div>
-            <button 
-              onClick={onBackToPortfolio} 
-              className="group flex items-center gap-2 px-4 py-2 text-violet-600 hover:text-violet-700 hover:bg-violet-50 rounded-xl transition-all duration-300"
-            >
-              <svg className="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              <span className="font-medium">Nova Análise</span>
-            </button>
-          </div>
-
-          <div className="space-y-6">
-            <div className="text-center py-6">
-              <div className={`inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-base font-bold shadow-lg ${getAdherenceColor(diagnostic.adherenceLevel)}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {getAdherenceLabel(diagnostic.adherenceLevel)}
-              </div>
-              <div className="text-6xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mt-4">
-                {diagnostic.adherenceScore.toFixed(0)}<span className="text-3xl">/100</span>
-              </div>
-              <div className="text-base text-gray-600 mt-2 font-medium">Score de Aderência ao Perfil</div>
-              
-              {/* Frase Motivacional */}
-              <div className="mt-4 max-w-xl mx-auto">
-                <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
-                  <span className="text-2xl mr-2">{motivationalPhrase.emoji}</span>
-                  <span className="text-gray-700 italic">{motivationalPhrase.text}</span>
-                </div>
-              </div>
-
-              {/* Badges desbloqueadas - inline */}
-              {unlockedBadges.length > 0 && (
-                <div className="mt-4 flex justify-center gap-2 flex-wrap">
-                  {unlockedBadges.slice(0, 4).map(badge => (
-                    <div key={badge.id} className="flex items-center gap-1 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">
-                      <span>{badge.emoji}</span>
-                      <span>{badge.name}</span>
-                    </div>
-                  ))}
-                  {unlockedBadges.length > 4 && (
-                    <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">
-                      +{unlockedBadges.length - 4} mais
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Perfil de Investidor - Card Exclusivo */}
-            <div className="max-w-2xl mx-auto bg-gradient-to-br from-violet-50 to-purple-50 rounded-2xl p-6 border-2 border-violet-200">
-              <div className="flex items-center gap-4">
-                <div className="text-6xl">{spiritAnimal.emoji}</div>
-                <div className="flex-1">
-                  <div className="text-sm text-violet-600 font-medium mb-1">Seu Perfil de Investidor</div>
-                  <div className="text-2xl font-bold text-gray-900">{spiritAnimal.name}</div>
-                  <div className="text-gray-600 mt-1 italic">"{spiritAnimal.description}"</div>
-                </div>
-                <button 
-                  onClick={() => setActiveTab('spirit')}
-                  className="px-4 py-2 bg-violet-600 text-white rounded-xl text-sm font-medium hover:bg-violet-700 transition-colors"
-                >
-                  Ver todos
-                </button>
-              </div>
-            </div>
-
-            {/* FOMO vs HODL Meter */}
-            <div className="max-w-2xl mx-auto bg-gradient-to-r from-gray-50 to-white rounded-2xl p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                  <span>🌡️</span> Termômetro FOMO vs HODL
-                </h3>
-                <span className="text-2xl">{fomoMeter.emoji}</span>
-              </div>
-              <div className="relative">
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
-                  <span>🧊 HODL</span>
-                  {fomoMeter.label && <span className="font-bold text-gray-700">{fomoMeter.label}</span>}
-                  <span>FOMO 🔥</span>
-                </div>
-                <div className="h-4 bg-gradient-to-r from-blue-500 via-purple-500 to-orange-500 rounded-full relative">
-                  <div 
-                    className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full border-4 border-gray-800 shadow-lg transition-all"
-                    style={{ left: `calc(${fomoMeter.percentage}% - 12px)` }}
+          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+            {/* Score Circle */}
+            <div className="relative">
+              <div className="w-48 h-48 relative">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 200 200">
+                  <circle cx="100" cy="100" r="88" stroke="#1a1a2e" strokeWidth="12" fill="none" />
+                  <circle 
+                    cx="100" 
+                    cy="100" 
+                    r="88" 
+                    stroke="#22c55e" 
+                    strokeWidth="12" 
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeDasharray="553"
+                    strokeDashoffset={553 - (553 * score / 100)}
+                    className="transition-all duration-1000"
                   />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-5xl font-bold text-paradigma-mint">{score}</span>
+                  <span className="text-gray-400 text-sm">de 100</span>
                 </div>
-                <p className="text-gray-500 text-sm mt-3 text-center italic">"{fomoMeter.description}"</p>
               </div>
             </div>
+
+            {/* Info */}
+            <div className="flex-1 text-center md:text-left">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Diagnóstico do seu Portfólio</h2>
+              
+              {/* Badges inline */}
+              <div className="flex flex-wrap items-center gap-3 justify-center md:justify-start mb-4">
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${getAdherenceColor(diagnostic.adherenceLevel)}`}>
+                  ✅ {getAdherenceLabel(diagnostic.adherenceLevel)}
+                </div>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-paradigma-navy/60 text-white border border-paradigma-mint/20">
+                  {spiritAnimal.emoji} {spiritAnimal.name}
+                </div>
           </div>
+
+              {/* Frase Motivacional */}
+              <div className="bg-paradigma-navy/40 border border-paradigma-mint/20 rounded-xl p-4 mb-4">
+                <span className="text-2xl mr-2">{motivationalPhrase.emoji}</span>
+                <span className="text-gray-300 italic">"{motivationalPhrase.text}"</span>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                <div className="flex items-center gap-2 px-3 py-2 bg-red-500/20 text-red-400 rounded-lg text-sm">
+                  🚨 {diagnostic.flags.filter(f => f.type === 'alert').length} críticos
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg text-sm">
+                  ⚠️ {diagnostic.flags.filter(f => f.type === 'warning').length} atenção
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 bg-green-500/20 text-green-400 rounded-lg text-sm">
+                  ✅ {diagnostic.flags.filter(f => f.type === 'success').length} positivos
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 bg-amber-500/20 text-amber-400 rounded-lg text-sm">
+                  🏆 {unlockedBadges.length} conquistas
+                </div>
+              </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+      {/* FOMO vs HODL Meter */}
+      <div className="glass-card-solid rounded-2xl p-6 border border-paradigma-navy/50">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+            <span>🌡️</span> Termômetro FOMO vs HODL
+          </h3>
+          <span className="text-2xl">{fomoMeter.emoji}</span>
+        </div>
+        <div className="relative">
+          <div className="flex items-center justify-between text-sm text-gray-400 mb-2">
+            <span>🧊 HODL</span>
+            {fomoMeter.label && <span className="font-bold text-white">{fomoMeter.label}</span>}
+            <span>FOMO 🔥</span>
+          </div>
+          <div className="h-4 bg-gradient-to-r from-blue-500 via-purple-500 to-orange-500 rounded-full relative">
+            <div 
+              className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full border-4 border-gray-800 shadow-lg transition-all"
+              style={{ left: `calc(${fomoMeter.percentage}% - 12px)` }}
+            />
+          </div>
+          <p className="text-gray-400 text-sm mt-3 text-center italic">"{fomoMeter.description}"</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="glass-card rounded-3xl shadow-2xl overflow-hidden">
-        <div className="border-b-2 border-gray-200 bg-gradient-to-r from-gray-50 to-white overflow-x-auto">
+      <div className="glass-card-solid rounded-3xl overflow-hidden border border-paradigma-navy/50">
+        <div className="border-b border-paradigma-navy/50 bg-paradigma-navy/40 overflow-x-auto">
           <nav className="flex px-4 py-2 min-w-max">
             {tabs.map(tab => (
-              <button
+              <button 
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`group relative py-3 px-4 font-bold text-sm flex items-center gap-2 transition-all ${
-                  activeTab === tab.id ? 'text-violet-600' : 'text-gray-600 hover:text-gray-900'
+                  activeTab === tab.id ? 'text-paradigma-mint' : 'text-gray-400 hover:text-white'
                 }`}
               >
                 <span className="text-lg">{tab.icon}</span>
                 <span>{tab.label}</span>
                 {activeTab === tab.id && (
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-600 to-purple-600 rounded-t-full"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-paradigma-mint rounded-t-full"></div>
                 )}
               </button>
             ))}
           </nav>
         </div>
 
-        <div className="p-8 bg-gradient-to-br from-white to-gray-50">
+        <div className="p-8 bg-paradigma-dark/50">
           {/* Performance Tab */}
           {activeTab === 'performance' && (() => {
             const greenFlags = diagnostic.flags.filter(f => f.type === 'green');
@@ -307,8 +293,8 @@ export default function DiagnosticResults({
                     ) : (
                       <p className="text-gray-500 italic">Nenhum ponto fraco identificado. Excelente trabalho!</p>
                     )}
-                  </div>
-                </div>
+            </div>
+          </div>
 
                 {/* Backtest Chart */}
                 <div className="bg-white rounded-2xl p-6 border-2 border-gray-200">
@@ -339,40 +325,40 @@ export default function DiagnosticResults({
           {/* Allocation Tab */}
           {activeTab === 'allocation' && (
             <div className="animate-fade-in grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border-2 border-gray-200">
-                <PortfolioChart
-                  title="Distribuição por Ativo"
-                  data={diagnostic.allocation.map(item => ({ name: item.token, value: item.percentage }))}
-                  theme="light"
-                  hideLegend
-                />
-              </div>
-              <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border-2 border-gray-200 p-6 flex flex-col justify-center">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="p-2 bg-violet-100 rounded-lg">
-                    <svg className="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
-                  </div>
-                  <h4 className="text-lg font-bold text-gray-900">Seus Ativos</h4>
+                <div className="lg:col-span-2 bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border-2 border-gray-200">
+                  <PortfolioChart
+                    title="Distribuição por Ativo"
+                    data={diagnostic.allocation.map(item => ({ name: item.token, value: item.percentage }))}
+                    theme="light"
+                    hideLegend
+                  />
                 </div>
-                <div className="space-y-3">
-                  {diagnostic.allocation.map((item) => (
-                    <div key={item.token} className="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-200 hover:border-violet-300 transition-all">
-                      <a 
-                        href={getCoinMarketCapUrl(item.token)} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="font-bold text-gray-900 hover:text-violet-600 transition-colors underline"
-                      >
-                        {item.token}
-                      </a>
-                      <span className="text-violet-600 font-bold text-lg">{item.percentage.toFixed(1)}%</span>
+                <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border-2 border-gray-200 p-6 flex flex-col justify-center">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="p-2 bg-violet-100 rounded-lg">
+                      <svg className="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
                     </div>
-                  ))}
+                    <h4 className="text-lg font-bold text-gray-900">Seus Ativos</h4>
+                  </div>
+                  <div className="space-y-3">
+                    {diagnostic.allocation.map((item) => (
+                      <div key={item.token} className="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-200 hover:border-violet-300 transition-all">
+                        <a 
+                          href={getCoinMarketCapUrl(item.token)} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="font-bold text-gray-900 hover:text-violet-600 transition-colors underline"
+                        >
+                          {item.token}
+                        </a>
+                        <span className="text-violet-600 font-bold text-lg">{item.percentage.toFixed(1)}%</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
           )}
 
           {/* Spirit Animal (Perfil de Investidor) Tab */}
@@ -439,8 +425,8 @@ export default function DiagnosticResults({
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+              </div>
+            )}
 
           {/* Time Machine Tab */}
           {activeTab === 'timemachine' && (() => {
@@ -644,10 +630,10 @@ export default function DiagnosticResults({
                       <span className="text-green-600 font-bold"> Fundo do Bear (Jan 2023)</span> ou na 
                       <span className="text-green-600 font-bold"> Pré-Bull Run (Jan 2021)</span>. 
                       Comprar no <span className="text-red-600 font-bold">ATH (Nov 2021)</span> resultaria em perda até hoje.
-                    </div>
-                  </div>
-                </div>
-              </div>
+          </div>
+        </div>
+        </div>
+      </div>
             );
           })()}
 
@@ -685,8 +671,8 @@ export default function DiagnosticResults({
           {/* Alerts Tab */}
           {activeTab === 'alerts' && (
             <div className="animate-fade-in space-y-6">
-              <FlagsList flags={diagnostic.flags} />
-              <DisclaimerCTA />
+          <FlagsList flags={diagnostic.flags} />
+          <DisclaimerCTA />
             </div>
           )}
         </div>
