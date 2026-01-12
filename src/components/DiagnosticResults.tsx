@@ -166,13 +166,13 @@ export default function DiagnosticResults({
               {/* Quick Stats */}
               <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                 <div className="flex items-center gap-2 px-3 py-2 bg-red-500/20 text-red-400 rounded-lg text-sm">
-                  🚨 {diagnostic.flags.filter(f => f.type === 'alert').length} críticos
+                  🚨 {diagnostic.flags.filter(f => f.type === 'red').length} críticos
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg text-sm">
-                  ⚠️ {diagnostic.flags.filter(f => f.type === 'warning').length} atenção
+                  ⚠️ {diagnostic.flags.filter(f => f.type === 'yellow').length} atenção
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-green-500/20 text-green-400 rounded-lg text-sm">
-                  ✅ {diagnostic.flags.filter(f => f.type === 'success').length} positivos
+                  ✅ {diagnostic.flags.filter(f => f.type === 'green').length} positivos
                 </div>
                 <div className="flex items-center gap-2 px-3 py-2 bg-amber-500/20 text-amber-400 rounded-lg text-sm">
                   🏆 {unlockedBadges.length} conquistas
