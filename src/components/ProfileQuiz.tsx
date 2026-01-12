@@ -87,7 +87,7 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
                 key={option.value}
                 type="button"
                 onClick={() => handleChange('horizon', option.value)}
-                className={`group p-6 border-2 rounded-2xl text-left transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl ${
+                className={`group p-6 border-2 rounded-2xl text-center transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl ${
                   profile.horizon === option.value
                     ? 'border-violet-500 bg-gradient-to-br from-violet-50 to-purple-50 shadow-lg scale-105'
                     : 'border-gray-200 hover:border-violet-300 bg-white'
@@ -99,7 +99,7 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
                 </div>
                 <div className="text-sm text-gray-600">{option.desc}</div>
                 {profile.horizon === option.value && (
-                  <div className="mt-3 flex items-center gap-1 text-violet-600">
+                  <div className="mt-3 flex items-center justify-center gap-1 text-violet-600">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -154,7 +154,7 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
                 key={option.value}
                 type="button"
                 onClick={() => handleChange('riskTolerance', option.value)}
-                className={`group p-6 border-2 rounded-2xl text-left transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl ${
+                className={`group p-6 border-2 rounded-2xl text-center transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl ${
                   profile.riskTolerance === option.value
                     ? 'border-violet-500 bg-gradient-to-br from-violet-50 to-purple-50 shadow-lg scale-105'
                     : 'border-gray-200 hover:border-violet-300 bg-white'
@@ -166,7 +166,7 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
                 </div>
                 <div className="text-sm text-gray-600">{option.desc}</div>
                 {profile.riskTolerance === option.value && (
-                  <div className="mt-3 flex items-center gap-1 text-violet-600">
+                  <div className="mt-3 flex items-center justify-center gap-1 text-violet-600">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -228,7 +228,7 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
                     : [...current, option.value as any];
                   handleChange('objective', next);
                 }}
-                className={`group p-6 border-2 rounded-2xl text-left transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl ${
+                className={`group p-6 border-2 rounded-2xl text-center transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl ${
                   (Array.isArray(profile.objective) && profile.objective.includes(option.value as any))
                     ? 'border-violet-500 bg-gradient-to-br from-violet-50 to-purple-50 shadow-lg scale-105'
                     : 'border-gray-200 hover:border-violet-300 bg-white'
@@ -244,7 +244,7 @@ export default function ProfileQuiz({ onSubmit, onBack, loading }: ProfileQuizPr
                 </div>
                 <div className="text-sm text-gray-600">{option.desc}</div>
                 {(Array.isArray(profile.objective) && profile.objective.includes(option.value as any)) && (
-                  <div className="mt-3 flex items-center gap-1 text-violet-600">
+                  <div className="mt-3 flex items-center justify-center gap-1 text-violet-600">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
