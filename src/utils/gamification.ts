@@ -297,70 +297,66 @@ export function calculateCelebrityMatch(allocation: PortfolioAllocation[]): Cele
     .filter(a => !['BTC', 'ETH', ...STABLECOINS].includes(a.token))
     .reduce((sum, a) => sum + a.percentage, 0);
 
-  // Usar UI Avatars para gerar avatares com iniciais
-  const getAvatar = (name: string, bg: string = '8b5cf6', color: string = 'fff') => 
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${bg}&color=${color}&size=200&bold=true&format=png`;
-
   const celebrities: CelebrityMatch[] = [
     {
       name: 'Michael Saylor',
-      image: getAvatar('Michael Saylor', 'f7931a', 'fff'),
+      image: '/celebrities/saylor.jpg',
       match: 0,
       description: 'CEO da MicroStrategy. Bitcoin maximalist declarado.',
       portfolio: '100% Bitcoin, sem arrependimentos.',
     },
     {
       name: 'Vitalik Buterin',
-      image: getAvatar('Vitalik Buterin', '627eea', 'fff'),
+      image: '/celebrities/vitalik.jpg',
       match: 0,
       description: 'Criador do Ethereum. Visionário e inovador.',
       portfolio: 'ETH + projetos DeFi e infraestrutura.',
     },
     {
-      name: 'CZ',
-      image: getAvatar('CZ', 'f3ba2f', '000'),
+      name: 'CZ (Changpeng Zhao)',
+      image: '/celebrities/cz.jpg',
       match: 0,
       description: 'Fundador da Binance. Diversificação estratégica.',
       portfolio: 'BNB + portfólio diversificado de qualidade.',
     },
     {
       name: 'Arthur Hayes',
-      image: getAvatar('Arthur Hayes', 'dc2626', 'fff'),
+      image: '/celebrities/hayes.jpg',
       match: 0,
       description: 'Ex-CEO da BitMEX. Trader agressivo e ousado.',
       portfolio: 'BTC + altcoins com alavancagem mental.',
     },
     {
       name: 'Balaji Srinivasan',
-      image: getAvatar('Balaji S', '1d4ed8', 'fff'),
+      image: '/celebrities/balaji.jpg',
       match: 0,
       description: 'Ex-CTO da Coinbase. Visão macro e tech-heavy.',
       portfolio: 'Mix equilibrado de BTC, ETH e L1s promissoras.',
     },
     {
       name: 'Andre Cronje',
-      image: getAvatar('Andre Cronje', '0ea5e9', 'fff'),
+      image: '/celebrities/cronje.jpg',
       match: 0,
       description: 'Criador do Yearn Finance. DeFi degen original.',
       portfolio: 'Heavy DeFi: YFI, CRV, AAVE e experimentais.',
     },
     {
       name: 'Fernando Ulrich',
-      image: getAvatar('Fernando Ulrich', 'f7931a', 'fff'),
+      image: '/celebrities/ulrich.jpg',
       match: 0,
       description: 'Economista e bitcoiner brasileiro. Educador influente.',
       portfolio: 'Bitcoin first, com pitada de ETH.',
     },
     {
       name: 'Guiriba',
-      image: getAvatar('Guiriba', '16a34a', 'fff'),
+      image: '', // Sem foto - usar fallback de iniciais
       match: 0,
       description: 'Trader brasileiro lendário. Performance e análise técnica.',
       portfolio: 'BTC + SOL + altcoins de momentum.',
     },
     {
       name: 'Chico',
-      image: getAvatar('Chico', '7c3aed', 'fff'),
+      image: '', // Sem foto - usar fallback de iniciais
       match: 0,
       description: 'Influencer crypto brasileiro. Diversificado e estratégico.',
       portfolio: 'Mix de majors + gems de médio cap.',

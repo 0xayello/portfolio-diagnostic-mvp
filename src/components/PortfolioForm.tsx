@@ -381,53 +381,55 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
   };
 
   return (
-    <div className="glass-card-solid rounded-3xl p-8 border border-paradigma-navy/50">
+    <div className="glass-card rounded-3xl shadow-2xl p-8 card-hover">
       <div className="text-center mb-8">
-        <div className="inline-block px-4 py-2 bg-paradigma-mint/20 text-paradigma-mint rounded-full text-sm font-semibold mb-4">
-          Passo 1 de 3
+        <div className="inline-block p-3 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl mb-4">
+          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
         </div>
-        <h2 className="text-3xl md:text-4xl font-bold mb-2 text-white">
-          Monte seu <span className="text-paradigma-mint">Portfólio</span>
+        <h2 className="text-3xl font-bold mb-2 text-gray-900">
+          Como está sua carteira de cripto hoje?
         </h2>
-        <p className="text-gray-400">
-          Adicione os ativos que você possui e defina a porcentagem de cada um.
+        <p className="text-gray-600">
+          Informe a porcentagem de cada ativo no seu portfólio
         </p>
       </div>
       
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-8 text-center">
         {/* Token Allocation */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-white">Seus Ativos</h3>
-            <button
-              type="button"
-              onClick={distributeEvenly}
-              className="text-paradigma-mint hover:text-paradigma-mint/80 text-sm font-medium transition-colors"
-            >
-              Distribuir igualmente
-            </button>
-          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {allocation.map((item, idx) => (
             <div key={item.token} className="relative group">
-              <div className="bg-paradigma-navy/60 rounded-2xl p-5 border border-paradigma-mint/20 hover:border-paradigma-mint/40 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
+              <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-5 border-2 border-gray-200 hover:border-violet-400 transition-all duration-300 hover:shadow-xl transform hover:-translate-y-1">
                 <div className="flex flex-col items-center space-y-3">
                   <div className="relative">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 to-purple-600 rounded-full opacity-0 group-hover:opacity-100 blur transition duration-300"></div>
                     <img
-                      src={FALLBACK_LOGOS[item.token.toUpperCase()] || tokenImages[item.token.toUpperCase()] || `https://ui-avatars.com/api/?name=${item.token}&background=22c55e&color=fff&size=64&bold=true`}
+                      src={FALLBACK_LOGOS[item.token.toUpperCase()] || tokenImages[item.token.toUpperCase()] || `https://ui-avatars.com/api/?name=${item.token}&background=6366f1&color=fff&size=64&bold=true`}
                       alt={`${item.token} logo`}
-                      className="relative w-16 h-16 rounded-full object-contain bg-white/10 p-1.5 shadow-lg ring-2 ring-paradigma-mint/20 group-hover:ring-paradigma-mint/40 transition-all duration-300"
+                      className="relative w-12 h-12 rounded-full object-contain bg-white p-1.5 shadow-lg ring-2 ring-gray-200 group-hover:ring-violet-400 transition-all duration-300"
                       onError={(e) => {
                         const target = e.currentTarget as HTMLImageElement;
+                        // Se já tentou o fallback, usar UI Avatars
                         if (target.src.includes('ui-avatars.com')) {
-                          return;
+                          return; // Evitar loop infinito
                         }
-                        target.src = `https://ui-avatars.com/api/?name=${item.token}&background=22c55e&color=fff&size=64&bold=true`;
+                        // Tentar buscar via API do CoinGecko se não estiver no fallback
+                        const tokenUpper = item.token.toUpperCase();
+                        if (!FALLBACK_LOGOS[tokenUpper] && !tokenImages[tokenUpper]) {
+                          // Fallback final: placeholder com letra do token
+                          target.src = `https://ui-avatars.com/api/?name=${item.token}&background=6366f1&color=fff&size=64&bold=true`;
+                        } else {
+                          // Se estava no fallback mas falhou, tentar UI Avatars
+                          target.src = `https://ui-avatars.com/api/?name=${item.token}&background=6366f1&color=fff&size=64&bold=true`;
+                        }
                       }}
                     />
                   </div>
-                  <label className="text-sm font-bold text-white tracking-wide">
+                  <label className="text-sm font-bold text-gray-800 tracking-wide">
                     <TokenLink symbol={item.token} />
                   </label>
                   <div className="relative w-full">
@@ -438,9 +440,9 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
                       value={item.percentage === 0 ? '' : item.percentage}
                       onChange={(e) => handlePercentageChange(item.token, sanitizeNumber(e.target.value))}
                       onBlur={(e) => { if (e.currentTarget.value === '') handlePercentageChange(item.token, 0); }}
-                      className="w-full pr-8 pl-4 py-2.5 text-center text-lg font-semibold border-2 border-paradigma-navy/50 rounded-xl focus:ring-2 focus:ring-paradigma-mint focus:border-paradigma-mint bg-paradigma-dark text-white placeholder-gray-500 transition-all duration-300"
+                      className="w-full pr-8 pl-4 py-2.5 text-center text-lg font-semibold border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white text-gray-900 placeholder-gray-400 transition-all duration-300"
                     />
-                    <span className="absolute inset-y-0 right-3 flex items-center text-gray-400 text-sm font-medium">%</span>
+                    <span className="absolute inset-y-0 right-3 flex items-center text-gray-500 text-sm font-medium">%</span>
                   </div>
                 </div>
                 <button
@@ -473,23 +475,23 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
                 } catch {}
               }
             }}
-            className="mx-auto group flex items-center gap-2 px-6 py-4 border-2 border-dashed border-paradigma-mint/30 rounded-xl text-paradigma-mint hover:border-paradigma-mint hover:bg-paradigma-mint/10 transition-all duration-300"
+            className="mx-auto group flex items-center gap-2 px-6 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-violet-400 hover:text-violet-600 hover:bg-violet-50/50 transition-all duration-300"
           >
-            <svg className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            <span className="font-medium text-lg">Adicionar Ativo</span>
+            <span className="font-medium">Adicionar outro ativo</span>
           </button>
           
           {showSearch && (
-            <div className="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-2xl mt-4 bg-paradigma-navy border-2 border-paradigma-mint/30 rounded-2xl shadow-2xl z-[4000] overflow-hidden animate-slide-down">
-              <div className="p-4 bg-paradigma-dark/50 border-b border-paradigma-mint/20">
+            <div className="absolute top-full left-1/2 -translate-x-1/2 w-full max-w-2xl mt-4 bg-white border-2 border-gray-200 rounded-2xl shadow-2xl z-20 overflow-hidden animate-slide-down">
+              <div className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 border-b-2 border-gray-200">
                 <input
                   type="text"
                   placeholder="🔍 Digite o símbolo do token..."
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-paradigma-navy/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-paradigma-mint focus:border-paradigma-mint bg-paradigma-dark text-white placeholder-gray-500 transition-all duration-300"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white transition-all duration-300"
                   autoFocus
                 />
               </div>
@@ -502,10 +504,10 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
                         key={option.symbol}
                         type="button"
                         onClick={() => addToken(option.symbol)}
-                        className="p-3 text-left hover:bg-paradigma-mint/10 rounded-xl transition-all duration-300 border-2 border-transparent hover:border-paradigma-mint/30 group"
+                        className="p-3 text-left hover:bg-gradient-to-br hover:from-violet-50 hover:to-purple-50 rounded-xl transition-all duration-300 border-2 border-transparent hover:border-violet-200 group"
                       >
-                        <div className="font-bold text-white group-hover:text-paradigma-mint transition-colors">{option.symbol}</div>
-                        <div className="text-sm text-gray-400 truncate">{option.name}</div>
+                        <div className="font-bold text-gray-900 group-hover:text-violet-600 transition-colors">{option.symbol}</div>
+                        <div className="text-sm text-gray-600 truncate">{option.name}</div>
                       </button>
                     ))}
                   </div>
@@ -513,8 +515,8 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
               )}
               
               {searchQuery.length >= 2 && searchResults.length === 0 && (
-                <div className="px-4 py-8 text-gray-400 text-center">
-                  <svg className="w-12 h-12 mx-auto mb-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="px-4 py-8 text-gray-500 text-center">
+                  <svg className="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Nenhum token encontrado
@@ -524,16 +526,43 @@ export default function PortfolioForm({ initialAllocation, onSubmit }: Portfolio
           )}
         </div>
 
-        {/* Submit Button */}
-        <div className="text-center">
-          <button
-            type="submit"
-            disabled={Math.abs(totalPercentage - 100) > 0.1}
-            className="bg-paradigma-mint hover:bg-paradigma-mint/90 text-paradigma-dark font-bold py-4 px-8 rounded-xl transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-paradigma-mint"
-          >
-            Continuar para Perfil
-          </button>
+        {/* Total Percentage */}
+        <div className="mx-auto max-w-md">
+          <div className={`flex justify-between items-center p-6 rounded-2xl transition-all duration-300 ${
+            Math.abs(totalPercentage - 100) < 0.1 
+              ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300' 
+              : 'bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-300'
+          }`}>
+            <span className="font-bold text-gray-800 text-lg">Total:</span>
+            <div className="flex items-center gap-2">
+              <span className={`font-bold text-3xl ${
+                Math.abs(totalPercentage - 100) < 0.1 ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {totalPercentage.toFixed(1)}%
+              </span>
+              {Math.abs(totalPercentage - 100) < 0.1 ? (
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
+            </div>
+          </div>
         </div>
+
+        {/* Ações removidas conforme solicitado */}
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={Math.abs(totalPercentage - 100) > 0.1}
+          className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+          Continuar para Quiz de Perfil
+        </button>
       </form>
     </div>
   );
